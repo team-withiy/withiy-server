@@ -1,10 +1,10 @@
 <h2 align = "center">
-    💻 co-co-gong-server 💻
+    💻 withiy-server 💻
 </h2>
 <p align="center">
     </br>
-    <a href="https://codecov.io/github/co-co-gong/co-co-gong-server" >
-        <img src="https://codecov.io/github/co-co-gong/co-co-gong-server/graph/badge.svg?token=ZYQE6OV2BZ"/>
+    <a href="https://codecov.io/github/team-withiy/withiy-server" >
+        <img src="https://codecov.io/github/team-withiy/withiy-server/graph/badge.svg?token=ZYQE6OV2BZ"/>
     </a>
 </p>
 

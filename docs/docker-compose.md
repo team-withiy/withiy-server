@@ -5,19 +5,19 @@ $ docker compose up -d
 [+] Building 0.7s (16/16) FINISHED                                                                                                                  docker:default
 ...
 [+] Running 3/3
- ✔ Network co-co-gong-server_default       Created                                                                                                            0.1s
- ✔ Container co-co-gong-server-postgres-1  Started                                                                                                            0.2s
- ✔ Container co-co-gong-server-server-1    Started                                                                                                            0.3s
+ ✔ Network withiy-server_default       Created                                                                                                            0.1s
+ ✔ Container withiy-server-postgres-1  Started                                                                                                            0.2s
+ ✔ Container withiy-server-server-1    Started                                                                                                            0.3s
 $ docker ps
 CONTAINER ID   IMAGE                      COMMAND                  CREATED          STATUS          PORTS                                       NAMES
-2d70ac92debb   co-co-gong-server-server   "./gradlew bootRun"      32 seconds ago   Up 31 seconds   0.0.0.0:8080->8080/tcp, :::8080->8080/tcp   co-co-gong-server-server-1
-f1241a06b4b0   postgres:latest            "docker-entrypoint.s…"   32 seconds ago   Up 31 seconds   0.0.0.0:5432->5432/tcp, :::5432->5432/tcp   co-co-gong-server-postgres-1
+2d70ac92debb   withiy-server-server   "./gradlew bootRun"      32 seconds ago   Up 31 seconds   0.0.0.0:8080->8080/tcp, :::8080->8080/tcp   withiy-server-server-1
+f1241a06b4b0   postgres:latest            "docker-entrypoint.s…"   32 seconds ago   Up 31 seconds   0.0.0.0:5432->5432/tcp, :::5432->5432/tcp   withiy-server-postgres-1
 ```
 
 ## Logs
 
 ```shell
-$ docker logs -f co-co-gong-server-server-1
+$ docker logs -f withiy-server-server-1
 Downloading https://services.gradle.org/distributions/gradle-8.8-bin.zip
 .............10%.............20%.............30%.............40%.............50%.............60%..............70%.............80%.............90%.............100%
 
@@ -54,7 +54,7 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 ```shell
 $ docker compose down -v
 [+] Running 3/3
- ✔ Container co-co-gong-server-server-1    Removed                                                                                                            0.7s
- ✔ Container co-co-gong-server-postgres-1  Removed                                                                                                            0.2s
- ✔ Network co-co-gong-server_default       Removed                                                                                                            0.2s
+ ✔ Container withiy-server-server-1    Removed                                                                                                            0.7s
+ ✔ Container withiy-server-postgres-1  Removed                                                                                                            0.2s
+ ✔ Network withiy-server_default       Removed                                                                                                            0.2s
 ```

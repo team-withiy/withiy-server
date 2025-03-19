@@ -1,7 +1,7 @@
 #!/bin/bash
 
-kubectl delete ns co-co-gong
-kubectl create ns co-co-gong
-kubectl apply -n co-co-gong -f k8s/prod
+kubectl delete ns withiy
+kubectl create ns withiy
+kubectl apply -n withiy -f k8s/prod
 
-# kubectl exec -it -n co-co-gong deploy/backend -- zsh
+# kubectl exec -it -n withiy deploy/backend -- zsh

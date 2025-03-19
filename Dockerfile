@@ -28,7 +28,7 @@ RUN ./gradlew build
 FROM openjdk:17-jdk-slim
 
 LABEL maintainer="Zerohertz <ohg3417@gmail.com>"
-LABEL description="co-co-gong-server"
+LABEL description="withiy-server"
 LABEL license="MIT"
 
 ENV DEBIAN_FRONTEND=noninteractive

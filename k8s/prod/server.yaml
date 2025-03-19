@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: server
-          image: ghcr.io/co-co-gong/co-co-gong-server:2964251016bb2ea5b3b89f80ae3fe12ec6499649
+          image: ghcr.io/team-withiy/withiy-server:2964251016bb2ea5b3b89f80ae3fe12ec6499649
           env:
             - name: SERVER_PORT
               value: "8080"
@@ -74,12 +74,12 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: co-co-gong-server
+  name: withiy-server
 spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`co-co-gong-prod.zerohertz.xyz`)
+    - match: Host(`withiy-prod.zerohertz.xyz`)
       kind: Rule
       services:
         - name: server

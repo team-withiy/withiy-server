@@ -1,19 +1,19 @@
 ## Run
 
 ```bash
-$ kubectl create ns co-co-gong
-namespace/co-co-gong created
-$ kubectl apply -n co-co-gong -f k8s
+$ kubectl create ns withiy
+namespace/withiy created
+$ kubectl apply -n withiy -f k8s
 deployment.apps/backend created
 service/backend created
-ingressroute.traefik.io/co-co-gong created
+ingressroute.traefik.io/withiy created
 deployment.apps/postgres created
 service/postgres created
 configmap/postgres-config created
 secret/postgres-secret created
 secret/oauth-secret created
 secret/jwt-secret created
-$ kubectl get all -n co-co-gong
+$ kubectl get all -n withiy
 NAME                            READY   STATUS    RESTARTS   AGE
 pod/backend-7ff75486b8-dtmh2    1/1     Running   0          3m39s
 pod/postgres-58585c55b4-7vsrs   1/1     Running   0          3m39s
@@ -34,7 +34,7 @@ replicaset.apps/postgres-58585c55b4   1         1         1       3m39s
 ## Logs
 
 ```bash
-$ kubectl logs -n co-co-gong deploy/backend
+$ kubectl logs -n withiy deploy/backend
 Downloading https://services.gradle.org/distributions/gradle-8.8-bin.zip
 .............10%.............20%.............30%.............40%.............50%.............60%..............70%.............80%.............90%...........
 ..100%
@@ -60,11 +60,11 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Task :processTestResources NO-SOURCE
 > Task :testClasses UP-TO-DATE
 OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
-2024-10-25T09:16:56.853+09:00  INFO 286 --- [co-co-gong-server] [ionShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactor
+2024-10-25T09:16:56.853+09:00  INFO 286 --- [withiy-server] [ionShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactor
 y for persistence unit 'default'
-2024-10-25T09:16:56.855+09:00  INFO 286 --- [co-co-gong-server] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiat
+2024-10-25T09:16:56.855+09:00  INFO 286 --- [withiy-server] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiat
 ed...
-2024-10-25T09:16:56.857+09:00  INFO 286 --- [co-co-gong-server] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown complet
+2024-10-25T09:16:56.857+09:00  INFO 286 --- [withiy-server] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown complet
 ed.
 > Task :test
 > Task :check
@@ -86,6 +86,6 @@ BUILD SUCCESSFUL in 28s
 ## Stop
 
 ```bash
-$ kubectl delete ns co-co-gong
-namespace "co-co-gong" deleted
+$ kubectl delete ns withiy
+namespace "withiy" deleted
 ```

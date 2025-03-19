@@ -4,7 +4,7 @@ source .env
 export JWT_SECRET_KEY=$(openssl rand -base64 64)
 
 docker compose down -v
-docker rmi co-co-gong-server-server --force
+docker rmi withiy-server-server --force
 
 if docker compose build --no-cache; then
 	echo "Build success!"

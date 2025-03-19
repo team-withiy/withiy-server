@@ -23,7 +23,7 @@ class UserServiceTest {
 
 ```shell
 $ ./gradlew clean test --info | grep ERROR
-    2025-01-07T21:21:19.197+09:00 ERROR 13537 --- [co-co-gong-server] [    Test worker] c.s.domain.user.service.UserServiceTest  : -----------------
+    2025-01-07T21:21:19.197+09:00 ERROR 13537 --- [withiy-server] [    Test worker] c.s.domain.user.service.UserServiceTest  : -----------------
 ```
 
 ## JaCoCo
@@ -45,6 +45,6 @@ Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
 
 ![jacoco](./images/jacoco.png)
 
-## [Codecov](https://app.codecov.io/gh/co-co-gong/co-co-gong-server)
+## [Codecov](https://app.codecov.io/gh/team-withiy/withiy-server)
 
 ![codecov](./images/codecov.png)
