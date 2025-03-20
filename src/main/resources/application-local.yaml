@@ -6,14 +6,9 @@ spring:
       ddl-auto: update
     database-platform: org.hibernate.dialect.H2Dialect
     show-sql: true
-  security:
-    oauth2:
-      client:
-        registration:
-          github:
-            redirect-uri: "http://localhost:8080"
-            client-id: ${GITHUB_CLIENT_ID}
-            client-secret: ${GITHUB_CLIENT_SECRET}
-
+  # security:
+  #   oauth2:
+  #     client:
+  #       registration:
   config:
     import: optional:file:.env[.properties]

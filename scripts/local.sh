@@ -1,6 +1,7 @@
 #!/bin/bash
 
 rm -r build
+export JWT_SECRET_KEY=$(openssl rand -base64 64)
 
 if ./gradlew clean build; then
 	echo "Build success!"

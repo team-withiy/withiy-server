@@ -7,11 +7,7 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-  security:
-    oauth2:
-      client:
-        registration:
-          github:
-            redirect-uri: ${GITHUB_REDIRECT_URI}
-            client-id: ${GITHUB_CLIENT_ID}
-            client-secret: ${GITHUB_CLIENT_SECRET}
+  # security:
+  #   oauth2:
+  #     client:
+  #       registration:

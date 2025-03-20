@@ -2,7 +2,7 @@
 
 ```bash
 src/main/java/com/server
-├── CoCoGongApplication.java  # Main application class
+├── WithiyApplication.java  # Main application class
 ├── domain                    # Domain별 package
 │   ├── user                  # User domain
 │   │   ├── controller        # User domain 관련 contoller
