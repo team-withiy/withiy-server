@@ -23,7 +23,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         // Auth
-                        .requestMatchers("/login", "/login/**", "/refresh").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
                         // API
                         .requestMatchers("/api/**").permitAll()
                         // Swagger

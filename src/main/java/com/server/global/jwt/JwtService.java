@@ -71,7 +71,7 @@ public class JwtService {
         }
     }
 
-    public Optional<String> extractUsername(String token) {
+    public Optional<String> extractNickname(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(getSigningKey())
@@ -104,7 +104,7 @@ public class JwtService {
                 });
     }
 
-    public Optional<String> extractUsernameFromToken(HttpServletRequest request) {
+    public Optional<String> extractNicknameFromToken(HttpServletRequest request) {
         Optional<String> accessToken = extractAccessToken(request);
         if (accessToken.isEmpty()) {
             log.warn("Access token is empty");
@@ -116,6 +116,6 @@ public class JwtService {
             return Optional.empty();
         }
 
-        return extractUsername(accessToken.get());
+        return extractNickname(accessToken.get());
     }
 }

@@ -8,7 +8,13 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-  # security:
-  #   oauth2:
-  #     client:
-  #       registration:
+  security:
+    oauth2:
+      client:
+        backend-uri: "https://test-back"
+        frontend-uri: "https://test-front"
+        registration:
+          google:
+            callback-path: "/auth/google/callback"
+            client-id: secret
+            client-secret: secret
