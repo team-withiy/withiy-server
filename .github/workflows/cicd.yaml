@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - "k8s/prod/server.yaml"
 
 jobs:
   ci:
@@ -27,28 +25,28 @@ jobs:
         with:
           push: true
           tags: |
-            ghcr.io/${{ secrets.GH_USERNAME }}/co-co-gong-server:latest,
-            ghcr.io/${{ secrets.GH_USERNAME }}/co-co-gong-server:${{ github.sha }}
+            ghcr.io/${{ secrets.GH_USERNAME }}/withiy-server:latest,
+            ghcr.io/${{ secrets.GH_USERNAME }}/withiy-server:${{ github.sha }}
 
   cd:
     name: Argo CD
     needs: ci
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout withiy-infra repository
         uses: actions/checkout@v4
         with:
+          repository: team-withiy/withiy-infra
+          path: withiy-infra
           token: ${{ secrets.GH_TOKEN }}
 
-      - name: Change manifest
+      - name: commit & push
         run: |
-          sed -i 's|ghcr.io/co-co-gong/co-co-gong-server:[^ ]*|ghcr.io/co-co-gong/co-co-gong-server:${{ github.sha }}|' k8s/prod/server.yaml
-
-      - name: git push
-        run: |
+          cd withiy-infra
           git config user.name "Zerohertz"
           git config user.email "ohg3417@gmail.com"
           git config credential.helper store
-          git add k8s/prod/server.yaml
-          git commit -m ":tada: deploy: co-co-gong-server [${{ github.sha }}]"
+          sed -i 's|ghcr.io/team-withiy/withiy-server:[^ ]*|ghcr.io/team-withiy/withiy-server:${{ github.sha }}|' server-prod.yaml
+          git add server-prod.yaml
+          git commit -m ":tada: deploy: withiy-server [${{ github.sha }}]"
           git push origin ${{ github.ref_name }}
