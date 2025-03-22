@@ -30,7 +30,7 @@ public class OAuthLoginController {
     private String frontendUri;
 
     @ResponseStatus(HttpStatus.FOUND)
-    @GetMapping("/google/login")
+    @GetMapping("/google")
     @Operation(summary = "", description = "")
     public ApiResponseDto<String> googleLogin(HttpServletResponse response, @RequestParam String state) {
         String url = googleLoginService.getRedirectUri(state);
