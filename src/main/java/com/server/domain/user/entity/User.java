@@ -37,7 +37,7 @@ public class User {
     @Column(name = "social_type", nullable = false)
     private String socialType;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false)
     private String email;
 
     @Column(name = "nickname", nullable = false, unique = true)
