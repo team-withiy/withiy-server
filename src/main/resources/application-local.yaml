@@ -6,9 +6,15 @@ spring:
       ddl-auto: update
     database-platform: org.hibernate.dialect.H2Dialect
     show-sql: true
-  # security:
-  #   oauth2:
-  #     client:
-  #       registration:
+  security:
+    oauth2:
+      client:
+        backend-uri: ${BACKEND_URI}
+        frontend-uri: ${FRONTEND_URI}
+        registration:
+          google:
+            callback-path: "/auth/google/callback"
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
   config:
     import: optional:file:.env[.properties]

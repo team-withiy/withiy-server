@@ -31,20 +31,26 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(name = "username", nullable = false, unique = true)
-    private String username;
+    @Column(name = "refresh_token", length = 512)
+    private String refreshToken;
 
-    @Column(name = "user_thumbnail")
-    private String thumbnail;
+    @Column(name = "social_type", nullable = false)
+    private String socialType;
 
-    @Column(name = "email", nullable = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "oauth", nullable = false)
-    private String oauth;
+    @Column(name = "nickname", nullable = false, unique = true)
+    private String nickname;
 
-    @Column(name = "github_token")
-    private String githubToken;
+    @Column(name = "thumbnail")
+    private String thumbnail;
+
+    @Column(name = "code", nullable = true)
+    private String code;
+
+    @Column(name = "deletedAt", nullable = true)
+    private LocalDateTime deletedAt;
 
     @Column(name = "created_at", nullable = false)
     @CreationTimestamp
@@ -54,23 +60,15 @@ public class User {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @Column(name = "refresh_token", length = 512)
-    private String refreshToken;
-
     @Builder
-    public User(String username, String thumbnail, String email, String oauth, String githubToken) {
-        this.username = username;
+    public User(String email, String nickname, String thumbnail, String socialType) {
         this.email = email;
+        this.nickname = nickname;
         this.thumbnail = thumbnail;
-        this.oauth = oauth;
-        this.githubToken = githubToken;
+        this.socialType = socialType;
     }
 
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
-    }
-
-    public void updateEmail(String email) {
-        this.email = email;
     }
 }

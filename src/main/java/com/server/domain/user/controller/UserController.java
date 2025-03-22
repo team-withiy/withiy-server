@@ -1,23 +1,19 @@
 package com.server.domain.user.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.server.domain.user.dto.GetUserOutDto;
-import com.server.domain.user.entity.User;
 import com.server.domain.user.service.UserService;
 import com.server.global.dto.ApiResponseDto;
-import com.server.global.error.code.AuthErrorCode;
-import com.server.global.error.exception.AuthException;
 import com.server.global.jwt.JwtService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,19 +49,6 @@ public class UserController {
     public ApiResponseDto<GetUserOutDto> getUserByUsername(@PathVariable String username) {
         GetUserOutDto user = userService.getUserWithoutPersonalInfo(username);
         return ApiResponseDto.success(HttpStatus.OK.value(), user);
-    }
-
-    // 정보 수정
-    // 현재 바꿀 수 있는 거 email. 추후 닉네임 추가..?
-    @ResponseStatus(HttpStatus.OK)
-    @PutMapping
-    @Operation(summary = "유저 email 수정", description = "email 수정")
-    public ApiResponseDto<String> updateUser(HttpServletRequest request, String email) {
-        User changedUser = userService.updateEmail(request, email);
-
-        // TODO: HTTP Status Code?
-        // PUT -> 201?
-        return ApiResponseDto.success(HttpStatus.OK.value(), changedUser.getEmail());
     }
 
     // 사용자 탈퇴
