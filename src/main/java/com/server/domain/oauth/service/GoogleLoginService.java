@@ -66,12 +66,10 @@ public class GoogleLoginService {
             log.info("Received user info. Username: " + googleUser.getName());
 
             OAuth oAuth = authService.loginOrRegister(googleUser);
-            String nickname = oAuth.getUser().getNickname();
-            String accessToken = jwtService.createAccessToken(nickname);
-            String refreshToken = jwtService.createRefreshToken(nickname);
-
-            userService.saveRefreshToken(nickname, refreshToken);
-
+            Long userId = oAuth.getUser().getId();
+            String accessToken = jwtService.createAccessToken(userId);
+            String refreshToken = jwtService.createRefreshToken(userId);
+            userService.saveRefreshToken(userId, refreshToken);
             return new TokenDto(accessToken, refreshToken);
         } catch (Exception e) {
             log.error(e.toString());

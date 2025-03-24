@@ -53,13 +53,13 @@ public class AuthService {
         if (!jwtService.validateToken(refreshToken)) {
             throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
         }
-        String username = jwtService.extractNickname(refreshToken)
+        Long userId = jwtService.extractUserId(refreshToken)
                 .orElseThrow(() -> new BusinessException(UserErrorCode.NOT_FOUND));
-        User user = userService.getUserWithPersonalInfo(username);
+        User user = userService.getUserWithPersonalInfo(userId);
         if (!refreshToken.equals(user.getRefreshToken())) {
             throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
         }
-        String newAccessToken = jwtService.createAccessToken(username);
+        String newAccessToken = jwtService.createAccessToken(userId);
         return new TokenDto(newAccessToken, refreshToken);
     }
 }

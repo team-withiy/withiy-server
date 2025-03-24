@@ -26,11 +26,16 @@ public class UserService {
     private final UserMapper userMapper;
 
     @Transactional
-    public void saveRefreshToken(String nickname, String refreshToken) {
-        User user = userRepository.findByNickname(nickname)
+    public void saveRefreshToken(Long id, String refreshToken) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         user.updateRefreshToken(refreshToken);
         userRepository.save(user);
+    }
+
+    public User getUserWithPersonalInfo(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(UserErrorCode.NOT_FOUND));
     }
 
     public User getUserWithPersonalInfo(String nickname) {
@@ -38,24 +43,29 @@ public class UserService {
                 .orElseThrow(() -> new BusinessException(UserErrorCode.NOT_FOUND));
     }
 
-    public GetUserOutDto getUserWithoutPersonalInfo(String username) {
-        User user = getUserWithPersonalInfo(username);
+    public GetUserOutDto getUserWithoutPersonalInfo(Long id) {
+        User user = getUserWithPersonalInfo(id);
+        return userMapper.toGetUserOutDto(user);
+    }
+
+    public GetUserOutDto getUserWithoutPersonalInfo(String nickname) {
+        User user = getUserWithPersonalInfo(nickname);
         return userMapper.toGetUserOutDto(user);
     }
 
     public String deleteUser(HttpServletRequest request) {
-        String username = jwtService.extractNicknameFromToken(request)
+        Long id = jwtService.extractUserId(request)
                 .orElseThrow(() -> new AuthException(AuthErrorCode.INVALID_ACCESS_TOKEN));
-        User user = getUserWithPersonalInfo(username);
+        User user = getUserWithPersonalInfo(id);
         userRepository.delete(user);
         return user.getNickname();
     }
 
     public GetUserOutDto getUser(HttpServletRequest request) {
-        String username = jwtService.extractNicknameFromToken(request)
+        Long id = jwtService.extractUserId(request)
                 .orElseThrow(() -> new AuthException(AuthErrorCode.INVALID_ACCESS_TOKEN));
-        log.info("Extracted username: {}", username);
-        return userMapper.toGetUserOutDto(getUserWithPersonalInfo(username));
+        log.info("Extracted username: {}", id);
+        return userMapper.toGetUserOutDto(getUserWithPersonalInfo(id));
 
     }
 }
