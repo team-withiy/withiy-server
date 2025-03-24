@@ -13,7 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.server.domain.oauth.dto.GoogleTokenOutDto;
 import com.server.domain.oauth.dto.GoogleUserOutDto;
-import com.server.domain.user.entity.User;
+import com.server.domain.oauth.entity.OAuth;
 import com.server.domain.user.service.UserService;
 import com.server.global.dto.TokenDto;
 import com.server.global.error.code.AuthErrorCode;
@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GoogleLoginService {
 
+    private final AuthService authService;
     private final UserService userService;
     private final JwtService jwtService;
 
@@ -64,18 +65,18 @@ public class GoogleLoginService {
             GoogleUserOutDto googleUser = googleUserResponse.getBody();
             log.info("Received user info. Username: " + googleUser.getName());
 
-            User user = userService.loginOrRegister(googleUser);
-            String accessToken = jwtService.createAccessToken(user.getNickname());
-            String refreshToken = jwtService.createRefreshToken(user.getNickname());
+            OAuth oAuth = authService.loginOrRegister(googleUser);
+            String nickname = oAuth.getUser().getNickname();
+            String accessToken = jwtService.createAccessToken(nickname);
+            String refreshToken = jwtService.createRefreshToken(nickname);
 
-            userService.saveRefreshToken(user.getNickname(), refreshToken);
+            userService.saveRefreshToken(nickname, refreshToken);
 
             return new TokenDto(accessToken, refreshToken);
         } catch (Exception e) {
             log.error(e.toString());
             throw new AuthException(AuthErrorCode.OAUTH_PROCESS_ERROR);
         }
-
     }
 
     private HttpEntity<MultiValueMap<String, String>> getAccessToken(String code) {
@@ -99,19 +100,4 @@ public class GoogleLoginService {
         headers.setBearerAuth(accessToken);
         return new HttpEntity<>(headers);
     }
-
-    // TODO: refresh는 AuthService 이런 곳에서 해야할듯
-    // public TokenDto refresh(String refreshToken) {
-    // if (!jwtService.validateToken(refreshToken)) {
-    // throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
-    // }
-    // String username = jwtService.extractUsername(refreshToken)
-    // .orElseThrow(() -> new BusinessException(UserErrorCode.NOT_FOUND));
-    // User user = userService.getUserWithPersonalInfo(username);
-    // if (!refreshToken.equals(user.getRefreshToken())) {
-    // throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
-    // }
-    // String newAccessToken = jwtService.createAccessToken(username);
-    // return new TokenDto(newAccessToken, refreshToken);
-    // }
 }

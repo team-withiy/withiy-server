@@ -1,24 +1,25 @@
-package com.server.domain.user.entity;
+package com.server.domain.oauth.entity;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.server.domain.oauth.entity.OAuth;
+import com.server.domain.oauth.enums.SocialType;
+import com.server.domain.user.entity.User;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,28 +31,29 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
-public class User {
+@Table(name = "oauth")
+public class OAuth {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "refresh_token", length = 512)
-    private String refreshToken;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "social_type", nullable = false)
+    private SocialType socialType;
 
-    @Column(name = "nickname", nullable = false, unique = true)
-    private String nickname;
+    // NOTE: Login 할 때 고유한 ID 확인을 위해 사용
+    @Column(name = "oauth_id", length = 512)
+    private String authId;
 
-    @Column(name = "thumbnail")
-    private String thumbnail;
+    @Column(name = "email", nullable = false)
+    private String email;
 
-    @Column(name = "code", nullable = true)
-    private String code;
-
-    @Column(name = "deletedAt", nullable = true)
-    private LocalDateTime deletedAt;
+    // NOTE: OAuth 저장 시 User도 함께 저장되도록
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(name = "created_at", nullable = false)
     @CreationTimestamp
@@ -61,17 +63,11 @@ public class User {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<OAuth> oAuth;
-
     @Builder
-    public User(String nickname, String thumbnail) {
-        this.nickname = nickname;
-        this.thumbnail = thumbnail;
-    }
-
-    public void updateRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
+    public OAuth(SocialType socialType, String authId, String email, User user) {
+        this.socialType = socialType;
+        this.authId = authId;
+        this.email = email;
+        this.user = user;
     }
 }

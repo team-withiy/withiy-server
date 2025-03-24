@@ -9,6 +9,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UserDto {
     private String nickname;
-    private String email;
     private String thumbnail;
 }

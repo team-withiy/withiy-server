@@ -3,7 +3,6 @@ package com.server.domain.user.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.server.domain.oauth.dto.GoogleUserOutDto;
 import com.server.domain.user.dto.GetUserOutDto;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.mapper.UserMapper;
@@ -25,23 +24,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final UserMapper userMapper;
-
-    @Transactional
-    public User loginOrRegister(GoogleUserOutDto user) {
-        return userRepository.findByNickname(user.getName())
-                .orElseGet(() -> registerNewUser(user));
-    }
-
-    private User registerNewUser(GoogleUserOutDto user) {
-        User newUser = User.builder()
-                .email(user.getEmail())
-                .nickname(user.getName())
-                .thumbnail(user.getPicture())
-                .socialType("google")
-                .build();
-
-        return userRepository.save(newUser);
-    }
 
     @Transactional
     public void saveRefreshToken(String nickname, String refreshToken) {
