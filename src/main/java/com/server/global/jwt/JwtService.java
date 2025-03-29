@@ -28,7 +28,6 @@ public class JwtService {
     @Value("${jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
-    private static final String USERNAME_CLAIM = "username";
     private static final String BEARER = "Bearer ";
 
     private SecretKey getSigningKey() {
@@ -36,27 +35,24 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createAccessToken(String username) {
-        return createToken(username, accessTokenExpiration);
+    public String createAccessToken(Long userId) {
+        return createToken(String.valueOf(userId), accessTokenExpiration);
     }
 
-    public String createRefreshToken(String username) {
-        return createToken(username, refreshTokenExpiration);
+    public String createRefreshToken(Long userId) {
+        return createToken(String.format("%s.refresh", userId), refreshTokenExpiration);
     }
 
-    private String createToken(String username, long expiration) {
+    private String createToken(String sub, long exp) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expiration);
-
+        Date expiryDate = new Date(now.getTime() + exp);
         String token = Jwts.builder()
-                .setSubject(username)
-                .claim(USERNAME_CLAIM, username) // 명시적으로 USERNAME_CLAIM 추가
+                .setSubject(sub)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
-
-        log.info("Created token for user: {}, token: {}", username, token);
+        log.info("Created token for user: {}, token: {}", sub, token);
         return token;
     }
 
@@ -71,20 +67,19 @@ public class JwtService {
         }
     }
 
-    public Optional<String> extractNickname(String token) {
+    public Optional<Long> extractUserId(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(getSigningKey())
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-
-            String username = claims.get(USERNAME_CLAIM, String.class);
-            if (username == null) {
-                username = claims.getSubject(); // USERNAME_CLAIM이 없으면 subject를 사용
+            String userId = claims.getSubject();
+            if (userId != null && userId.endsWith(".refresh")) {
+                userId = userId.substring(0, userId.indexOf(".refresh"));
             }
-            log.info("Extracted username from token: {}", username);
-            return Optional.ofNullable(username);
+            log.info("Extracted username from token: {}", userId);
+            return Optional.ofNullable(Long.valueOf(userId));
         } catch (Exception e) {
             log.error("Failed to extract username from token: {}", e.getMessage());
             return Optional.empty();
@@ -94,7 +89,6 @@ public class JwtService {
     public Optional<String> extractAccessToken(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         log.info("Authorization header: {}", authHeader);
-
         return Optional.ofNullable(authHeader)
                 .filter(accessToken -> accessToken.startsWith(BEARER))
                 .map(accessToken -> {
@@ -104,18 +98,16 @@ public class JwtService {
                 });
     }
 
-    public Optional<String> extractNicknameFromToken(HttpServletRequest request) {
+    public Optional<Long> extractUserId(HttpServletRequest request) {
         Optional<String> accessToken = extractAccessToken(request);
         if (accessToken.isEmpty()) {
             log.warn("Access token is empty");
             return Optional.empty();
         }
-
         if (!validateToken(accessToken.get())) {
             log.warn("Token is invalid");
             return Optional.empty();
         }
-
-        return extractNickname(accessToken.get());
+        return extractUserId(accessToken.get());
     }
 }
