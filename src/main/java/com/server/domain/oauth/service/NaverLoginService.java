@@ -49,7 +49,7 @@ public class NaverLoginService {
     public String getRedirectUri() throws UnsupportedEncodingException {
         SecureRandom random = new SecureRandom();
         String state = new BigInteger(130, random).toString();
-        String encodedCallbackPath = URLEncoder.encode(callbackPath, "UTF-8");
+        String encodedCallbackPath = URLEncoder.encode(String.format("%s%s", backendUri, callbackPath), "UTF-8");
         return String.format(
                 "https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=%s&redirect_uri=%s&state=%s",
                 clientId, encodedCallbackPath, state);

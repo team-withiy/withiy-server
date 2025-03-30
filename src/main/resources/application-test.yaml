@@ -15,13 +15,13 @@ spring:
         frontend-uri: "https://test-front"
         registration:
           google:
-            callback-path: "/auth/google/callback"
             client-id: secret
             client-secret: secret
+            redirect-uri: "/auth/google/callback"
           naver:
             client-id: secret
             client-secret: secret
-            redirect-uri: http://localhost:8080/auth/naver/callback
+            redirect-uri: "/auth/naver/callback"
             authorization-grant-type: authorization_code
             scope: name, email, profile_image
             client-name: Naver

@@ -38,7 +38,7 @@ public class GoogleLoginService {
     private String clientId;
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String clientSecret;
-    @Value("${spring.security.oauth2.client.registration.google.callback-path}")
+    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String callbackPath;
 
     public String getRedirectUri(String state) {
