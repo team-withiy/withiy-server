@@ -45,10 +45,10 @@ public class NaverLoginService {
     private String callbackPath;
     @Value("${spring.security.oauth2.client.provider.naver.authorization-uri}")
     private String authorizationUri;
-    @Value("${spring.security.oauth2.client.provider.naver.user-info-uri}")
-    private String userInfoUri;
     @Value("${spring.security.oauth2.client.provider.naver.token-uri}")
     private String tokenUri;
+    @Value("${spring.security.oauth2.client.provider.naver.user-info-uri}")
+    private String userInfoUri;
 
     public String getRedirectUri(String state) throws UnsupportedEncodingException {
         String encodedCallbackPath = URLEncoder.encode(String.format("%s%s", backendUri, callbackPath), "UTF-8");
