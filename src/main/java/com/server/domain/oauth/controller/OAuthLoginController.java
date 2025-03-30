@@ -1,5 +1,6 @@
 package com.server.domain.oauth.controller;
 
+import com.server.domain.oauth.service.NaverLoginService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.UnsupportedEncodingException;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OAuthLoginController {
 
     private final GoogleLoginService googleLoginService;
+    private final NaverLoginService naverLoginService;
 
     @Value("${spring.security.oauth2.client.frontend-uri}")
     private String frontendUri;
@@ -43,6 +47,28 @@ public class OAuthLoginController {
     @Operation(summary = "", description = "")
     public ApiResponseDto<TokenDto> googleToken(HttpServletResponse response, @RequestParam String code) {
         TokenDto tokenDto = googleLoginService.auth(code);
+        response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDto.getAccessToken());
+        response.setHeader(HttpHeaders.LOCATION,
+                String.format("%s/auth/callback?accessToken=%s&refreshToken=%s",
+                        frontendUri, tokenDto.getAccessToken(), tokenDto.getRefreshToken()));
+        return ApiResponseDto.success(HttpStatus.FOUND.value(), tokenDto);
+
+    }
+
+    @ResponseStatus(HttpStatus.FOUND)
+    @GetMapping("/naver")
+    @Operation(summary = "", description = "")
+    public ApiResponseDto<String> naverLogin(HttpServletResponse response) throws UnsupportedEncodingException {
+        String url = naverLoginService.getRedirectUri();
+        response.setHeader(HttpHeaders.LOCATION, url);
+        return ApiResponseDto.success(HttpStatus.FOUND.value(), "Redirection for Login");
+    }
+
+    @ResponseStatus(HttpStatus.FOUND)
+    @GetMapping("/naver/callback")
+    @Operation(summary = "", description = "")
+    public ApiResponseDto<TokenDto> naverToken(HttpServletResponse response, @RequestParam String code, @RequestParam String state) {
+        TokenDto tokenDto = naverLoginService.auth(code, state);
         response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDto.getAccessToken());
         response.setHeader(HttpHeaders.LOCATION,
                 String.format("%s/auth/callback?accessToken=%s&refreshToken=%s",
