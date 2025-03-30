@@ -8,6 +8,15 @@ ARG POSTGRES_PASSWORD
 ARG POSTGRES_DB
 ARG JWT_SECRET_KEY
 
+ARG GOOGLE_CLIENT_ID
+ARG GOOGLE_CLIENT_PASSWORD
+
+ARG NAVER_CLIENT_ID
+ARG NAVER_CLIENT_PASSWORD
+
+ARG KAKAO_CLIENT_ID
+ARG KAKAO_CLIENT_SECRET
+
 # Mock environment values for test (related: issue #15)
 ENV JWT_SECRET_KEY="CUL0gl15xbD4Y4DFRGCVBkLfXCodzgwOypSL82/HuD4="
 
@@ -18,7 +27,7 @@ COPY gradlew /server/
 COPY build.gradle /server/
 COPY settings.gradle /server/
 
-RUN ./gradlew build -x test
+RUN ./gradlew build
 
 # Stage 2: Run
 FROM openjdk:17-jdk-slim

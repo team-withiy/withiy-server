@@ -1,8 +1,5 @@
 #!/bin/bash
 
-source .env
-export JWT_SECRET_KEY=$(openssl rand -base64 64)
-
 docker compose down -v
 docker rmi withiy-server-server --force
 
