@@ -1,5 +1,18 @@
 package com.server.domain.oauth.service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import com.server.domain.oauth.dto.NaverTokenOutDto;
 import com.server.domain.oauth.dto.NaverUserOutDto;
@@ -9,20 +22,9 @@ import com.server.global.dto.TokenDto;
 import com.server.global.error.code.AuthErrorCode;
 import com.server.global.error.exception.AuthException;
 import com.server.global.jwt.JwtService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
-import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
-
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 
 @Service
 @RequiredArgsConstructor
@@ -46,9 +48,7 @@ public class NaverLoginService {
     @Value("${spring.security.oauth2.client.provider.naver.token-uri}")
     private String tokenUri;
 
-    public String getRedirectUri() throws UnsupportedEncodingException {
-        SecureRandom random = new SecureRandom();
-        String state = new BigInteger(130, random).toString();
+    public String getRedirectUri(String state) throws UnsupportedEncodingException {
         String encodedCallbackPath = URLEncoder.encode(String.format("%s%s", backendUri, callbackPath), "UTF-8");
         return String.format(
                 "https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=%s&redirect_uri=%s&state=%s",
@@ -95,7 +95,6 @@ public class NaverLoginService {
         params.add("client_secret", clientSecret);
         params.add("code", code);
         params.add("state", state);
-
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);

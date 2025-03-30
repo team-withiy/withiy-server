@@ -1,6 +1,7 @@
 package com.server.domain.oauth.controller;
 
-import com.server.domain.oauth.service.NaverLoginService;
+import java.io.UnsupportedEncodingException;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.server.domain.oauth.service.GoogleLoginService;
+import com.server.domain.oauth.service.NaverLoginService;
 import com.server.global.dto.ApiResponseDto;
 import com.server.global.dto.TokenDto;
 
@@ -18,8 +20,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.UnsupportedEncodingException;
 
 @RestController
 @Slf4j
@@ -58,8 +58,9 @@ public class OAuthLoginController {
     @ResponseStatus(HttpStatus.FOUND)
     @GetMapping("/naver")
     @Operation(summary = "", description = "")
-    public ApiResponseDto<String> naverLogin(HttpServletResponse response) throws UnsupportedEncodingException {
-        String url = naverLoginService.getRedirectUri();
+    public ApiResponseDto<String> naverLogin(HttpServletResponse response, @RequestParam String state)
+            throws UnsupportedEncodingException {
+        String url = naverLoginService.getRedirectUri(state);
         response.setHeader(HttpHeaders.LOCATION, url);
         return ApiResponseDto.success(HttpStatus.FOUND.value(), "Redirection for Login");
     }
@@ -67,7 +68,8 @@ public class OAuthLoginController {
     @ResponseStatus(HttpStatus.FOUND)
     @GetMapping("/naver/callback")
     @Operation(summary = "", description = "")
-    public ApiResponseDto<TokenDto> naverToken(HttpServletResponse response, @RequestParam String code, @RequestParam String state) {
+    public ApiResponseDto<TokenDto> naverToken(HttpServletResponse response, @RequestParam String code,
+            @RequestParam String state) {
         TokenDto tokenDto = naverLoginService.auth(code, state);
         response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDto.getAccessToken());
         response.setHeader(HttpHeaders.LOCATION,
