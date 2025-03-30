@@ -40,25 +40,31 @@ public class GoogleLoginService {
     private String clientSecret;
     @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String callbackPath;
+    @Value("${spring.security.oauth2.client.provider.google.authorization-uri}")
+    private String authorizationUri;
+    @Value("${spring.security.oauth2.client.provider.google.token-uri}")
+    private String tokenUri;
+    @Value("${spring.security.oauth2.client.provider.google.user-info-uri}")
+    private String userInfoUri;
 
     public String getRedirectUri(String state) {
         return String.format(
-                "https://accounts.google.com/o/oauth2/v2/auth?client_id=%s&response_type=code&redirect_uri=%s%s&state=%s&scope=email profile",
-                clientId, backendUri, callbackPath, state);
+                "%s?client_id=%s&response_type=code&redirect_uri=%s%s&state=%s&scope=email profile",
+                authorizationUri, clientId, backendUri, callbackPath, state);
     }
 
     public TokenDto auth(String code) {
         try {
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<GoogleTokenOutDto> googleTokenResponse = restTemplate.exchange(
-                    "https://oauth2.googleapis.com/token",
+                    tokenUri,
                     HttpMethod.POST,
                     getAccessToken(code),
                     GoogleTokenOutDto.class);
             String googleAccessToken = googleTokenResponse.getBody().getAccessToken();
 
             ResponseEntity<GoogleUserOutDto> googleUserResponse = restTemplate.exchange(
-                    "https://www.googleapis.com/oauth2/v2/userinfo",
+                    userInfoUri,
                     HttpMethod.GET,
                     getUserInfo(googleAccessToken),
                     GoogleUserOutDto.class);
