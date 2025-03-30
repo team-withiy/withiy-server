@@ -1,5 +1,7 @@
 services:
   server:
+    env_file:
+      - ./.env
     build: .
     environment:
       POSTGRES_HOST: ${POSTGRES_HOST}
