@@ -1,6 +1,8 @@
 package com.server.domain.oauth.controller;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -32,6 +34,15 @@ public class OAuthLoginController {
 
     @Value("${spring.security.oauth2.client.frontend-uri}")
     private String frontendUri;
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/state")
+    @Operation(summary = "", description = "")
+    public ApiResponseDto<String> state() {
+        SecureRandom random = new SecureRandom();
+        String state = new BigInteger(128, random).toString();
+        return ApiResponseDto.success(HttpStatus.OK.value(), state);
+    }
 
     @ResponseStatus(HttpStatus.FOUND)
     @GetMapping("/google")
