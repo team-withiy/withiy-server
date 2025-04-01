@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
-import com.server.domain.oauth.service.KakaoLoginService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.server.domain.oauth.service.GoogleLoginService;
+import com.server.domain.oauth.service.KakaoLoginService;
 import com.server.domain.oauth.service.NaverLoginService;
 import com.server.global.dto.ApiResponseDto;
 import com.server.global.dto.TokenDto;
@@ -57,7 +57,7 @@ public class OAuthLoginController {
 
     @ResponseStatus(HttpStatus.FOUND)
     @GetMapping("/google/callback")
-    @Operation(summary = "", description = "")
+    @Operation(summary = "", description = "", hidden = true)
     public ApiResponseDto<TokenDto> googleToken(HttpServletResponse response, @RequestParam String code) {
         TokenDto tokenDto = googleLoginService.auth(code);
         response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDto.getAccessToken());
@@ -80,7 +80,7 @@ public class OAuthLoginController {
 
     @ResponseStatus(HttpStatus.FOUND)
     @GetMapping("/naver/callback")
-    @Operation(summary = "", description = "")
+    @Operation(summary = "", description = "", hidden = true)
     public ApiResponseDto<TokenDto> naverToken(HttpServletResponse response, @RequestParam String code,
             @RequestParam String state) {
         TokenDto tokenDto = naverLoginService.auth(code, state);
@@ -104,9 +104,9 @@ public class OAuthLoginController {
 
     @ResponseStatus(HttpStatus.FOUND)
     @GetMapping("/kakao/callback")
-    @Operation(summary = "", description = "")
+    @Operation(summary = "", description = "", hidden = true)
     public ApiResponseDto<TokenDto> kakaoToken(HttpServletResponse response, @RequestParam String code,
-                                               @RequestParam String state) {
+            @RequestParam String state) {
         TokenDto tokenDto = kakaoLoginService.auth(code, state);
         response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDto.getAccessToken());
         response.setHeader(HttpHeaders.LOCATION,

@@ -1,26 +1,30 @@
 package com.server.domain.oauth.service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+
 import com.server.domain.oauth.dto.KakaoTokenOutDto;
 import com.server.domain.oauth.dto.KakaoUserOutDto;
-import com.server.domain.oauth.dto.NaverTokenOutDto;
-import com.server.domain.oauth.dto.NaverUserOutDto;
 import com.server.domain.oauth.entity.OAuth;
 import com.server.domain.user.service.UserService;
 import com.server.global.dto.TokenDto;
 import com.server.global.error.code.AuthErrorCode;
 import com.server.global.error.exception.AuthException;
 import com.server.global.jwt.JwtService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
-import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 @Service
 @RequiredArgsConstructor
@@ -45,8 +49,6 @@ public class KakaoLoginService {
     private String tokenUri;
     @Value("${spring.security.oauth2.client.provider.kakao.user-info-uri}")
     private String userInfoUri;
-
-
 
     public String getRedirectUri(String state) throws UnsupportedEncodingException {
         String encodedCallbackPath = URLEncoder.encode(String.format("%s%s", backendUri, callbackPath), "UTF-8");
@@ -91,7 +93,7 @@ public class KakaoLoginService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", clientId);
-        params.add("redirect_uri", backendUri+callbackPath);
+        params.add("redirect_uri", backendUri + callbackPath);
         params.add("client_secret", clientSecret);
         params.add("code", code);
 
