@@ -47,7 +47,7 @@ public class OAuth {
     @Column(name = "oauth_id", length = 512)
     private String authId;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email")
     private String email;
 
     // NOTE: OAuth 저장 시 User도 함께 저장되도록
