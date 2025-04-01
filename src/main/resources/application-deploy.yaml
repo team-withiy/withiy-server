@@ -22,8 +22,11 @@ spring:
             client-secret: ${NAVER_CLIENT_SECRET}
             redirect-uri: "/auth/naver/callback"
             authorization-grant-type: authorization_code
-            scope: name, email, profile_image
             client-name: Naver
+            scope:
+              - name
+              - email
+              - profile_image
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
             client-secret: ${KAKAO_CLIENT_SECRET}
