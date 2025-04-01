@@ -3,16 +3,13 @@ spring:
     name: withiy-server
   profiles:
     group:
-      local:
-        - local
+      deploy:
+        - deploy
         - jwt
       test:
         - test
         - jwt
-      deploy:
-        - deploy
-        - jwt
-    active: local
+    active: deploy
 springdoc:
   swagger-ui:
     path: /swagger

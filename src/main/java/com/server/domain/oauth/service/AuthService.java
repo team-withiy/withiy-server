@@ -1,6 +1,7 @@
 
 package com.server.domain.oauth.service;
 
+import com.server.domain.oauth.dto.NaverUserOutDto;
 import org.springframework.stereotype.Service;
 
 import com.server.domain.oauth.dto.GoogleUserOutDto;
@@ -35,6 +36,12 @@ public class AuthService {
                 .orElseGet(() -> registerNewUser(user));
     }
 
+    @Transactional
+    public OAuth loginOrRegister(NaverUserOutDto user) {
+        return oAuthRepository.findBySocialTypeAndAuthId(SocialType.NAVER, user.getResponse().getId())
+                .orElseGet(() -> registerNewUser(user));
+    }
+
     private OAuth registerNewUser(GoogleUserOutDto user) {
         User newUser = User.builder()
                 .nickname(user.getName())
@@ -44,6 +51,20 @@ public class AuthService {
                 .socialType(SocialType.GOOGLE)
                 .authId(user.getId())
                 .email(user.getEmail())
+                .user(newUser)
+                .build();
+        return oAuthRepository.save(oAuth);
+    }
+
+    private OAuth registerNewUser(NaverUserOutDto user) {
+        User newUser = User.builder()
+                .nickname(user.getResponse().getNickname())
+                .thumbnail(user.getResponse().getProfileImage())
+                .build();
+        OAuth oAuth = OAuth.builder()
+                .socialType(SocialType.NAVER)
+                .authId(user.getResponse().getId())
+                .email(user.getResponse().getEmail())
                 .user(newUser)
                 .build();
         return oAuthRepository.save(oAuth);
