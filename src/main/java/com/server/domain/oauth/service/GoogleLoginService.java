@@ -40,6 +40,8 @@ public class GoogleLoginService {
     private String clientSecret;
     @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String callbackPath;
+    @Value("${spring.security.oauth2.client.registration.kakao.authorization-grant-type}")
+    private String authorizationGrantType;
     @Value("${spring.security.oauth2.client.provider.google.authorization-uri}")
     private String authorizationUri;
     @Value("${spring.security.oauth2.client.provider.google.token-uri}")
@@ -85,7 +87,7 @@ public class GoogleLoginService {
 
     private HttpEntity<MultiValueMap<String, String>> getAccessToken(String code) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "authorization_code");
+        params.add("grant_type", authorizationGrantType);
         params.add("client_id", clientId);
         params.add("client_secret", clientSecret);
         params.add("code", code);

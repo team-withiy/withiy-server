@@ -43,6 +43,8 @@ public class KakaoLoginService {
     private String clientSecret;
     @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
     private String callbackPath;
+    @Value("${spring.security.oauth2.client.registration.kakao.authorization-grant-type}")
+    private String authorizationGrantType;
     @Value("${spring.security.oauth2.client.provider.kakao.authorization-uri}")
     private String authorizationUri;
     @Value("${spring.security.oauth2.client.provider.kakao.token-uri}")
@@ -91,7 +93,7 @@ public class KakaoLoginService {
 
     private HttpEntity<MultiValueMap<String, String>> getAccessToken(String code, String state) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "authorization_code");
+        params.add("grant_type", authorizationGrantType);
         params.add("client_id", clientId);
         params.add("redirect_uri", backendUri + callbackPath);
         params.add("client_secret", clientSecret);
