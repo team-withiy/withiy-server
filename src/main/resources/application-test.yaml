@@ -29,8 +29,8 @@ spring:
               - email
               - profile_image
           kakao:
-            client-id: ${KAKAO_CLIENT_ID}
-            client-secret: ${KAKAO_CLIENT_SECRET}
+            client-id: secret
+            client-secret: secret
             redirect-uri: "/auth/kakao/callback"
             authorization-grant-type: authorization_code
             client-name: Kakao
