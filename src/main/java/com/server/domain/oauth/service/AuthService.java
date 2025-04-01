@@ -1,6 +1,7 @@
 
 package com.server.domain.oauth.service;
 
+import com.server.domain.oauth.dto.KakaoUserOutDto;
 import com.server.domain.oauth.dto.NaverUserOutDto;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +43,12 @@ public class AuthService {
                 .orElseGet(() -> registerNewUser(user));
     }
 
+    @Transactional
+    public OAuth loginOrRegister(KakaoUserOutDto user) {
+        return oAuthRepository.findBySocialTypeAndAuthId(SocialType.KAKAO, user.getId())
+                .orElseGet(() -> registerNewUser(user));
+    }
+
     private OAuth registerNewUser(GoogleUserOutDto user) {
         User newUser = User.builder()
                 .nickname(user.getName())
@@ -70,6 +77,19 @@ public class AuthService {
         return oAuthRepository.save(oAuth);
     }
 
+    private OAuth registerNewUser(KakaoUserOutDto user) {
+        User newUser = User.builder()
+                .nickname(user.getAccount().getKakaoUserProfile().getNickname())
+                .thumbnail(user.getAccount().getKakaoUserProfile().getProfileImage())
+                .build();
+        OAuth oAuth = OAuth.builder()
+                .socialType(SocialType.KAKAO)
+                .authId(user.getId())
+                .user(newUser)
+                .build();
+        return oAuthRepository.save(oAuth);
+    }
+
     public TokenDto refresh(String refreshToken) {
         if (!jwtService.validateToken(refreshToken)) {
             throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
@@ -83,4 +103,6 @@ public class AuthService {
         String newAccessToken = jwtService.createAccessToken(userId);
         return new TokenDto(newAccessToken, refreshToken);
     }
+
+
 }
