@@ -24,10 +24,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
@@ -37,6 +39,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
+
+    @Column(name = "is_registered", nullable = false)
+    private boolean isRegistered;
+
+    @Column(name = "is_admin", nullable = false)
+    private boolean isAdmin;
 
     @Column(name = "refresh_token", length = 512)
     private String refreshToken;
@@ -69,6 +77,8 @@ public class User {
     public User(String nickname, String thumbnail) {
         this.nickname = nickname;
         this.thumbnail = thumbnail;
+        this.isRegistered = false;
+        this.isAdmin = false;
     }
 
     public void updateRefreshToken(String refreshToken) {
