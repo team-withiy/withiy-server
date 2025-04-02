@@ -8,11 +8,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.server.domain.oauth.service.AuthService;
 import com.server.domain.oauth.service.GoogleLoginService;
 import com.server.domain.oauth.service.KakaoLoginService;
 import com.server.domain.oauth.service.NaverLoginService;
@@ -30,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/auth")
 public class OAuthLoginController {
 
+    private final AuthService authService;
     private final GoogleLoginService googleLoginService;
     private final NaverLoginService naverLoginService;
     private final KakaoLoginService kakaoLoginService;
@@ -116,15 +120,13 @@ public class OAuthLoginController {
 
     }
 
-    // @ResponseStatus(HttpStatus.OK)
-    // @PostMapping("/refresh")
-    // @Operation(summary = "refresh 토큰 발급", description = "Token Dto을 입력받아 refresh
-    // token 제공")
-    // public ApiResponseDto<TokenDto> refreshToken(@RequestBody TokenDto tokenDto)
-    // {
-    // String refreshToken = tokenDto.getRefreshToken();
-    // log.info(refreshToken);
-    // TokenDto newTokenDto = googleLoginService.refresh(refreshToken);
-    // return ApiResponseDto.success(HttpStatus.OK.value(), newTokenDto);
-    // }
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/refresh")
+    @Operation(summary = "refresh 토큰 발급", description = "Token Dto을 입력받아 refresh token 제공")
+    public ApiResponseDto<TokenDto> refreshToken(@RequestBody TokenDto tokenDto) {
+        String refreshToken = tokenDto.getRefreshToken();
+        log.info(refreshToken);
+        TokenDto newTokenDto = authService.refresh(refreshToken);
+        return ApiResponseDto.success(HttpStatus.OK.value(), newTokenDto);
+    }
 }
