@@ -28,7 +28,7 @@ public class UserService {
     @Transactional
     public void saveRefreshToken(Long id, String refreshToken) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new BusinessException(UserErrorCode.NOT_FOUND));
         user.updateRefreshToken(refreshToken);
         userRepository.save(user);
     }
