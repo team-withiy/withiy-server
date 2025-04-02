@@ -52,7 +52,7 @@ public class OAuthLoginController {
 
     @ResponseStatus(HttpStatus.FOUND)
     @GetMapping("/google")
-    @Operation(summary = "", description = "")
+    @Operation(summary = "Google OAuth", description = "Google login endpoint")
     public ApiResponseDto<String> googleLogin(HttpServletResponse response, @RequestParam String state) {
         String url = googleLoginService.getRedirectUri(state);
         response.setHeader(HttpHeaders.LOCATION, url);
@@ -74,7 +74,7 @@ public class OAuthLoginController {
 
     @ResponseStatus(HttpStatus.FOUND)
     @GetMapping("/naver")
-    @Operation(summary = "", description = "")
+    @Operation(summary = "Naver OAuth", description = "Naver login endpoint")
     public ApiResponseDto<String> naverLogin(HttpServletResponse response, @RequestParam String state)
             throws UnsupportedEncodingException {
         String url = naverLoginService.getRedirectUri(state);
@@ -98,7 +98,7 @@ public class OAuthLoginController {
 
     @ResponseStatus(HttpStatus.FOUND)
     @GetMapping("/kakao")
-    @Operation(summary = "", description = "")
+    @Operation(summary = "Kakao OAuth", description = "Kakao login endpoint")
     public ApiResponseDto<String> kakaoLogin(HttpServletResponse response, @RequestParam String state)
             throws UnsupportedEncodingException {
         String url = kakaoLoginService.getRedirectUri(state);
