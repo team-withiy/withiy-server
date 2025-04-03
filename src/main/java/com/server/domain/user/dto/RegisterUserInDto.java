@@ -7,8 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserDto {
+public class RegisterUserInDto {
     private String nickname;
-    private String thumbnail;
-    private boolean isRegistered;
 }

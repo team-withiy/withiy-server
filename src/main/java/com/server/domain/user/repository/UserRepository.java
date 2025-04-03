@@ -10,5 +10,7 @@ import com.server.domain.user.entity.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
 
+    Optional<User> findById(Long id);
+
     Optional<User> findByNickname(String nickname);
 }

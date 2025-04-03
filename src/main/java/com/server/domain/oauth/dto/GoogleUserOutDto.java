@@ -14,9 +14,6 @@ public class GoogleUserOutDto {
     @JsonProperty("email")
     private String email;
 
-    // @JsonProperty("verified_email")
-    // private bool verifiedEmail;
-
     @JsonProperty("name")
     private String name;
 

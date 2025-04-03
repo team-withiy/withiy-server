@@ -8,6 +8,15 @@ ARG POSTGRES_PASSWORD
 ARG POSTGRES_DB
 ARG JWT_SECRET_KEY
 
+ARG GOOGLE_CLIENT_ID
+ARG GOOGLE_CLIENT_PASSWORD
+
+ARG NAVER_CLIENT_ID
+ARG NAVER_CLIENT_PASSWORD
+
+ARG KAKAO_CLIENT_ID
+ARG KAKAO_CLIENT_SECRET
+
 # Mock environment values for test (related: issue #15)
 ENV JWT_SECRET_KEY="CUL0gl15xbD4Y4DFRGCVBkLfXCodzgwOypSL82/HuD4="
 
@@ -31,6 +40,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
+
 
 RUN apt-get update && apt-get install -y locales tzdata && \
     echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
