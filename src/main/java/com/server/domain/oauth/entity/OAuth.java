@@ -39,13 +39,13 @@ public class OAuth {
     @Column(name = "id")
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "social_type", nullable = false)
-    private SocialType socialType;
+    @Column(name = "provider")
+    private String provider;
 
-    // NOTE: Login 할 때 고유한 ID 확인을 위해 사용
-    @Column(name = "oauth_id", length = 512)
-    private String authId;
+    @Column(name = "provider_id")
+    private String providerId;
+
+
 
     @Column(name = "email")
     private String email;
@@ -64,9 +64,9 @@ public class OAuth {
     private LocalDateTime updatedAt;
 
     @Builder
-    public OAuth(SocialType socialType, String authId, String email, User user) {
-        this.socialType = socialType;
-        this.authId = authId;
+    public OAuth(String provider,String providerId, String email, User user) {
+        this.provider = provider;
+        this.providerId = providerId;
         this.email = email;
         this.user = user;
     }

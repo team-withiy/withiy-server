@@ -15,13 +15,15 @@ spring:
         frontend-uri: "https://test-front"
         registration:
           google:
-            client-id: secret
-            client-secret: secret
-            redirect-uri: "/auth/google/callback"
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
             authorization-grant-type: authorization_code
+            scope:
+              - email
+              - profile
           naver:
-            client-id: secret
-            client-secret: secret
+            client-id: ${NAVER_CLIENT_ID}
+            client-secret: ${NAVER_CLIENT_SECRET}
             redirect-uri: "/auth/naver/callback"
             authorization-grant-type: authorization_code
             client-name: Naver
@@ -30,19 +32,15 @@ spring:
               - email
               - profile_image
           kakao:
-            client-id: secret
-            client-secret: secret
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
             redirect-uri: "/auth/kakao/callback"
             authorization-grant-type: authorization_code
             client-name: Kakao
             scope:
-              - profile_image
-              - profile_nickname
+                - profile_image
+                - profile_nickname
         provider:
-          google:
-            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
-            token-uri: https://oauth2.googleapis.com/token
-            user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
           naver:
             authorization-uri: https://nid.naver.com/oauth2.0/authorize
             token-uri: https://nid.naver.com/oauth2.0/token
