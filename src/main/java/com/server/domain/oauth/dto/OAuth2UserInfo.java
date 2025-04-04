@@ -28,7 +28,7 @@ public class OAuth2UserInfo{
         return switch (registrationId) { // registration id별로 userInfo 생성
             case "google" -> ofGoogle(registrationId,nameAttributeKey ,attributes);
             case "naver" -> ofNaver(registrationId, nameAttributeKey, attributes);
-            case "kakao" -> ofKakao(attributes);
+            case "kakao" -> ofKakao(registrationId, nameAttributeKey, attributes);
             default -> throw new AuthException(ILLEGAL_REGISTRATION_ID);
         };
     }
@@ -59,18 +59,30 @@ public class OAuth2UserInfo{
                 .build();
     }
 
-    private static OAuth2UserInfo ofKakao(Map<String, Object> attributes) {
-        Map<String, Object> account = (Map<String, Object>) attributes.get("kakao_account");
-        Map<String, Object> profile = (Map<String, Object>) account.get("profile");
+    private static OAuth2UserInfo ofKakao(String registrationId,String nameAttributeKey ,Map<String, Object> attributes) {
+        Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+        Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+
+
+        String providerId = String.valueOf(attributes.get("id"));
+
+
+        String email = kakaoAccount.containsKey("email") ? (String) kakaoAccount.get("email") : null;
 
         return OAuth2UserInfo.builder()
+                .nameAttributeKey(nameAttributeKey)
                 .nickname((String) profile.get("nickname"))
-                .email((String) account.get("email"))
+                .email(email)
                 .picture((String) profile.get("profile_image_url"))
+                .provider(registrationId)
+                .attributes(attributes)
+                .providerId(providerId)
                 .build();
+
     }
 
     public OAuth toEntity() {
+
         User user = User.builder()
                 .nickname(nickname)
                 .thumbnail(picture)

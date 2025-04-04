@@ -45,8 +45,6 @@ public class OAuth {
     @Column(name = "provider_id")
     private String providerId;
 
-
-
     @Column(name = "email")
     private String email;
 
