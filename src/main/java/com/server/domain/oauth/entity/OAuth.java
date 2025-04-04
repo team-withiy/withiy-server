@@ -6,7 +6,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.server.domain.oauth.enums.SocialType;
 import com.server.domain.user.entity.User;
 
 import jakarta.persistence.CascadeType;
@@ -44,8 +43,6 @@ public class OAuth {
 
     @Column(name = "provider_id")
     private String providerId;
-
-
 
     @Column(name = "email")
     private String email;

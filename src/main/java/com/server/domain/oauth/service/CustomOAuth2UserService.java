@@ -29,9 +29,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // 1. 유저 정보(attributes) 가져오기
         Map<String, Object> oAuth2UserAttributes = super.loadUser(userRequest).getAttributes();
 
-        // 로깅 추가
-        log.info("OAuth2 로그인 시도: {}", userRequest.getClientRegistration().getRegistrationId());
-        log.info("OAuth2 사용자 속성: {}", oAuth2UserAttributes);
 
         // 2. resistrationId 가져오기 (third-party id)
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
@@ -39,9 +36,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // 3. userNameAttributeName 가져오기
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
                 .getUserInfoEndpoint().getUserNameAttributeName();
-
-        // 로깅 추가
-        log.info("registrationId: {}, userNameAttributeName: {}", registrationId, userNameAttributeName);
 
         // 4. 유저 정보 dto 생성
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfo.of(registrationId, userNameAttributeName,oAuth2UserAttributes);
@@ -54,9 +48,23 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     private OAuth getOrSave(OAuth2UserInfo oAuth2UserInfo) {
-        OAuth oAuth = oAuthRepository.findByProviderAndProviderId(oAuth2UserInfo.getProvider(), oAuth2UserInfo.getProviderId())
-                .orElseGet(oAuth2UserInfo::toEntity);
-        log.info(oAuth.getUser().getNickname());
-        return oAuthRepository.save(oAuth);
+        try {
+            log.info("Provider: {}, ProviderId: {}", oAuth2UserInfo.getProvider(), oAuth2UserInfo.getProviderId());
+
+            OAuth oAuth = oAuthRepository.findByProviderAndProviderId(
+                    oAuth2UserInfo.getProvider(),
+                    oAuth2UserInfo.getProviderId()
+            ).orElseGet(() -> {
+                log.info("새 사용자 등록: {}", oAuth2UserInfo.getNickname());
+                return oAuth2UserInfo.toEntity();
+            });
+
+            log.info("사용자 정보: {}", oAuth.getUser().getNickname());
+            return oAuthRepository.save(oAuth);
+        } catch (Exception e) {
+            log.error("사용자 저장 중 오류: {}", e.getMessage(), e);
+            throw e;
+        }
     }
+
 }
