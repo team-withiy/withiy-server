@@ -69,7 +69,11 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String providerId = null;
         if ("google".equals(provider)) {
             providerId = (String) attributes.get("sub");
-        } else if ("kakao".equals(provider)) {
+        }else if ("naver".equals(provider)) {
+            Map<String, Object> response = (Map<String, Object>) attributes.get("response");
+            providerId = (String) response.get("id");
+        }
+        else if ("kakao".equals(provider)) {
             providerId = String.valueOf(attributes.get("id"));
         }
 
@@ -97,7 +101,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         else if (attributes.containsKey("kakao_account")) {
             return "kakao";
         }
-        // 다른 제공자에 대한 로직 추가 가능
+        // Naver의 경우 response 객체 안에 id가 있음
+        else if (attributes.containsKey("response")) {
+            return "naver";
+        }
 
         return null; // 알 수 없는 제공자
     }
