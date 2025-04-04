@@ -11,5 +11,7 @@ import com.server.domain.oauth.enums.SocialType;
 @Repository
 public interface OAuthRepository extends JpaRepository<OAuth, String> {
 
-    Optional<OAuth> findBySocialTypeAndAuthId(SocialType socialType, String authId);
+    Optional<OAuth> findByProviderAndProviderId(String provider, String providerId);
+
+
 }
