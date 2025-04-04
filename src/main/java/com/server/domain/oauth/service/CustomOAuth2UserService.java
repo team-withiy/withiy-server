@@ -21,7 +21,6 @@ import java.util.Map;
 @Service
 @Slf4j
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
-    private final UserRepository userRepository;
     private final OAuthRepository oAuthRepository;
 
     @Transactional
@@ -30,6 +29,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // 1. 유저 정보(attributes) 가져오기
         Map<String, Object> oAuth2UserAttributes = super.loadUser(userRequest).getAttributes();
 
+        // 로깅 추가
+        log.info("OAuth2 로그인 시도: {}", userRequest.getClientRegistration().getRegistrationId());
+        log.info("OAuth2 사용자 속성: {}", oAuth2UserAttributes);
+
         // 2. resistrationId 가져오기 (third-party id)
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
 
@@ -37,8 +40,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
                 .getUserInfoEndpoint().getUserNameAttributeName();
 
+        // 로깅 추가
+        log.info("registrationId: {}, userNameAttributeName: {}", registrationId, userNameAttributeName);
+
         // 4. 유저 정보 dto 생성
-        OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfo.of(registrationId, oAuth2UserAttributes);
+        OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfo.of(registrationId, userNameAttributeName,oAuth2UserAttributes);
 
         // 5. 회원가입 및 로그인
         OAuth oAuth = getOrSave(oAuth2UserInfo);

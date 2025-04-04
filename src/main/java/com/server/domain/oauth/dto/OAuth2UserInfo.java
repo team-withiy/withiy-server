@@ -16,7 +16,7 @@ import static com.server.global.error.code.AuthErrorCode.ILLEGAL_REGISTRATION_ID
 @Slf4j
 public class OAuth2UserInfo{
     private Map<String, Object> attributes;
-
+    private String nameAttributeKey;
     private String nickname;
     private String email;
     private String picture;
@@ -24,22 +24,38 @@ public class OAuth2UserInfo{
     private String providerId;
 
 
-    public static OAuth2UserInfo of(String registrationId, Map<String, Object> attributes) {
+    public static OAuth2UserInfo of(String registrationId, String nameAttributeKey, Map<String, Object> attributes) {
         return switch (registrationId) { // registration id별로 userInfo 생성
-            case "google" -> ofGoogle(registrationId, attributes);
+            case "google" -> ofGoogle(registrationId,nameAttributeKey ,attributes);
+            case "naver" -> ofNaver(registrationId, nameAttributeKey, attributes);
             case "kakao" -> ofKakao(attributes);
             default -> throw new AuthException(ILLEGAL_REGISTRATION_ID);
         };
     }
 
-    private static OAuth2UserInfo ofGoogle(String registrationId, Map<String, Object> attributes) {
+    private static OAuth2UserInfo ofGoogle(String registrationId,String nameAttributeKey ,Map<String, Object> attributes) {
         return OAuth2UserInfo.builder()
+                .nameAttributeKey(nameAttributeKey)
                 .nickname((String) attributes.get("name"))
                 .email((String) attributes.get("email"))
                 .picture((String) attributes.get("picture"))
                 .provider(registrationId)
                 .attributes(attributes)
                 .providerId((String) attributes.get("sub"))
+                .build();
+    }
+
+    private static OAuth2UserInfo ofNaver(String registrationId,String nameAttributeKey ,Map<String, Object> attributes) {
+        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
+
+        return OAuth2UserInfo.builder()
+                .nameAttributeKey(nameAttributeKey)
+                .nickname((String) response.get("nickname"))
+                .email((String) response.get("email"))
+                .picture((String) response.get("profile_image"))
+                .provider(registrationId)
+                .attributes(attributes)
+                .providerId((String) response.get("id"))
                 .build();
     }
 
