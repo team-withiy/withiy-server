@@ -12,5 +12,4 @@ public interface OAuthRepository extends JpaRepository<OAuth, String> {
 
     Optional<OAuth> findByProviderAndProviderId(String provider, String providerId);
 
-
 }

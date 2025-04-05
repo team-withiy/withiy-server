@@ -12,8 +12,6 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -61,7 +59,7 @@ public class OAuth {
     private LocalDateTime updatedAt;
 
     @Builder
-    public OAuth(String provider,String providerId, String email, User user) {
+    public OAuth(String provider, String providerId, String email, User user) {
         this.provider = provider;
         this.providerId = providerId;
         this.email = email;

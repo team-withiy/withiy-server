@@ -1,25 +1,24 @@
 package com.server.domain.oauth.handler;
 
-import com.server.domain.oauth.entity.OAuth;
-import com.server.domain.oauth.repository.OAuthRepository;
-import com.server.domain.user.entity.User;
-import com.server.domain.user.repository.UserRepository;
-import com.server.domain.user.service.UserService;
-import com.server.global.jwt.JwtService;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.Map;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
-import java.util.Map;
+import com.server.domain.oauth.entity.OAuth;
+import com.server.domain.oauth.repository.OAuthRepository;
+import com.server.domain.user.service.UserService;
+import com.server.global.jwt.JwtService;
+
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Component
@@ -34,12 +33,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException {
+            Authentication authentication) throws IOException {
 
         // OAuth2User에서 사용자 ID 추출
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         Long userId = extractUserId(oAuth2User);
-        log.info("userId "+userId);
+        log.info("userId " + userId);
 
         log.info("accesstoken 발급");
         // accessToken, refreshToken 발급
@@ -51,8 +50,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         // 토큰 전달을 위한 redirect
         String redirectUrl = UriComponentsBuilder.fromUriString(URI)
                 .queryParam("accessToken", accessToken)
+                .queryParam("refreshToken", refreshToken)
                 .build().toUriString();
-
 
         response.sendRedirect(redirectUrl);
     }
@@ -64,27 +63,22 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         // 제공자 타입 확인
         String provider = determineProvider(attributes);
 
-
         // 제공자 ID 추출
         String providerId = null;
         if ("google".equals(provider)) {
             providerId = (String) attributes.get("sub");
-        }else if ("naver".equals(provider)) {
+        } else if ("naver".equals(provider)) {
             Map<String, Object> response = (Map<String, Object>) attributes.get("response");
             providerId = (String) response.get("id");
-        }
-        else if ("kakao".equals(provider)) {
+        } else if ("kakao".equals(provider)) {
             providerId = String.valueOf(attributes.get("id"));
         }
 
-
-
-        if (provider != null&&providerId!=null) {
+        if (provider != null && providerId != null) {
             OAuth oAuth = oAuthRepository.findByProviderAndProviderId(provider, providerId)
                     .orElseThrow(EntityNotFoundException::new);
             Long userId = oAuth.getUser().getId();
-            log.info("userId: "+userId);
-
+            log.info("userId: " + userId);
             return userId;
         }
 
