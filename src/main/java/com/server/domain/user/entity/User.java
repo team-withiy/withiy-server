@@ -53,12 +53,8 @@ public class User {
     @Column(name = "nickname", nullable = false)
     private String nickname;
 
-
-
     @Column(name = "thumbnail")
     private String thumbnail;
-
-
 
     @Column(name = "code", nullable = true)
     private String code;
@@ -79,7 +75,7 @@ public class User {
     private List<OAuth> oAuth;
 
     @Builder
-    public User(String nickname,String thumbnail) {
+    public User(String nickname, String thumbnail) {
         this.nickname = nickname;
         this.thumbnail = thumbnail;
         this.isRegistered = false;
