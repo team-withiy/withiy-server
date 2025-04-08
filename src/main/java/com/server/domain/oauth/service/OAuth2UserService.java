@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+public class OAuth2UserService extends DefaultOAuth2UserService {
     private final OAuthRepository oAuthRepository;
 
     @Transactional
@@ -37,7 +37,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .getUserInfoEndpoint().getUserNameAttributeName();
 
         // 4. 유저 정보 dto 생성
-        OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfo.of(registrationId, userNameAttributeName, oAuth2UserAttributes);
+        OAuth2UserInfo oAuth2UserInfo =
+                OAuth2UserInfo.of(registrationId, userNameAttributeName, oAuth2UserAttributes);
 
         // 5. 회원가입 및 로그인
         OAuth oAuth = getOrSave(oAuth2UserInfo);
@@ -48,10 +49,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private OAuth getOrSave(OAuth2UserInfo oAuth2UserInfo) {
         try {
-            log.info("Provider: {}, ProviderId: {}", oAuth2UserInfo.getProvider(), oAuth2UserInfo.getProviderId());
+            log.info("Provider: {}, ProviderId: {}", oAuth2UserInfo.getProvider(),
+                    oAuth2UserInfo.getProviderId());
 
-            OAuth oAuth = oAuthRepository.findByProviderAndProviderId(
-                    oAuth2UserInfo.getProvider(),
+            OAuth oAuth = oAuthRepository.findByProviderAndProviderId(oAuth2UserInfo.getProvider(),
                     oAuth2UserInfo.getProviderId()).orElseGet(() -> {
                         log.info("새 사용자 등록: {}", oAuth2UserInfo.getNickname());
                         return oAuth2UserInfo.toEntity();
