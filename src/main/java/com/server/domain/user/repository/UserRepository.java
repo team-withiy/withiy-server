@@ -8,11 +8,10 @@ import org.springframework.stereotype.Repository;
 import com.server.domain.user.entity.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, String> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findById(Long id);
 
     Optional<User> findByNickname(String nickname);
-
 
 }

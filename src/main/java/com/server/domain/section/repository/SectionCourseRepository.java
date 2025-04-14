@@ -1,13 +1,13 @@
 package com.server.domain.section.repository;
 
-import com.server.domain.section.entity.SectionCourse;
-import com.server.domain.section.entity.SectionCourseId;
-import com.server.domain.section.entity.SectionPlace;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
+import com.server.domain.section.entity.SectionCourse;
+import com.server.domain.section.entity.SectionCourseId;
 
 @Repository
 public interface SectionCourseRepository extends JpaRepository<SectionCourse, SectionCourseId> {
