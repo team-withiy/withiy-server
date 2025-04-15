@@ -33,4 +33,7 @@ public class SectionCourse implements Serializable {
     @JoinColumn(name = "course_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Course course;
+
+    @Column(name = "sequence")
+    private int sequence;
 }

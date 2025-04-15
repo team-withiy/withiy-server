@@ -34,4 +34,8 @@ public class Category {
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Place> places = new ArrayList<>();
+
+    public Category(String name) {
+        this.name = name;
+    }
 }
