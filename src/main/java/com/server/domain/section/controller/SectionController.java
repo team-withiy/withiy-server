@@ -1,6 +1,7 @@
 package com.server.domain.section.controller;
 
 import com.server.domain.section.dto.CreateSectionDto;
+import com.server.domain.section.dto.HomeSectionDto;
 import com.server.domain.section.dto.SectionDto;
 import com.server.domain.section.service.SectionService;
 import com.server.domain.user.dto.GetUserOutDto;
@@ -20,7 +21,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/api/section")
+@RequestMapping("/api/sections")
 public class SectionController {
     private final SectionService sectionService;
 
@@ -28,8 +29,8 @@ public class SectionController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/home")
     @Operation(summary = "홈 화면 섹션 얻기", description = "홈 화면에 존재하는 섹션 정보 반환")
-    public ApiResponseDto<List<SectionDto>> getHomeSections() {
-        List<SectionDto> sectionDtos = sectionService.getHomeSections();
+    public ApiResponseDto<List<HomeSectionDto>> getHomeSections() {
+        List<HomeSectionDto> sectionDtos = sectionService.getHomeSections();
         return ApiResponseDto.success(HttpStatus.OK.value(), sectionDtos);
     }
 

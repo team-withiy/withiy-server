@@ -11,12 +11,14 @@ import lombok.*;
 public class CategoryDto {
     private Long id;
     private String name;
+    private String icon;
 
 
     public static CategoryDto from(Category category){
         return CategoryDto.builder()
                 .id(category.getId())
                 .name(category.getName())
+                .icon(category.getIcon())
                 .build();
     }
 
