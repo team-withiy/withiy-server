@@ -1,23 +1,25 @@
 package com.server.domain.category.dto;
 
 import com.server.domain.category.entity.Category;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class CategoryDto {
     private Long id;
     private String name;
 
-    // Category 엔티티에서 필요한 정보만 추출
-    public CategoryDto(Category category) {
-        this.id = category.getId();
-        this.name = category.getName();
+
+    public static CategoryDto from(Category category){
+        return CategoryDto.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .build();
     }
+
+
 
 }

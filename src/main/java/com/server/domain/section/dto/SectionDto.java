@@ -8,10 +8,7 @@ import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.entity.Place;
 import com.server.domain.section.entity.SectionCourse;
 import com.server.domain.section.entity.SectionPlace;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -19,8 +16,11 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class SectionDto {
     private String title;
+    private String type;
+    private String uiType;
     private CategoryDto categoryDto;
     private List<PlaceDto> places;
     private List<CourseDto> courses;
