@@ -28,6 +28,12 @@ public class Course {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "thumbnail")
+    private String thumbnail;
+
+    @Column(name = "score")
+    private Long score;
+
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CoursePlace> coursePlaces = new ArrayList<>();
 

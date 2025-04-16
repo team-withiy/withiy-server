@@ -31,6 +31,9 @@ public class Place {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "thumbnail")
+    private String thumbnail;
+
     @Column(name = "address")
     private String address;
 
@@ -39,6 +42,9 @@ public class Place {
 
     @Column(name = "longitude")
     private String longitude;
+
+    @Column(name = "score")
+    private Long score;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")

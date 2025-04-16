@@ -17,9 +17,19 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/api/category")
+@RequestMapping("/api/categories")
 public class CategoryController {
     private final CategoryService categoryService;
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping
+    @Operation(summary = "카테고리 가져오기", description = "카테고리 dto 반환")
+    public ApiResponseDto<List<CategoryDto>> getCategories() {
+        List<CategoryDto> categoryDtos = categoryService.getCategories();
+        return ApiResponseDto.success(HttpStatus.OK.value(), categoryDtos);
+    }
+
+
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')") //추후 관리자로 변경
     @ResponseStatus(HttpStatus.OK)
     @PostMapping

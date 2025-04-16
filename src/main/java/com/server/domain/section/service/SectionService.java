@@ -4,13 +4,11 @@ import com.server.domain.category.repository.CategoryRepository;
 import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
 import com.server.domain.course.dto.CourseDto;
+import com.server.domain.course.dto.CoursePlaceDto;
 import com.server.domain.course.entity.Course;
 import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.entity.Place;
-import com.server.domain.section.dto.CreateSectionDto;
-import com.server.domain.section.dto.SectionCourseDto;
-import com.server.domain.section.dto.SectionDto;
-import com.server.domain.section.dto.SectionPlaceDto;
+import com.server.domain.section.dto.*;
 import com.server.domain.section.entity.Section;
 import com.server.domain.section.entity.SectionCourse;
 import com.server.domain.section.entity.SectionPlace;
@@ -39,14 +37,14 @@ public class SectionService {
     private final SectionCourseRepository sectionCourseRepository;
     private final CategoryRepository categoryRepository;
 
-    public List<SectionDto> getHomeSections() {
+    public List<HomeSectionDto> getHomeSections() {
         // 홈 섹션 조회
         List<Section> sections = sectionRepository.findByIsHome(true)
                 .orElse(Collections.emptyList());
 
         // 섹션 목록을 DTO로 변환
         return sections.stream()
-                .map(this::convertToSectionDto)
+                .map(this::convertToHomeSectionDto)
                 .collect(Collectors.toList());
     }
 
@@ -91,8 +89,67 @@ public class SectionService {
                 .build();
     }
 
+    public HomeSectionDto convertToHomeSectionDto(Section section) {
+        List<SectionPlaceDto> places = new ArrayList<>();
+        List<SectionCourseDto> courses = new ArrayList<>();
 
-    @Transactional
+
+        if(section.getType().equals("place")) {
+            places = sectionPlaceRepository.findAllBySectionId(section.getId())
+                    .orElse(Collections.emptyList())
+                    .stream()
+                    .map(sectionPlace -> SectionPlaceDto.builder()
+                            .id(sectionPlace.getPlace().getId())
+                            .name(sectionPlace.getPlace().getName())
+                            .thumbnail(sectionPlace.getPlace().getThumbnail())
+                            .address(sectionPlace.getPlace().getAddress())
+                            .latitude(sectionPlace.getPlace().getLatitude())
+                            .longitude(sectionPlace.getPlace().getLongitude())
+                            .category(CategoryDto.from(sectionPlace.getPlace().getCategory()))
+                            .score(sectionPlace.getPlace().getScore())
+                            .order(sectionPlace.getSequence())
+                            .build())
+                    .collect(Collectors.toList());
+        } else if(section.getType().equals("course")) {
+            courses = sectionCourseRepository.findAllBySectionId(section.getId())
+                    .orElse(Collections.emptyList())
+                    .stream()
+                    .map(sectionCourse -> SectionCourseDto.builder()
+                            .id(sectionCourse.getCourse().getId())
+                            .name(sectionCourse.getCourse().getName())
+                            .order(sectionCourse.getSequence())
+                            .thumbnail(sectionCourse.getCourse().getThumbnail())
+                            .score(sectionCourse.getCourse().getScore())
+                            .places(sectionCourse.getCourse().getCoursePlaces().stream()
+                                    .map(coursePlace -> CoursePlaceDto.builder()
+                                            .category(CategoryDto.from(coursePlace.getPlace().getCategory()))
+                                            .address(coursePlace.getPlace().getAddress())
+                                            .build())
+                                    .collect(Collectors.toList()))
+                            .build())
+                    .collect(Collectors.toList());
+        }
+
+        CategoryDto categoryDto = CategoryDto.builder()
+                .id(section.getCategory().getId())
+                .name(section.getCategory().getName())
+                .icon(section.getCategory().getIcon())
+                .build();
+
+        return HomeSectionDto.builder()
+                .id(section.getId())
+                .title(section.getTitle())
+                .type(section.getType())
+                .order(section.getSequence())
+                .uiType(section.getUiType())
+                .category(categoryDto)
+                .places(places)
+                .courses(courses)
+                .build();
+    }
+
+
+    /*@Transactional
     public SectionPlaceDto addSectionPlace(Section section, Place place) {
         // 현재 섹션에 대한 최대 sequence 값을 조회
         Integer maxSequence = sectionPlaceRepository.findMaxSequenceBySectionId(section.getId());
@@ -120,23 +177,27 @@ public class SectionService {
         sectionCourseRepository.save(sectionCourse);
 
         return SectionCourseDto.from(sectionCourse, sectionDto);
-    }
+    }*/
 
     @Transactional
     public SectionDto createSection(CreateSectionDto createSectionDto) {
-        log.info("category Id " + createSectionDto.getCategoryId());
+
         Category category = categoryRepository.findById(createSectionDto.getCategoryId())
                 .orElseThrow(()-> new BusinessException(CategoryErrorCode.NOT_FOUND));
         Section section = Section.builder()
                 .title(createSectionDto.getTitle())
                 .type(createSectionDto.getType())
+                .sequence(createSectionDto.getOrder())
                 .category(category)
+                .uiType("horizontal")
                 .isHome(createSectionDto.isHome())
                 .build();
+
         sectionRepository.save(section);
         return SectionDto.builder()
-                .title(createSectionDto.getTitle())
-                .type(createSectionDto.getType())
+                .title(section.getTitle())
+                .type(section.getType())
+                .uiType(section.getUiType())
                 .categoryDto(CategoryDto.from(category))
                 .build();
     }

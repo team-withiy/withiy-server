@@ -14,6 +14,7 @@ import java.util.List;
 public class CreateSectionDto {
     private String title;
     private String type;
+    private int order;
     private Long categoryId;
     private boolean home;
 

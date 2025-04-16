@@ -34,6 +34,9 @@ public class Section {
     @Column(name = "ui_type")
     private String uiType = "horizontal";
 
+    @Column(name = "sequence")
+    private int sequence;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
