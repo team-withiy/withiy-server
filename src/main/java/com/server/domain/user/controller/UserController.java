@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.server.domain.user.dto.GetUserOutDto;
 import com.server.domain.user.dto.RegisterUserInDto;
+import com.server.domain.user.dto.UserDto;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.service.UserService;
 import com.server.global.dto.ApiResponseDto;
@@ -34,8 +34,8 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/me")
     @Operation(summary = "자기 정보 얻기", description = "로그인한 유저의 정보 반환")
-    public ApiResponseDto<GetUserOutDto> getUser(@AuthenticationPrincipal User user) {
-        GetUserOutDto userDto = userService.getUser(user);
+    public ApiResponseDto<UserDto> getUser(@AuthenticationPrincipal User user) {
+        UserDto userDto = userService.getUser(user);
         return ApiResponseDto.success(HttpStatus.OK.value(), userDto);
     }
 
@@ -54,10 +54,10 @@ public class UserController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/me")
-    @Operation(summary = "유저 등록", description = "유저의 isRegister를 true로 설정")
+    @Operation(summary = "유저 등록", description = "유저 약관 동의 업데이트")
     public ApiResponseDto<String> registerUser(@AuthenticationPrincipal User user,
             @RequestBody RegisterUserInDto body) {
-        userService.registerUser(user, body.getNickname());
+        // userService.registerUser(user, body.getNickname());
         return ApiResponseDto.success(HttpStatus.OK.value(), "User registered successfully");
     }
 }

@@ -52,8 +52,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             } else {
                 authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
             }
-            log.info("Nickname: {}, Thumbnail: {}, Registered: {}",
-                    user.getNickname(), user.getThumbnail(), user.isRegistered());
+            log.info("Nickname: {}, Thumbnail: {}",
+                    user.getNickname(), user.getThumbnail());
         }
         Authentication auth = new JwtAuthentication(user, authorities);
         SecurityContextHolder.getContext().setAuthentication(auth);

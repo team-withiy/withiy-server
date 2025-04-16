@@ -1,5 +1,6 @@
 package com.server.domain.oauth.service;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -12,6 +13,9 @@ import com.server.domain.oauth.dto.OAuth2UserInfo;
 import com.server.domain.oauth.dto.PrincipalDetails;
 import com.server.domain.oauth.entity.OAuth;
 import com.server.domain.oauth.repository.OAuthRepository;
+import com.server.domain.term.entity.TermAgreement;
+import com.server.domain.term.repository.TermAgreementRepository;
+import com.server.domain.term.repository.TermRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OAuth2UserService extends DefaultOAuth2UserService {
     private final OAuthRepository oAuthRepository;
+    private final TermRepository termRepository;
+    private final TermAgreementRepository termAgreementRepository;
 
     @Transactional
     @Override
@@ -37,8 +43,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                 .getUserInfoEndpoint().getUserNameAttributeName();
 
         // 4. 유저 정보 dto 생성
-        OAuth2UserInfo oAuth2UserInfo =
-                OAuth2UserInfo.of(registrationId, userNameAttributeName, oAuth2UserAttributes);
+        OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfo.of(registrationId, userNameAttributeName, oAuth2UserAttributes);
 
         // 5. 회원가입 및 로그인
         OAuth oAuth = getOrSave(oAuth2UserInfo);
@@ -55,11 +60,16 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
             OAuth oAuth = oAuthRepository.findByProviderAndProviderId(oAuth2UserInfo.getProvider(),
                     oAuth2UserInfo.getProviderId()).orElseGet(() -> {
                         log.info("새 사용자 등록: {}", oAuth2UserInfo.getNickname());
-                        return oAuth2UserInfo.toEntity();
+                        return oAuth2UserInfo.toEntity(termRepository.findAll());
                     });
 
             log.info("사용자 정보: {}", oAuth.getUser().getNickname());
-            return oAuthRepository.save(oAuth);
+            oAuth = oAuthRepository.save(oAuth);
+            List<TermAgreement> termAgreements = oAuth.getUser().getTermAgreements();
+            for (TermAgreement termAgreement : termAgreements) {
+                termAgreementRepository.save(termAgreement);
+            }
+            return oAuth;
         } catch (Exception e) {
             log.error("사용자 저장 중 오류: {}", e.getMessage(), e);
             throw e;

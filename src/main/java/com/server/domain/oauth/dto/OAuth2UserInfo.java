@@ -2,9 +2,11 @@ package com.server.domain.oauth.dto;
 
 import static com.server.global.error.code.AuthErrorCode.ILLEGAL_REGISTRATION_ID;
 
+import java.util.List;
 import java.util.Map;
 
 import com.server.domain.oauth.entity.OAuth;
+import com.server.domain.term.entity.Term;
 import com.server.domain.user.entity.User;
 import com.server.global.error.exception.AuthException;
 
@@ -82,11 +84,12 @@ public class OAuth2UserInfo {
 
     }
 
-    public OAuth toEntity() {
+    public OAuth toEntity(List<Term> terms) {
 
         User user = User.builder()
                 .nickname(nickname)
                 .thumbnail(picture)
+                .terms(terms)
                 .build();
         return OAuth.builder()
                 .provider(provider)
