@@ -1,8 +1,14 @@
 package com.server.domain.user.service;
 
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.server.domain.term.entity.Term;
+import com.server.domain.term.entity.TermAgreement;
+import com.server.domain.term.repository.TermAgreementRepository;
+import com.server.domain.term.repository.TermRepository;
 import com.server.domain.user.dto.UserDto;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.repository.UserRepository;
@@ -17,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserService {
     private final UserRepository userRepository;
+    private final TermAgreementRepository termAgreementRepository;
 
     @Transactional
     public void saveRefreshToken(Long id, String refreshToken) {
@@ -37,6 +44,32 @@ public class UserService {
 
     public String deleteUser(User user) {
         userRepository.delete(user);
+        return user.getNickname();
+    }
+
+    @Transactional
+    public String registerUser(User user, Map<Long, Boolean> termAgreements) {
+        if (user == null) {
+            throw new BusinessException(UserErrorCode.NOT_FOUND);
+        }
+
+        if (termAgreements == null || termAgreements.isEmpty()) {
+            log.error("Term agreements map is empty or null");
+            throw new BusinessException(UserErrorCode.INVALID_PARAMETER);
+        }
+
+        // Update each term agreement based on the provided term ID and boolean value
+        for (TermAgreement agreement : user.getTermAgreements()) {
+            Long termId = agreement.getTerm().getId();
+            if (termAgreements.containsKey(termId)) {
+                agreement.setAgreed(termAgreements.get(termId));
+                termAgreementRepository.save(agreement);
+                log.debug("Updated term agreement for term ID {}: {}", termId,
+                        termAgreements.get(termId));
+            }
+        }
+
+        log.info("Updated term agreements for user: {}", user.getNickname());
         return user.getNickname();
     }
 }

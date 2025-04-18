@@ -57,7 +57,8 @@ public class UserController {
     @Operation(summary = "유저 등록", description = "유저 약관 동의 업데이트")
     public ApiResponseDto<String> registerUser(@AuthenticationPrincipal User user,
             @RequestBody RegisterUserInDto body) {
-        // userService.registerUser(user, body.getNickname());
-        return ApiResponseDto.success(HttpStatus.OK.value(), "User registered successfully");
+        String nickname = userService.registerUser(user, body.getTermAgreements());
+        return ApiResponseDto.success(HttpStatus.OK.value(),
+                String.format("User %s term agreements updated successfully", nickname));
     }
 }

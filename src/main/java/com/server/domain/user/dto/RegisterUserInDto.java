@@ -1,5 +1,7 @@
 package com.server.domain.user.dto;
 
+import java.util.Map;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,5 +10,5 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class RegisterUserInDto {
-    private String nickname;
+    private Map<Long, Boolean> termAgreements; // Key: Term ID, Value: Agreed or not
 }
