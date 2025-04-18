@@ -77,7 +77,7 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonIgnore
-    private List<TermAgreement> termAgreements = new ArrayList<>();;
+    private List<TermAgreement> termAgreements = new ArrayList<>();
 
     @Builder
     public User(String nickname, String thumbnail, List<Term> terms) {
