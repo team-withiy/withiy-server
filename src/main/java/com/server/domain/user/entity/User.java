@@ -1,15 +1,17 @@
 package com.server.domain.user.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.TenantId;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.server.domain.oauth.entity.OAuth;
+import com.server.domain.term.entity.Term;
+import com.server.domain.term.entity.TermAgreement;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -26,6 +28,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -34,15 +37,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
+@Slf4j
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-
-    @Column(name = "is_registered", nullable = false)
-    private boolean isRegistered;
 
     @Column(name = "is_admin", nullable = false)
     private boolean isAdmin;
@@ -74,12 +75,18 @@ public class User {
     @JsonIgnore
     private List<OAuth> oAuth;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonIgnore
+    private List<TermAgreement> termAgreements = new ArrayList<>();
+
     @Builder
-    public User(String nickname, String thumbnail) {
+    public User(String nickname, String thumbnail, List<Term> terms) {
         this.nickname = nickname;
         this.thumbnail = thumbnail;
-        this.isRegistered = false;
         this.isAdmin = false;
+        for (Term term : terms) {
+            this.termAgreements.add(TermAgreement.builder().user(this).term(term).build());
+        }
     }
 
     public void updateRefreshToken(String refreshToken) {

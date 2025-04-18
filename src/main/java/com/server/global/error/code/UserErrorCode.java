@@ -8,7 +8,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum UserErrorCode implements ErrorCode {
-    NOT_FOUND(HttpStatus.NOT_FOUND.value(), "사용자가 존재하지 않습니다.");
+    NOT_FOUND(HttpStatus.NOT_FOUND.value(),
+            "사용자가 존재하지 않습니다."), INVALID_PARAMETER(HttpStatus.BAD_REQUEST.value(), "잘못된 요청입니다.");
 
     private final int status;
     private final String message;
