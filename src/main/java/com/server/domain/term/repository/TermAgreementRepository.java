@@ -12,5 +12,5 @@ import com.server.domain.term.entity.TermAgreementId;
 
 @Repository
 public interface TermAgreementRepository extends JpaRepository<TermAgreement, TermAgreementId> {
-    Optional<List<Term>> findAllByUserId(Long userId);
+    Optional<List<TermAgreement>> findAllByUserId(Long userId);
 }
