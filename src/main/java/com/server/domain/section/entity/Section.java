@@ -32,6 +32,7 @@ public class Section {
     private String type; // "place" or "course"
 
     @Column(name = "ui_type")
+    @Builder.Default
     private String uiType = "horizontal";
 
     @Column(name = "sequence")
@@ -46,10 +47,11 @@ public class Section {
     private boolean isHome;
 
     @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<SectionPlace> sectionPlaces = new ArrayList<>();
 
     @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<SectionCourse> sectionCourses = new ArrayList<>();
-
 
 }
