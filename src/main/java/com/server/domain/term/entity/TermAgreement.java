@@ -49,4 +49,8 @@ public class TermAgreement {
         this.term = term;
         this.agreed = false;
     }
+
+    public void setAgreed(boolean agreed) {
+        this.agreed = agreed;
+    }
 }
