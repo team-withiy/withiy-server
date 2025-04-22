@@ -32,6 +32,6 @@ public class OAuthController {
             HttpServletResponse response) throws IOException {
         String redirectUri = authService.getRedirectUri(accessToken, refreshToken);
         response.sendRedirect(redirectUri);
-        return ApiResponseDto.success(HttpStatus.OK.value(), redirectUri);
+        return ApiResponseDto.success(HttpStatus.FOUND.value(), redirectUri);
     }
 }
