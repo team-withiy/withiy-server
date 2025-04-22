@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SectionController {
     private final SectionService sectionService;
 
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/home")
     @Operation(summary = "홈 화면 섹션 얻기", description = "홈 화면에 존재하는 섹션 정보 반환")
