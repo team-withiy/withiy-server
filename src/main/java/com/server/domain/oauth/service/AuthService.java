@@ -10,7 +10,8 @@ public class AuthService {
     private String frontendUri;
 
     public String getRedirectUri(String accessToken, String refreshToken) {
-        return UriComponentsBuilder.fromUriString(frontendUri).queryParam("accessToken", accessToken)
+        return UriComponentsBuilder.fromUriString(String.format("%s/auth/callback", frontendUri))
+                .queryParam("accessToken", accessToken)
                 .queryParam("refreshToken", refreshToken).build().toUriString();
 
     }
