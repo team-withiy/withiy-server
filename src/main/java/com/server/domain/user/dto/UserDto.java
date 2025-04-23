@@ -16,14 +16,22 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 public class UserDto {
-    public String nickname;
-    public String thumbnail;
+    private String nickname;
+    private String thumbnail;
+    private Boolean restoreEnabled;
     private List<TermAgreementDto> termAgreement;
 
     public static UserDto from(User user) {
+        Boolean restoreEnabled;
+        if (user.getDeletedAt() != null) {
+            restoreEnabled = true;
+        } else {
+            restoreEnabled = false;
+        }
         return UserDto.builder()
                 .nickname(user.getNickname())
                 .thumbnail(user.getThumbnail())
+                .restoreEnabled(restoreEnabled)
                 .termAgreement(user.getTermAgreements().stream()
                         .map(termAgreement -> TermAgreementDto.from(termAgreement))
                         .collect(Collectors.toList()))
