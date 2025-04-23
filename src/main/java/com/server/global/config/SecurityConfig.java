@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.server.domain.oauth.handler.OAuth2SuccessHandler;
 import com.server.domain.oauth.service.OAuth2UserService;
+import com.server.global.error.handler.FilterChainExceptionHandler;
 import com.server.global.jwt.JwtAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class SecurityConfig {
         private final JwtAuthenticationFilter jwtAuthenticationFilter;
         private final OAuth2UserService oAuth2UserService;
         private final OAuth2SuccessHandler oAuth2SuccessHandler;
+        private final FilterChainExceptionHandler filterChainExceptionHandler;
 
         @Bean
         public WebSecurityCustomizer webSecurityCustomizer() { // security를 적용하지 않을 리소스
@@ -53,6 +55,10 @@ public class SecurityConfig {
                                 .oauth2Login(oauth -> oauth.userInfoEndpoint(
                                                 c -> c.userService(oAuth2UserService))
                                                 .successHandler(oAuth2SuccessHandler))
+                                // 예외 처리 필터를 가장 먼저 추가
+                                .addFilterBefore(filterChainExceptionHandler,
+                                                UsernamePasswordAuthenticationFilter.class)
+                                // JWT 인증 필터는 그 다음에 추가
                                 .addFilterBefore(jwtAuthenticationFilter,
                                                 UsernamePasswordAuthenticationFilter.class);
                 return http.build();
