@@ -1,14 +1,13 @@
 package com.server.domain.user.service;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.server.domain.term.entity.Term;
 import com.server.domain.term.entity.TermAgreement;
 import com.server.domain.term.repository.TermAgreementRepository;
-import com.server.domain.term.repository.TermRepository;
 import com.server.domain.user.dto.UserDto;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.repository.UserRepository;
@@ -43,7 +42,9 @@ public class UserService {
     }
 
     public String deleteUser(User user) {
-        userRepository.delete(user);
+        // userRepository.delete(user);
+        user.setDeletedAt(LocalDateTime.now());
+        userRepository.save(user);
         return user.getNickname();
     }
 
