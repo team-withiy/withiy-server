@@ -14,7 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.server.domain.user.entity.User;
 import com.server.domain.user.service.UserService;
-import com.server.global.error.code.UserErrorCode;
+import com.server.global.error.code.AuthErrorCode;
 import com.server.global.error.exception.BusinessException;
 
 import jakarta.servlet.FilterChain;
@@ -33,9 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
         Optional<String> token = jwtService.extractAccessToken(request);
         List<GrantedAuthority> authorities = new ArrayList<>();
@@ -45,15 +43,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             user = null;
         } else {
             Long userId = jwtService.extractUserId(token.get())
-                    .orElseThrow(() -> new BusinessException(UserErrorCode.NOT_FOUND));
+                    .orElseThrow(() -> new BusinessException(AuthErrorCode.INVALID_ACCESS_TOKEN));
             user = userService.getUserWithPersonalInfo(userId);
             if (user.isAdmin()) {
                 authorities = AuthorityUtils.createAuthorityList("ROLE_ADMIN");
             } else {
                 authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
             }
-            log.info("Nickname: {}, Thumbnail: {}",
-                    user.getNickname(), user.getThumbnail());
+            log.info("Nickname: {}, Thumbnail: {}", user.getNickname(), user.getThumbnail());
         }
         Authentication auth = new JwtAuthentication(user, authorities);
         SecurityContextHolder.getContext().setAuthentication(auth);
