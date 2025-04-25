@@ -1,6 +1,7 @@
 package com.server.domain.user.service;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
@@ -24,6 +25,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final TermAgreementRepository termAgreementRepository;
 
+    // 계정 복구 후 유효 기간 (30일)
+    private static final long ACCOUNT_RESTORATION_PERIOD_DAYS = 30;
+
     @Transactional
     public void saveRefreshToken(Long id, String refreshToken) {
         User user = userRepository.findById(id)
@@ -41,10 +45,15 @@ public class UserService {
         return UserDto.from(user);
     }
 
-    public String deleteUser(User user) {
-        // userRepository.delete(user);
-        user.setDeletedAt(LocalDateTime.now());
-        userRepository.save(user);
+    public String deleteUser(User user, boolean softDelete) {
+        if (softDelete) {
+            // Soft delete: set deletedAt to current time
+            user.setDeletedAt(LocalDateTime.now());
+            userRepository.save(user);
+        } else {
+            // Hard delete: remove the user from the repository
+            userRepository.delete(user);
+        }
         return user.getNickname();
     }
 
@@ -71,6 +80,33 @@ public class UserService {
         }
 
         log.info("Updated term agreements for user: {}", user.getNickname());
+        return user.getNickname();
+    }
+
+    @Transactional
+    public String restoreAccount(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(UserErrorCode.NOT_FOUND));
+
+        // 이미 활성화된 계정인지 확인
+        if (user.getDeletedAt() == null) {
+            throw new BusinessException(UserErrorCode.ALREADY_ACTIVE);
+        }
+
+        // 복구 가능 기간 확인 (30일)
+        LocalDateTime deletedAt = user.getDeletedAt();
+        LocalDateTime currentTime = LocalDateTime.now();
+        long daysSinceDeleted = ChronoUnit.DAYS.between(deletedAt, currentTime);
+
+        if (daysSinceDeleted > ACCOUNT_RESTORATION_PERIOD_DAYS) {
+            throw new BusinessException(UserErrorCode.RESTORATION_PERIOD_EXPIRED);
+        }
+
+        // 계정 복구 처리
+        user.setDeletedAt(null);
+        userRepository.save(user);
+        log.info("User account restored successfully: {}", user.getNickname());
+
         return user.getNickname();
     }
 }
