@@ -7,6 +7,8 @@ services:
       - "8080:8080"
     depends_on:
       - postgres
+    volumes:
+      - /Users/ssohee/dev/withiy-crawling:/app/withiy-crawling # 인터파크 티켓 크롤링 정보 파일 가져오기 위한 로컬 위치
 
   postgres:
     image: postgres:latest
