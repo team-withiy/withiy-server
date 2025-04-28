@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.server.domain.user.dto.RegisterUserInDto;
+import com.server.domain.user.dto.RestoreAccountDto;
 import com.server.domain.user.dto.UserDto;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.service.UserService;
@@ -45,7 +46,7 @@ public class UserController {
     @DeleteMapping("/me")
     @Operation(summary = "유저 삭제(탈퇴)", description = "로그인한 유저 삭제")
     public ApiResponseDto<String> deleteUser(@AuthenticationPrincipal User user) {
-        String name = userService.deleteUser(user);
+        String name = userService.deleteUser(user, true);
         return ApiResponseDto.success(HttpStatus.OK.value(),
                 String.format("Success delete user: %s", name));
     }
@@ -60,5 +61,28 @@ public class UserController {
         String nickname = userService.registerUser(user, body.getTermAgreements());
         return ApiResponseDto.success(HttpStatus.OK.value(),
                 String.format("User %s term agreements updated successfully", nickname));
+    }
+
+    // 계정 관리 (복구 또는 삭제)
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/restore")
+    @Operation(summary = "계정 관리", description = "삭제된 계정 복구 또는 계정 삭제")
+    public ApiResponseDto<String> manageAccount(@AuthenticationPrincipal User user,
+            @RequestBody RestoreAccountDto body) {
+        String nickname;
+        String message;
+
+        if (body.isRestore()) {
+            // 계정 복구
+            nickname = userService.restoreAccount(user.getId());
+            message = String.format("User account %s restored successfully", nickname);
+        } else {
+            // 계정 삭제
+            nickname = userService.deleteUser(user, false);
+            message = String.format("User account %s deleted successfully", nickname);
+        }
+
+        return ApiResponseDto.success(HttpStatus.OK.value(), message);
     }
 }
