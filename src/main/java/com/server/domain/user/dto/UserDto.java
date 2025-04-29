@@ -16,6 +16,7 @@ public class UserDto {
     private String thumbnail;
     private Boolean restoreEnabled;
     private Boolean isRegistered;
+    private String code;
 
     public static UserDto from(User user, Boolean isRegistered) {
         Boolean restoreEnabled;
@@ -25,6 +26,7 @@ public class UserDto {
             restoreEnabled = false;
         }
         return UserDto.builder().nickname(user.getNickname()).thumbnail(user.getThumbnail())
-                .restoreEnabled(restoreEnabled).isRegistered(isRegistered).build();
+                .restoreEnabled(restoreEnabled).isRegistered(isRegistered).code(user.getCode())
+                .build();
     }
 }

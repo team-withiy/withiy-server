@@ -91,10 +91,11 @@ public class User {
     private Couple coupleAsUser2;
 
     @Builder
-    public User(String nickname, String thumbnail, List<Term> terms) {
+    public User(String nickname, String thumbnail, List<Term> terms, String code) {
         this.nickname = nickname;
         this.thumbnail = thumbnail;
         this.isAdmin = false;
+        this.code = code;
         for (Term term : terms) {
             this.termAgreements.add(TermAgreement.builder().user(this).term(term).build());
         }

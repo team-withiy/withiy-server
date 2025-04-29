@@ -5,6 +5,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.server.domain.user.dto.CoupleConnectionRequestDto;
 import com.server.domain.user.dto.CoupleDto;
+import com.server.domain.user.dto.FirstMetDateUpdateDto;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.service.CoupleService;
 import com.server.global.dto.ApiResponseDto;
@@ -39,8 +41,7 @@ public class CoupleController {
     public ApiResponseDto<CoupleDto> connectCouple(@AuthenticationPrincipal User user,
             @RequestBody CoupleConnectionRequestDto requestDto) {
 
-        CoupleDto coupleDto = coupleService.connectCouple(user, requestDto.getPartnerCode(),
-                requestDto.getFirstMetDate());
+        CoupleDto coupleDto = coupleService.connectCouple(user, requestDto.getPartnerCode());
 
         return ApiResponseDto.success(HttpStatus.CREATED.value(), coupleDto);
     }
@@ -63,5 +64,17 @@ public class CoupleController {
         Long coupleId = coupleService.disconnectCouple(user);
 
         return ApiResponseDto.success(HttpStatus.OK.value(), coupleId);
+    }
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.OK)
+    @PatchMapping("/first-met-date")
+    @Operation(summary = "처음 만난 날짜 설정", description = "이미 연결된 커플의 처음 만난 날짜를 설정하거나 변경합니다.")
+    public ApiResponseDto<CoupleDto> updateFirstMetDate(@AuthenticationPrincipal User user,
+            @RequestBody FirstMetDateUpdateDto requestDto) {
+
+        CoupleDto coupleDto = coupleService.updateFirstMetDate(user, requestDto.getFirstMetDate());
+
+        return ApiResponseDto.success(HttpStatus.OK.value(), coupleDto);
     }
 }

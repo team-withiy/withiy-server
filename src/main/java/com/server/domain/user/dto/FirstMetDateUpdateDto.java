@@ -16,8 +16,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CoupleConnectionRequestDto {
+public class FirstMetDateUpdateDto {
 
-    @Schema(description = "상대방 유저 고유 코드", example = "ABC123")
-    private String partnerCode;
+    @Schema(description = "설정할 처음 만난 날짜", example = "2025-01-01")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate firstMetDate;
 }

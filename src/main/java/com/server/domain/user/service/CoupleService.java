@@ -33,7 +33,7 @@ public class CoupleService {
      * @return 생성된 커플 정보를 담은 DTO
      */
     @Transactional
-    public CoupleDto connectCouple(User user, String partnerCode, LocalDate firstMetDate) {
+    public CoupleDto connectCouple(User user, String partnerCode) {
         // 1. 현재 유저가 이미 커플인지 확인
         if (user.isConnectedCouple()) {
             throw new BusinessException(CoupleErrorCode.ALREADY_CONNECTED);
@@ -54,8 +54,7 @@ public class CoupleService {
         }
 
         // 5. 커플 생성 및 저장
-        Couple couple =
-                Couple.builder().user1(user).user2(partner).firstMetDate(firstMetDate).build();
+        Couple couple = Couple.builder().user1(user).user2(partner).firstMetDate(null).build();
 
         coupleRepository.save(couple);
         log.info("새로운 커플이 연결되었습니다. 유저1: {}, 유저2: {}", user.getNickname(), partner.getNickname());
@@ -93,5 +92,27 @@ public class CoupleService {
         log.info("커플이 해제되었습니다. 커플 ID: {}", coupleId);
 
         return coupleId;
+    }
+
+    /**
+     * 커플의 처음 만난 날짜를 업데이트합니다.
+     * 
+     * @param user 현재 사용자
+     * @param firstMetDate 설정할 처음 만난 날짜
+     * @return 업데이트된 커플 정보를 담은 DTO
+     */
+    @Transactional
+    public CoupleDto updateFirstMetDate(User user, LocalDate firstMetDate) {
+        // 커플 관계 확인
+        Couple couple = coupleRepository.findByUser1OrUser2(user, user)
+                .orElseThrow(() -> new BusinessException(CoupleErrorCode.COUPLE_NOT_FOUND));
+
+        // 처음 만난 날짜 업데이트
+        couple.setFirstMetDate(firstMetDate);
+        coupleRepository.save(couple);
+
+        log.info("커플 ID: {}의 처음 만난 날짜가 {}로 업데이트되었습니다.", couple.getId(), firstMetDate);
+
+        return CoupleDto.from(couple, user);
     }
 }
