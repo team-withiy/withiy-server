@@ -12,6 +12,7 @@ import com.server.domain.term.repository.TermAgreementRepository;
 import com.server.domain.user.dto.UserDto;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.repository.UserRepository;
+import com.server.global.error.code.TermErrorCode;
 import com.server.global.error.code.UserErrorCode;
 import com.server.global.error.exception.BusinessException;
 
@@ -58,13 +59,14 @@ public class UserService {
     }
 
     private boolean areAllRequiredTermsAgreed(User user) {
+        // If there are no term agreements, return false
         if (user.getTermAgreements() == null || user.getTermAgreements().isEmpty()) {
             return false;
         }
 
         for (TermAgreement agreement : user.getTermAgreements()) {
             if (agreement.getTerm().isRequired() && !agreement.isAgreed()) {
-                return false;
+                throw new BusinessException(TermErrorCode.REQUIRED_TERM_NOT_AGREED);
             }
         }
         return true;
