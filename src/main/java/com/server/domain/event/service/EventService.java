@@ -2,6 +2,8 @@ package com.server.domain.event.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.server.domain.event.dto.CrawlingEventDto;
+import com.server.domain.event.dto.CrawlingEventDtoList;
 import com.server.domain.event.dto.EventDto;
 import com.server.domain.event.entity.Event;
 import com.server.domain.event.repository.EventRepository;
@@ -29,49 +31,39 @@ public class EventService {
     }
 
     @Transactional
-    public List<EventDto> saveEvents() throws Exception {
-        List<EventDto> eventDtos = new ArrayList<>();
-        String dirPath = "/app/withiy-crawling";  // 이벤트 랭킹 json 위치
-        ObjectMapper mapper = new ObjectMapper();
+    public List<EventDto> saveEvents(CrawlingEventDtoList crawlingEventDtoList) {
+        List<CrawlingEventDto> crawlingEventDtos = crawlingEventDtoList.getEvents();
+        log.info("받은 크롤링 데이터 수: {}", crawlingEventDtos.size());
 
-        File dir = new File(dirPath);
-        if (!dir.exists() || !dir.isDirectory()) {
-            log.info("디렉토리가 존재하지 않습니다: " + dirPath);
-            return eventDtos;
+        List<EventDto> result = new ArrayList<>();
+
+        for (CrawlingEventDto crawlingDto : crawlingEventDtos) {
+            // 날짜 파싱
+            LocalDate[] dates = parseDateRange(crawlingDto.getDate());
+            LocalDate startDate = dates[0];
+            LocalDate endDate = dates[1];
+
+            // Event 엔티티 생성
+            Event event = Event.builder()
+                    .ranking(crawlingDto.getRanking())
+                    .genre(crawlingDto.getGenre())
+                    .title(crawlingDto.getTitle())
+                    .place(crawlingDto.getPlace())
+                    .startDate(startDate)
+                    .endDate(endDate)
+                    .thumbnail(crawlingDto.getImage())
+                    .build();
+
+            // 저장
+            Event saved = eventRepository.save(event);
+
+            // DTO로 변환하여 결과 리스트에 추가
+            result.add(EventDto.from(saved));
         }
 
-        File[] files = dir.listFiles((d, name) -> name.endsWith(".json"));
-        if (files == null) {
-            log.info("JSON 파일이 없습니다: " + dirPath);
-            return eventDtos;
-        }
-
-        for (File file : files) {
-            JsonNode root = mapper.readTree(file);
-            Iterator<JsonNode> iter = root.elements();
-
-            while (iter.hasNext()) {
-                JsonNode node = iter.next();
-                Event event = new Event();
-
-                event.setRanking(node.get("ranking").asInt());
-                event.setGenre(node.get("genre").asText());
-                event.setTitle(node.get("title").asText());
-                event.setPlace(node.get("place").asText());
-                event.setThumbnail(node.get("image").asText());
-
-                // 날짜 파싱
-                String dateStr = node.get("date").asText();
-                LocalDate[] dates = parseDateRange(dateStr);
-                event.setStartDate(dates[0]);
-                event.setEndDate(dates[1]);
-
-                eventRepository.save(event);
-                eventDtos.add(EventDto.from(event));
-            }
-        }
-        return eventDtos;
+        return result;
     }
+
 
     public LocalDate[] parseDateRange(String dateStr) {
         if (dateStr == null || dateStr.isBlank()) return new LocalDate[]{null, null};
