@@ -42,7 +42,7 @@ public class UserService {
     }
 
     public UserDto getUser(User user) {
-        return UserDto.from(user);
+        return UserDto.from(user, areAllRequiredTermsAgreed(user));
     }
 
     public String deleteUser(User user, boolean softDelete) {
@@ -55,6 +55,19 @@ public class UserService {
             userRepository.delete(user);
         }
         return user.getNickname();
+    }
+
+    private boolean areAllRequiredTermsAgreed(User user) {
+        if (user.getTermAgreements() == null || user.getTermAgreements().isEmpty()) {
+            return false;
+        }
+
+        for (TermAgreement agreement : user.getTermAgreements()) {
+            if (agreement.getTerm().isRequired() && !agreement.isAgreed()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Transactional
@@ -79,6 +92,16 @@ public class UserService {
             }
         }
 
+        // Check if all required terms are agreed to and log the registration status
+        boolean registered = areAllRequiredTermsAgreed(user);
+        if (registered) {
+            log.info("All required terms agreed to, user is registered: {}", user.getNickname());
+        } else {
+            log.info("Not all required terms agreed to, user is not fully registered: {}",
+                    user.getNickname());
+        }
+
+        userRepository.save(user);
         log.info("Updated term agreements for user: {}", user.getNickname());
         return user.getNickname();
     }
