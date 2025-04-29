@@ -22,6 +22,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -71,13 +72,23 @@ public class User {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true,
+            fetch = FetchType.LAZY)
     @JsonIgnore
     private List<OAuth> oAuth;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true,
+            fetch = FetchType.EAGER)
     @JsonIgnore
     private List<TermAgreement> termAgreements = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user1", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Couple coupleAsUser1;
+
+    @OneToOne(mappedBy = "user2", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Couple coupleAsUser2;
 
     @Builder
     public User(String nickname, String thumbnail, List<Term> terms) {
@@ -91,5 +102,13 @@ public class User {
 
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public Couple getCouple() {
+        return coupleAsUser1 != null ? coupleAsUser1 : coupleAsUser2;
+    }
+
+    public boolean isConnectedCouple() {
+        return coupleAsUser1 != null || coupleAsUser2 != null;
     }
 }

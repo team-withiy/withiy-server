@@ -5,15 +5,13 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.server.domain.user.entity.Couple;
 import com.server.domain.user.entity.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface CoupleRepository extends JpaRepository<Couple, Long> {
 
-    Optional<User> findById(Long id);
+    Optional<Couple> findByUser1OrUser2(User user1, User user2);
 
-    Optional<User> findByNickname(String nickname);
-
-    Optional<User> findByCode(String code);
-
+    boolean existsByUser1OrUser2(User user1, User user2);
 }
