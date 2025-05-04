@@ -2,8 +2,10 @@ package com.server.domain.user.service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Map;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -133,5 +135,49 @@ public class UserService {
         log.info("User account restored successfully: {}", user.getNickname());
 
         return user.getNickname();
+    }
+
+    /**
+     * 매일 새벽 3시에 복구 기간이 만료된 삭제된 계정을 영구 삭제하는 스케줄링 작업 Cron 표현식: 초 분 시 일 월 요일
+     */
+    @Scheduled(cron = "0 0 3 * * ?")
+    @Transactional
+    public void purgeExpiredAccounts() {
+        log.info("Starting scheduled task to purge expired user accounts");
+        try {
+            // 복구 기간(30일)이 지난 계정 계산
+            LocalDateTime expirationThreshold =
+                    LocalDateTime.now().minus(ACCOUNT_RESTORATION_PERIOD_DAYS, ChronoUnit.DAYS);
+
+            // 만료된 계정 목록 조회
+            List<User> expiredUsers =
+                    userRepository.findByDeletedAtNotNullAndDeletedAtBefore(expirationThreshold);
+
+            if (expiredUsers.isEmpty()) {
+                log.info("No expired accounts found for permanent deletion");
+                return;
+            }
+
+            log.info("Found {} expired user accounts scheduled for permanent deletion",
+                    expiredUsers.size());
+
+            // 만료된 계정 영구 삭제
+            for (User user : expiredUsers) {
+                try {
+                    log.info(
+                            "Permanently deleting expired user account: ID={}, Nickname={}, DeletedAt={}",
+                            user.getId(), user.getNickname(), user.getDeletedAt());
+                    userRepository.delete(user);
+                } catch (Exception e) {
+                    log.error("Error while deleting expired user account ID={}: {}", user.getId(),
+                            e.getMessage(), e);
+                }
+            }
+
+            log.info("Completed purging expired user accounts. Total accounts processed: {}",
+                    expiredUsers.size());
+        } catch (Exception e) {
+            log.error("Error during scheduled account purge task: {}", e.getMessage(), e);
+        }
     }
 }
