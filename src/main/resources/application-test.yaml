@@ -15,16 +15,16 @@ spring:
         frontend-uri: "https://test-front"
         registration:
           google:
-            client-id: ${GOOGLE_CLIENT_ID}
-            client-secret: ${GOOGLE_CLIENT_SECRET}
+            client-id: test-google-id
+            client-secret: test-google-secret
             redirect-uri: "${BACKEND_URI}/login/oauth2/code/google"
             authorization-grant-type: authorization_code
             scope:
               - email
               - profile
           naver:
-            client-id: ${NAVER_CLIENT_ID}
-            client-secret: ${NAVER_CLIENT_SECRET}
+            client-id: test-naver-id
+            client-secret: test-naver-secret
             redirect-uri: "${BACKEND_URI}/login/oauth2/code/naver"
             authorization-grant-type: authorization_code
             client-name: Naver
@@ -33,8 +33,8 @@ spring:
               - email
               - profile_image
           kakao:
-            client-id: ${KAKAO_CLIENT_ID}
-            client-secret: ${KAKAO_CLIENT_SECRET}
+            client-id: test-kakao-id
+            client-secret: test-kakao-secret
             redirect-uri: "${BACKEND_URI}/login/oauth2/code/kakao"
             authorization-grant-type: authorization_code
             client-name: Kakao
