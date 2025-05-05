@@ -178,65 +178,74 @@ public class MapService {
     @Cacheable(value = "keywordSearch",
             key = "#request.query + '-' + #request.categoryGroupCode + '-' + #request.x + '-' + #request.y + '-' + #request.radius")
     public List<PlaceDto> searchByKeyword(KeywordSearchRequest request) {
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath(KEYWORD_SEARCH_PATH)
-                .queryParam("query", request.getQuery());
-
-        if (request.getCategoryGroupCode() != null) {
-            uriBuilder.queryParam("category_group_code", request.getCategoryGroupCode());
-        }
-
-        if (request.getX() != null && request.getY() != null) {
-            uriBuilder.queryParam("x", request.getX()).queryParam("y", request.getY());
-
-            if (request.getRadius() != null) {
-                uriBuilder.queryParam("radius", request.getRadius());
-            }
-        }
-
-        if (request.getRect() != null) {
-            uriBuilder.queryParam("rect", request.getRect());
-        }
-
-        if (request.getPage() != null) {
-            uriBuilder.queryParam("page", request.getPage());
-        }
-
-        if (request.getSize() != null) {
-            uriBuilder.queryParam("size", request.getSize());
-        }
-
-        if (request.getSort() != null) {
-            uriBuilder.queryParam("sort", request.getSort());
-        }
-
-        // 인코딩된 URI 문자열 생성 (인코딩은 UriComponentsBuilder에서 자동으로 처리)
-        String uri = uriBuilder.build(true).toUriString();
-        log.info("Keyword search URI: {}", uri);
-
         try {
-            KeywordSearchResponse response = kakaoMapApiClient.get().uri(uri).retrieve()
-                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
-                            clientResponse -> {
-                                log.error("Error response from Kakao API: {}",
-                                        clientResponse.statusCode());
-                                return clientResponse.bodyToMono(String.class)
-                                        .flatMap(errorBody -> {
-                                            log.error("Error body: {}", errorBody);
-                                            return Mono.error(
-                                                    new BusinessException(MapErrorCode.API_ERROR));
-                                        });
-                            })
-                    .bodyToMono(KeywordSearchResponse.class).block();
-
-            if (response == null || response.getDocuments() == null
-                    || response.getDocuments().isEmpty()) {
+            // URI 템플릿 방식으로 변경하여 자동 인코딩 방지
+            String uri = KEYWORD_SEARCH_PATH;
+            
+            log.info("키워드 검색 요청 파라미터 - 쿼리: [{}], 카테고리: [{}], 좌표: [{},{}], 반경: [{}]",
+                    request.getQuery(), request.getCategoryGroupCode(), request.getX(), request.getY(), request.getRadius());
+            
+            KeywordSearchResponse response = kakaoMapApiClient.get()
+                .uri(uriBuilder -> {
+                    uriBuilder.path(uri).queryParam("query", request.getQuery());
+                    
+                    if (request.getCategoryGroupCode() != null) {
+                        uriBuilder.queryParam("category_group_code", request.getCategoryGroupCode());
+                    }
+                    
+                    if (request.getX() != null && request.getY() != null) {
+                        uriBuilder.queryParam("x", request.getX())
+                               .queryParam("y", request.getY());
+                        
+                        if (request.getRadius() != null) {
+                            uriBuilder.queryParam("radius", request.getRadius());
+                        }
+                    }
+                    
+                    if (request.getRect() != null) {
+                        uriBuilder.queryParam("rect", request.getRect());
+                    }
+                    
+                    if (request.getPage() != null) {
+                        uriBuilder.queryParam("page", request.getPage());
+                    }
+                    
+                    if (request.getSize() != null) {
+                        uriBuilder.queryParam("size", request.getSize());
+                    }
+                    
+                    if (request.getSort() != null) {
+                        uriBuilder.queryParam("sort", request.getSort());
+                    }
+                    
+                    return uriBuilder.build();
+                })
+                .retrieve()
+                .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                    clientResponse -> {
+                        log.error("카카오 API 오류 응답: {}", clientResponse.statusCode());
+                        return clientResponse.bodyToMono(String.class)
+                                .flatMap(errorBody -> {
+                                    log.error("오류 응답 본문: {}", errorBody);
+                                    return Mono.error(new BusinessException(MapErrorCode.API_ERROR));
+                                });
+                    })
+                .bodyToMono(KeywordSearchResponse.class)
+                .block();
+            
+            if (response == null || response.getDocuments() == null) {
+                log.info("키워드 검색 결과 없음 (빈 응답). 쿼리: [{}]", request.getQuery());
                 return List.of();
             }
-
-            return response.getDocuments().stream().map(KeywordSearchResponse::toPlaceDto)
+            
+            log.info("키워드 검색 결과: {} 개의 항목 찾음. 쿼리: [{}]", 
+                    response.getDocuments().size(), request.getQuery());
+            
+            return response.getDocuments().stream()
+                    .map(KeywordSearchResponse::toPlaceDto)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            log.error("Failed to search by keyword: {}", e.getMessage(), e);
+            log.error("키워드 검색 중 오류 발생: {}", e.getMessage(), e);
             throw new BusinessException(MapErrorCode.API_ERROR);
         }
     }
