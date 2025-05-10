@@ -18,3 +18,4 @@ springdoc:
   paths-to-match: /**
 hmac:
   secret-key: ${HMAC_SECRET_KEY}
+
