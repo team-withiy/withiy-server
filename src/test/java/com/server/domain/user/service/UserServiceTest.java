@@ -1,0 +1,252 @@
+package com.server.domain.user.service;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.server.domain.term.entity.Term;
+import com.server.domain.term.entity.TermAgreement;
+import com.server.domain.term.repository.TermAgreementRepository;
+import com.server.domain.user.dto.UserDto;
+import com.server.domain.user.entity.User;
+import com.server.domain.user.repository.UserRepository;
+import com.server.global.error.code.TermErrorCode;
+import com.server.global.error.code.UserErrorCode;
+import com.server.global.error.exception.BusinessException;
+
+@ExtendWith(MockitoExtension.class)
+public class UserServiceTest {
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private TermAgreementRepository termAgreementRepository;
+
+    @InjectMocks
+    private UserService userService;
+
+    private User user;
+    private List<Term> terms;
+    private List<TermAgreement> termAgreements;
+
+    @BeforeEach
+    void setUp() {
+        // Setup Term objects using constructors instead of setters
+        terms = new ArrayList<>();
+        Term requiredTerm = new Term(1L, "Required Term", "Required term content", true);
+        Term optionalTerm = new Term(2L, "Optional Term", "Optional term content", false);
+
+        terms.add(requiredTerm);
+        terms.add(optionalTerm);
+
+        // Setup User
+        user = User.builder().nickname("testUser").thumbnail("thumbnail.jpg").terms(terms)
+                .code("USER123").build();
+        user.setId(1L);
+
+        // Setup TermAgreements
+        termAgreements = new ArrayList<>();
+        for (Term term : terms) {
+            // Use the builder pattern for TermAgreement
+            TermAgreement agreement = TermAgreement.builder().user(user).term(term).build();
+            termAgreements.add(agreement);
+        }
+
+        user.setTermAgreements(termAgreements);
+    }
+
+    @Test
+    @DisplayName("Get user information test")
+    void getUserTest() {
+        // Setup all required terms as agreed
+        for (TermAgreement agreement : user.getTermAgreements()) {
+            agreement.setAgreed(true);
+        }
+
+        // Call the method
+        UserDto userDto = userService.getUser(user);
+
+        // Verify the results
+        assertNotNull(userDto);
+        assertEquals("testUser", userDto.getNickname());
+        assertEquals("thumbnail.jpg", userDto.getThumbnail());
+        assertEquals("USER123", userDto.getCode());
+        assertFalse(userDto.getRestoreEnabled());
+        assertTrue(userDto.getIsRegistered());
+    }
+
+    @Test
+    @DisplayName("Get user with personal info test")
+    void getUserWithPersonalInfoTest() {
+        // Setup
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        // Call the method
+        User foundUser = userService.getUserWithPersonalInfo(1L);
+
+        // Verify the results
+        assertNotNull(foundUser);
+        assertEquals(1L, foundUser.getId());
+        assertEquals("testUser", foundUser.getNickname());
+    }
+
+    @Test
+    @DisplayName("Get user with personal info - user not found test")
+    void getUserWithPersonalInfoNotFoundTest() {
+        // Setup
+        when(userRepository.findById(999L)).thenReturn(Optional.empty());
+
+        // Call the method and verify exception
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            userService.getUserWithPersonalInfo(999L);
+        });
+
+        assertEquals(UserErrorCode.NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("Soft delete user test")
+    void softDeleteUserTest() {
+        // Call the method
+        String result = userService.deleteUser(user, true);
+
+        // Verify the results
+        assertEquals("testUser", result);
+        assertNotNull(user.getDeletedAt());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    @DisplayName("Hard delete user test")
+    void hardDeleteUserTest() {
+        // Call the method
+        String result = userService.deleteUser(user, false);
+
+        // Verify the results
+        assertEquals("testUser", result);
+        verify(userRepository).delete(user);
+    }
+
+    @Test
+    @DisplayName("Register user test - successful registration")
+    void registerUserSuccessTest() {
+        // Setup
+        Map<Long, Boolean> termAgreements = new HashMap<>();
+        termAgreements.put(1L, true); // Required term
+        termAgreements.put(2L, false); // Optional term
+
+        // Call the method
+        String result = userService.registerUser(user, termAgreements);
+
+        // Verify the results
+        assertEquals("testUser", result);
+        verify(termAgreementRepository, times(2)).save(any(TermAgreement.class));
+        verify(userRepository).save(user);
+
+        // Verify term agreements were updated
+        assertTrue(user.getTermAgreements().get(0).isAgreed());
+        assertFalse(user.getTermAgreements().get(1).isAgreed());
+    }
+
+    @Test
+    @DisplayName("Register user test - null user")
+    void registerUserNullUserTest() {
+        // Setup
+        Map<Long, Boolean> termAgreements = new HashMap<>();
+        termAgreements.put(1L, true);
+
+        // Call the method and verify exception
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            userService.registerUser(null, termAgreements);
+        });
+
+        assertEquals(UserErrorCode.NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("Register user test - null term agreements")
+    void registerUserNullTermAgreementsTest() {
+        // Call the method and verify exception
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            userService.registerUser(user, null);
+        });
+
+        assertEquals(UserErrorCode.INVALID_PARAMETER, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("Restore account test - successful restoration")
+    void restoreAccountSuccessTest() {
+        // Setup
+        user.setDeletedAt(LocalDateTime.now().minusDays(5));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        // Call the method
+        String result = userService.restoreAccount(1L);
+
+        // Verify the results
+        assertEquals("testUser", result);
+        assertNull(user.getDeletedAt());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    @DisplayName("Restore account test - already active account")
+    void restoreAccountAlreadyActiveTest() {
+        // Setup
+        user.setDeletedAt(null);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        // Call the method and verify exception
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            userService.restoreAccount(1L);
+        });
+
+        assertEquals(UserErrorCode.ALREADY_ACTIVE, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("Restore account test - restoration period expired")
+    void restoreAccountPeriodExpiredTest() {
+        // Setup
+        user.setDeletedAt(LocalDateTime.now().minusDays(31));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        // Call the method and verify exception
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            userService.restoreAccount(1L);
+        });
+
+        assertEquals(UserErrorCode.RESTORATION_PERIOD_EXPIRED, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("Save refresh token test")
+    void saveRefreshTokenTest() {
+        // Setup
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        // Call the method
+        userService.saveRefreshToken(1L, "newRefreshToken");
+
+        // Verify the results
+        assertEquals("newRefreshToken", user.getRefreshToken());
+        verify(userRepository).save(user);
+    }
+}
