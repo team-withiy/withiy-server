@@ -249,4 +249,62 @@ public class UserServiceTest {
         assertEquals("newRefreshToken", user.getRefreshToken());
         verify(userRepository).save(user);
     }
+
+    @Test
+    @DisplayName("Register user test with nickname update")
+    void registerUserWithNicknameTest() {
+        // Setup
+        Map<Long, Boolean> termAgreements = new HashMap<>();
+        termAgreements.put(1L, true); // Required term
+        termAgreements.put(2L, false); // Optional term
+        String newNickname = "newNickname";
+
+        // Call the method
+        String result = userService.registerUser(user, termAgreements, newNickname);
+
+        // Verify the results
+        assertEquals(newNickname, result);
+        assertEquals(newNickname, user.getNickname());
+        verify(termAgreementRepository, times(2)).save(any(TermAgreement.class));
+        verify(userRepository).save(user);
+
+        // Verify term agreements were updated
+        assertTrue(user.getTermAgreements().get(0).isAgreed());
+        assertFalse(user.getTermAgreements().get(1).isAgreed());
+    }
+
+    @Test
+    @DisplayName("Register user test with empty nickname")
+    void registerUserWithEmptyNicknameTest() {
+        // Setup
+        Map<Long, Boolean> termAgreements = new HashMap<>();
+        termAgreements.put(1L, true); // Required term
+        String originalNickname = user.getNickname();
+        String emptyNickname = "   ";
+
+        // Call the method
+        String result = userService.registerUser(user, termAgreements, emptyNickname);
+
+        // Verify that the nickname remains unchanged
+        assertEquals(originalNickname, result);
+        assertEquals(originalNickname, user.getNickname());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    @DisplayName("Register user test with null nickname")
+    void registerUserWithNullNicknameTest() {
+        // Setup
+        Map<Long, Boolean> termAgreements = new HashMap<>();
+        termAgreements.put(1L, true); // Required term
+        String originalNickname = user.getNickname();
+
+        // Call the method
+        String result = userService.registerUser(user, termAgreements, null);
+
+        // Verify that the nickname remains unchanged
+        assertEquals(originalNickname, result);
+        assertEquals(originalNickname, user.getNickname());
+        verify(userRepository).save(user);
+    }
 }

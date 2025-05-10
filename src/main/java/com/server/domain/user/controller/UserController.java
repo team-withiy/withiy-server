@@ -55,12 +55,13 @@ public class UserController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/me")
-    @Operation(summary = "유저 등록", description = "유저 약관 동의 업데이트")
+    @Operation(summary = "유저 등록", description = "유저 약관 동의 및 닉네임 업데이트")
     public ApiResponseDto<String> registerUser(@AuthenticationPrincipal User user,
             @RequestBody RegisterUserInDto body) {
-        String nickname = userService.registerUser(user, body.getTermAgreements());
+        String nickname =
+                userService.registerUser(user, body.getTermAgreements(), body.getNickname());
         return ApiResponseDto.success(HttpStatus.OK.value(),
-                String.format("User %s term agreements updated successfully", nickname));
+                String.format("User %s information updated successfully", nickname));
     }
 
     // 계정 관리 (복구 또는 삭제)
