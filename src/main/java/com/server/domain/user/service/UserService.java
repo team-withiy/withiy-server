@@ -75,7 +75,7 @@ public class UserService {
     }
 
     @Transactional
-    public String registerUser(User user, Map<Long, Boolean> termAgreements) {
+    public String registerUser(User user, Map<Long, Boolean> termAgreements, String nickname) {
         if (user == null) {
             throw new BusinessException(UserErrorCode.NOT_FOUND);
         }
@@ -83,6 +83,12 @@ public class UserService {
         if (termAgreements == null || termAgreements.isEmpty()) {
             log.error("Term agreements map is empty or null");
             throw new BusinessException(UserErrorCode.INVALID_PARAMETER);
+        }
+
+        // 닉네임 설정 (제공된 경우)
+        if (nickname != null && !nickname.trim().isEmpty()) {
+            user.setNickname(nickname);
+            log.debug("Updated nickname for user ID {}: {}", user.getId(), nickname);
         }
 
         // Update each term agreement based on the provided term ID and boolean value
@@ -106,8 +112,13 @@ public class UserService {
         }
 
         userRepository.save(user);
-        log.info("Updated term agreements for user: {}", user.getNickname());
+        log.info("Updated user information and term agreements for user: {}", user.getNickname());
         return user.getNickname();
+    }
+
+    @Transactional
+    public String registerUser(User user, Map<Long, Boolean> termAgreements) {
+        return registerUser(user, termAgreements, null);
     }
 
     @Transactional

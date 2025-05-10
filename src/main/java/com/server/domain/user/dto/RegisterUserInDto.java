@@ -11,4 +11,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class RegisterUserInDto {
     private Map<Long, Boolean> termAgreements; // Key: Term ID, Value: Agreed or not
+    private String nickname; // 사용자 닉네임
 }
