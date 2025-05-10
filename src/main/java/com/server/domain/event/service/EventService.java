@@ -7,6 +7,8 @@ import com.server.domain.event.dto.CrawlingEventDtoList;
 import com.server.domain.event.dto.EventDto;
 import com.server.domain.event.entity.Event;
 import com.server.domain.event.repository.EventRepository;
+import com.server.global.error.code.EventErrorCode;
+import com.server.global.error.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -102,4 +106,31 @@ public class EventService {
 
         return new LocalDate[]{startDate, endDate};
     }
+
+    public List<EventDto> getEventsByGenre(String genre) {
+        // 영어 장르명을 한국어로 변환
+        String koreanGenre = translateGenreToKorean(genre);
+
+        // 레포지토리에서 해당 장르의 이벤트 조회
+        List<Event> events = eventRepository.findByGenre(koreanGenre)
+                .orElseThrow(()-> new BusinessException(EventErrorCode.NOT_FOUND));
+
+        // Entity를 DTO로 변환
+        return events.stream()
+                .map(EventDto::from)
+                .collect(Collectors.toList());
+    }
+
+    // 장르 번역 메서드
+    private String translateGenreToKorean(String genre) {
+        return switch (genre.toLowerCase()) {
+            case "musical" -> "뮤지컬";
+            case "concert" -> "콘서트";
+            case "sports" -> "스포츠";
+            case "exhibit" -> "전시/행사";
+            case "drama" -> "연극";
+            default -> throw new IllegalArgumentException("지원하지 않는 장르입니다: " + genre);
+        };
+    }
+
 }
