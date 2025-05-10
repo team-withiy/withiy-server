@@ -1,6 +1,5 @@
 package com.server.global.config;
 
-import com.server.global.interceptor.HmacAuthInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
