@@ -43,26 +43,30 @@ public class EventService {
             LocalDate startDate = dates[0];
             LocalDate endDate = dates[1];
 
-            // Event 엔티티 생성
-            Event event = Event.builder()
-                    .ranking(crawlingDto.getRanking())
-                    .genre(crawlingDto.getGenre())
-                    .title(crawlingDto.getTitle())
-                    .place(crawlingDto.getPlace())
-                    .startDate(startDate)
-                    .endDate(endDate)
-                    .thumbnail(crawlingDto.getImage())
-                    .build();
+            if(eventRepository.findByTitleAndStartDate(crawlingDto.getTitle(), startDate)==null) {
 
-            // 저장
-            Event saved = eventRepository.save(event);
+                // Event 엔티티 생성
+                Event event = Event.builder()
+                        .ranking(crawlingDto.getRanking())
+                        .genre(crawlingDto.getGenre())
+                        .title(crawlingDto.getTitle())
+                        .place(crawlingDto.getPlace())
+                        .startDate(startDate)
+                        .endDate(endDate)
+                        .thumbnail(crawlingDto.getImage())
+                        .build();
 
-            // DTO로 변환하여 결과 리스트에 추가
-            result.add(EventDto.from(saved));
+                // 저장
+                Event saved = eventRepository.save(event);
+
+                // DTO로 변환하여 결과 리스트에 추가
+                result.add(EventDto.from(saved));
+            }
         }
 
         return result;
     }
+
 
 
     public LocalDate[] parseDateRange(String dateStr) {
