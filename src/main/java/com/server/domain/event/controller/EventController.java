@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -70,6 +71,21 @@ public class EventController {
     @Operation(summary = "이벤트 정보 가져오기", description = "인터파크 티켓 랭킹 탑 50 기반 각 장르별 이벤트 dto 반환")
     public ApiResponseDto<List<EventDto>> getEvents() {
         List<EventDto> eventDtos = eventService.getEvents();
+        return ApiResponseDto.success(HttpStatus.OK.value(), eventDtos);
+    }
+
+
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{genre}")
+    @Operation(summary = "장르별 이벤트 정보 가져오기", description = "각 장르별(musical, concert, sports, exhibit, drama) 이벤트 dto 반환")
+    public ApiResponseDto<List<EventDto>> getEventsByGenre(@PathVariable String genre) {
+        // 유효한 장르인지 검사
+        if (!Arrays.asList("musical", "concert", "sports", "exhibit", "drama").contains(genre)) {
+            throw new IllegalArgumentException("Invalid genre: " + genre);
+        }
+
+        List<EventDto> eventDtos = eventService.getEventsByGenre(genre);
         return ApiResponseDto.success(HttpStatus.OK.value(), eventDtos);
     }
 }
