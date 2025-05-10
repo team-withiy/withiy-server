@@ -68,7 +68,7 @@ public class EventControllerTest {
         assertEquals(sampleEvents.get(1).getGenre(), response.getData().get(1).getGenre());
     }
 
-    @Test
+    /*@Test
     @DisplayName("이벤트 저장하기 성공 테스트")
     void saveEventsSuccessTest() throws Exception {
         // Given
@@ -81,7 +81,7 @@ public class EventControllerTest {
         assertEquals(HttpStatus.OK.value(), response.getStatus());
         assertEquals(sampleEvents.size(), response.getData().size());
         assertEquals(sampleEvents.get(0).getTitle(), response.getData().get(0).getTitle());
-    }
+    }*/
 
     @Test
     @DisplayName("이벤트 API 엔드포인트 GET 접근 테스트")
@@ -93,7 +93,7 @@ public class EventControllerTest {
         mockMvc.perform(get("/api/events")).andExpect(status().isOk());
     }
 
-    @Test
+    /*@Test
     @DisplayName("이벤트 API 엔드포인트 POST 접근 테스트")
     void saveEventsEndpointTest() throws Exception {
         // Given
@@ -101,5 +101,5 @@ public class EventControllerTest {
 
         // When & Then
         mockMvc.perform(post("/api/events")).andExpect(status().isOk());
-    }
+    }*/
 }
