@@ -57,3 +57,5 @@ kakao:
   map:
     api:
       key: "kakao-map-key"
+hmac:
+  secret-key:
