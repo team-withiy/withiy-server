@@ -264,4 +264,41 @@ public class EventControllerTest {
         }
     }
 
+    @Test
+    @DisplayName("장르별 이벤트 정보 가져오기 성공 테스트")
+    void getEventsByGenreSuccessTest() {
+        // Given
+        String genre = "musical";
+        List<EventDto> eventsByGenre = new ArrayList<>();
+        eventsByGenre.add(EventDto.builder().ranking(1).genre("뮤지컬").title("Sample Musical")
+                .place("LG Arts Center").startDate(LocalDate.now())
+                .endDate(LocalDate.now().plusDays(30)).thumbnail("http://example.com/musical.jpg")
+                .build());
+
+        // 장르별 이벤트를 반환하는 서비스 메서드를 mock
+        when(eventService.getEventsByGenre(genre)).thenReturn(eventsByGenre);
+
+        // When
+        ApiResponseDto<List<EventDto>> response = eventController.getEventsByGenre(genre);
+
+        // Then
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertEquals(eventsByGenre.size(), response.getData().size());
+        assertEquals(eventsByGenre.get(0).getTitle(), response.getData().get(0).getTitle());
+        assertEquals(eventsByGenre.get(0).getGenre(), response.getData().get(0).getGenre());
+    }
+
+    @Test
+    @DisplayName("장르별 이벤트 정보 가져오기 실패 테스트 - 잘못된 장르")
+    void getEventsByGenreFailureTest() {
+        // Given
+        String invalidGenre = "invalidGenre"; // 잘못된 장르
+
+        // When & Then
+        // 잘못된 장르가 들어오면 IllegalArgumentException이 발생해야 함
+        assertThrows(IllegalArgumentException.class, () -> {
+            eventController.getEventsByGenre(invalidGenre);
+        });
+    }
+
 }

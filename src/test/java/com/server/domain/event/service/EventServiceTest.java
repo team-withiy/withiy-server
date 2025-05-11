@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,7 +51,6 @@ public class EventServiceTest {
             this.customDirPath = customDirPath;
         }
 
-        /*@Override
         public List<EventDto> saveEvents() throws Exception {
             // Override the path with our custom path
             List<EventDto> eventDtos = new ArrayList<>();
@@ -95,7 +95,7 @@ public class EventServiceTest {
                 }
             }
             return eventDtos;
-        }*/
+        }
     }
 
     private TestEventService eventService;
@@ -233,7 +233,7 @@ public class EventServiceTest {
         assertNull(dates[1]);
     }
 
-    /*@Test
+    @Test
     @DisplayName("이벤트 저장 - 디렉토리 없을 때 테스트")
     void saveEventsDirectoryNotExistTest() throws Exception {
         // Given - 존재하지 않는 경로로 설정
@@ -295,5 +295,69 @@ public class EventServiceTest {
         assertEquals("뮤지컬", result.get(1).getGenre());
 
         verify(eventRepository, times(2)).save(any(Event.class));
-    }*/
+    }
+
+
+    @Test
+    @DisplayName("장르별 이벤트 조회 테스트")
+    void getEventsByGenreTest() {
+        // Given
+        String genre = "concert";
+        List<Event> concertEvents = new ArrayList<>();
+
+        // 이벤트 샘플 추가 (콘서트 장르)
+        Event event1 = new Event();
+        event1.setId(1L);
+        event1.setRanking(1);
+        event1.setGenre("콘서트");
+        event1.setTitle("Sample Concert");
+        event1.setPlace("Seoul Arena");
+        event1.setStartDate(LocalDate.of(2025, 5, 1));
+        event1.setEndDate(LocalDate.of(2025, 6, 1));
+        event1.setThumbnail("http://example.com/image.jpg");
+
+        concertEvents.add(event1);
+
+        // 이벤트가 조회될 때 반환될 값 설정
+        when(eventRepository.findByGenre("콘서트")).thenReturn(Optional.of((concertEvents)));
+
+        // When
+        List<EventDto> result = eventService.getEventsByGenre(genre);
+
+        // Then
+        assertEquals(1, result.size());
+        assertEquals("Sample Concert", result.get(0).getTitle());
+        assertEquals("콘서트", result.get(0).getGenre());
+        assertEquals(LocalDate.of(2025, 5, 1), result.get(0).getStartDate());
+        assertEquals(LocalDate.of(2025, 6, 1), result.get(0).getEndDate());
+
+        verify(eventRepository, times(1)).findByGenre("콘서트");
+    }
+
+    @Test
+    @DisplayName("지원하지 않는 장르 테스트")
+    void getEventsByInvalidGenreTest() {
+        // Given
+        String genre = "invalid_genre"; // 존재하지 않는 장르
+
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> eventService.getEventsByGenre(genre));
+    }
+
+    @Test
+    @DisplayName("장르에 해당하는 이벤트가 없을 때 테스트")
+    void getEventsByGenreNotFoundTest() {
+        // Given
+        String genre = "sports";
+        when(eventRepository.findByGenre("스포츠")).thenReturn(Optional.of(new ArrayList<>())); // 스포츠 장르에 해당하는 이벤트가 없음
+
+        // When
+        List<EventDto> result = eventService.getEventsByGenre(genre);
+
+        // Then
+        assertTrue(result.isEmpty()); // 결과는 비어 있어야 함
+        verify(eventRepository, times(1)).findByGenre("스포츠");
+    }
+
+
 }
