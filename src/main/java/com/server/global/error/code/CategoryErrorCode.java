@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum CategoryErrorCode implements ErrorCode {
-    NOT_FOUND(HttpStatus.NOT_FOUND.value(), "카테고리가 존재하지 않습니다.");
+    NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Category not found.");
 
     private final int status;
     private final String message;

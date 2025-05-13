@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum EventErrorCode implements ErrorCode {
-    NOT_FOUND(HttpStatus.NOT_FOUND.value(), "이벤트 정보가 존재하지 않습니다.");
+    NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Event information not found.");
 
     private final int status;
     private final String message;

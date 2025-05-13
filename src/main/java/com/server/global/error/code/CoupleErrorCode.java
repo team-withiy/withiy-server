@@ -9,13 +9,13 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum CoupleErrorCode implements ErrorCode {
 
-    ALREADY_CONNECTED(HttpStatus.BAD_REQUEST.value(), "이미 커플로 연결된 사용자입니다."), PARTNER_NOT_FOUND(
+    ALREADY_CONNECTED(HttpStatus.BAD_REQUEST.value(), "User is already connected as a couple."), PARTNER_NOT_FOUND(
             HttpStatus.NOT_FOUND.value(),
-            "해당 코드를 가진 사용자를 찾을 수 없습니다."), PARTNER_ALREADY_CONNECTED(HttpStatus.BAD_REQUEST.value(),
-                    "상대방이 이미 커플로 연결된 사용자입니다."), SELF_CONNECTION_NOT_ALLOWED(
+            "User with the provided code not found."), PARTNER_ALREADY_CONNECTED(HttpStatus.BAD_REQUEST.value(),
+                    "The partner is already connected as a couple."), SELF_CONNECTION_NOT_ALLOWED(
                             HttpStatus.BAD_REQUEST.value(),
-                            "자기 자신과 커플 연결을 할 수 없습니다."), COUPLE_NOT_FOUND(
-                                    HttpStatus.NOT_FOUND.value(), "연결된 커플을 찾을 수 없습니다.");
+                            "Cannot connect with oneself as a couple."), COUPLE_NOT_FOUND(
+                                    HttpStatus.NOT_FOUND.value(), "Connected couple not found.");
 
     private final int status;
     private final String message;
