@@ -68,7 +68,7 @@ public class UserService {
 
         for (TermAgreement agreement : user.getTermAgreements()) {
             if (agreement.getTerm().isRequired() && !agreement.isAgreed()) {
-                throw new BusinessException(TermErrorCode.REQUIRED_TERM_NOT_AGREED);
+                return false;
             }
         }
         return true;
