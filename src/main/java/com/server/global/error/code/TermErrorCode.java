@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum TermErrorCode implements ErrorCode {
-    REQUIRED_TERM_NOT_AGREED(HttpStatus.BAD_REQUEST.value(), "필수적 동의 항목에 동의하지 않았습니다.");
+    REQUIRED_TERM_NOT_AGREED(HttpStatus.BAD_REQUEST.value(), "Required term not agreed.");
 
     private final int status;
     private final String message;
