@@ -21,7 +21,7 @@ public class ApiResponseDto<T> {
     public static <T> ApiResponseDto<T> success(int status, T data) {
         return ApiResponseDto.<T>builder()
                 .status(status)
-                .message("요청이 성공적으로 처리되었습니다.")
+                .message("Request processed successfully.")
                 .data(data)
                 .timestamp(LocalDateTime.now())
                 .build();

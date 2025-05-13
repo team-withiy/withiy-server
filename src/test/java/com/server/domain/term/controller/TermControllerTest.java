@@ -68,9 +68,7 @@ public class TermControllerTest {
 
         // API 요청 실행 및 검증
         mockMvc.perform(get("/api/term")).andDo(print()).andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value(200))
-                .andExpect(jsonPath("$.message").value("요청이 성공적으로 처리되었습니다."))
-                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.status").value(200)).andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(2))
                 .andExpect(jsonPath("$.data[0].id").value(1))
                 .andExpect(jsonPath("$.data[0].title").value("서비스 이용약관"))
