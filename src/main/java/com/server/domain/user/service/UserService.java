@@ -48,16 +48,39 @@ public class UserService {
         return UserDto.from(user, areAllRequiredTermsAgreed(user));
     }
 
-    public String deleteUser(User user, boolean softDelete) {
-        if (softDelete) {
-            // Soft delete: set deletedAt to current time
+    @Transactional
+    public String deleteUser(User user, boolean forAccountWithdrawal) {
+        String originalNickname = user.getNickname();
+
+        if (forAccountWithdrawal) { // True: User wants to withdraw their account (e.g., DELETE /api/users/me)
+            // Soft delete: set deletedAt to current time, mark for eventual hard deletion
             user.setDeletedAt(LocalDateTime.now());
+            user.updateRefreshToken(null); // Clear refresh token upon withdrawal
             userRepository.save(user);
-        } else {
-            // Hard delete: remove the user from the repository
-            userRepository.delete(user);
+            log.info("User account '{}' marked for deletion (soft delete).", originalNickname);
+        } else { // False: User wants to "Start Anew" (e.g., POST /api/users/restore with restore: false)
+            // Reset the account for re-registration, do not hard delete.
+            // 1. Set deletedAt to signify the account is in a reset/inactive state.
+            user.setDeletedAt(LocalDateTime.now());
+
+            // 2. Reset all term agreements to false
+            if (user.getTermAgreements() != null) {
+                for (TermAgreement agreement : user.getTermAgreements()) {
+                    agreement.setAgreed(false);
+                    termAgreementRepository.save(agreement);
+                }
+                log.debug("Reset term agreements for user '{}'.", originalNickname);
+            }
+
+            // 3. Reset user-specific profile data
+            user.setNickname(null); // Clear nickname or set to a default
+            user.setThumbnail(null); // Clear profile picture
+            user.updateRefreshToken(null); // Clear refresh token
+
+            userRepository.save(user); // Save the updated user entity
+            log.info("User account '{}' has been reset for re-registration.", originalNickname);
         }
-        return user.getNickname();
+        return originalNickname; // Return original nickname, controller can decide on response message
     }
 
     private boolean areAllRequiredTermsAgreed(User user) {
