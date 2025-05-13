@@ -133,14 +133,26 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Hard delete user test")
-    void hardDeleteUserTest() {
-        // Call the method
+    @DisplayName("Reset user for re-registration test (formerly hard delete)")
+    void resetUserForReRegistrationTest() {
+        // Call the method with forAccountWithdrawal = false
         String result = userService.deleteUser(user, false);
 
         // Verify the results
-        assertEquals("testUser", result);
-        verify(userRepository).delete(user);
+        assertEquals("testUser", result); // Should return original nickname
+        assertNotNull(user.getDeletedAt()); // deletedAt should be set
+        assertNull(user.getNickname()); // Nickname should be cleared
+        assertNull(user.getThumbnail()); // Thumbnail should be cleared
+        assertNull(user.getRefreshToken()); // Refresh token should be cleared
+
+        // Verify term agreements are reset
+        for (TermAgreement agreement : user.getTermAgreements()) {
+            assertFalse(agreement.isAgreed());
+            verify(termAgreementRepository).save(agreement); // Verify each agreement is saved
+        }
+
+        verify(userRepository).save(user); // User should be saved, not deleted
+        verify(userRepository, never()).delete(user); // Ensure delete is not called
     }
 
     @Test
