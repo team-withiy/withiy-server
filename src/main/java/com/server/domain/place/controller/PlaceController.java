@@ -21,7 +21,7 @@ public class PlaceController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{placeId}")
     @Operation(summary = "장소 상세 정보", description = "해당 id 장소 상제 정보 PlaceDetailDto 반환")
-    public ApiResponseDto<PlaceDetailDto> getPlaceDetail(@RequestParam Long placeId){
+    public ApiResponseDto<PlaceDetailDto> getPlaceDetail(@PathVariable Long placeId){
         PlaceDetailDto placeDetailDto = placeService.getPlaceDetail(placeId);
         return ApiResponseDto.success(HttpStatus.OK.value(), placeDetailDto);
     }
