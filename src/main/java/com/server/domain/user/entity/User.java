@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.server.domain.course.entity.CourseBookmark;
+import com.server.domain.section.entity.SectionCourse;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -89,6 +91,12 @@ public class User {
     @OneToOne(mappedBy = "user2", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private Couple coupleAsUser2;
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CourseBookmark> courseBookmarks = new ArrayList<>();
+
+
 
     @Builder
     public User(String nickname, String thumbnail, List<Term> terms, String code) {

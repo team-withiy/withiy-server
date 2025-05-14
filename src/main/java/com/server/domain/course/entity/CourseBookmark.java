@@ -1,5 +1,6 @@
-package com.server.domain.place.entity;
+package com.server.domain.course.entity;
 
+import com.server.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,19 +16,22 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "place_image")
-public class PlaceImage {
+@Table(name = "course_bookmark")
+public class CourseBookmark {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "image_url")
-    private String imageUrl;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "place_id")
+    @JoinColumn(name = "course_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Place place;
+    private Course course;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private User user;
+
 }

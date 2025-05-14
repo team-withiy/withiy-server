@@ -1,5 +1,6 @@
 package com.server.domain.course.entity;
 
+import com.server.domain.place.entity.PlaceImage;
 import com.server.domain.section.entity.Section;
 import com.server.domain.section.entity.SectionCourse;
 import jakarta.persistence.*;
@@ -35,8 +36,19 @@ public class Course {
     private Long score;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CourseImage> courseImages = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CoursePlace> coursePlaces = new ArrayList<>();
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SectionCourse> sectionCourses = new ArrayList<>();
+
+
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CourseBookmark> courseBookmarks = new ArrayList<>();
+
+
 }
