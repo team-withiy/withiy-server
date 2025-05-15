@@ -8,15 +8,17 @@ import java.util.Map;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.server.domain.term.entity.TermAgreement;
 import com.server.domain.term.repository.TermAgreementRepository;
+import com.server.domain.user.dto.ProfileImageResponseDto;
 import com.server.domain.user.dto.UserDto;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.repository.UserRepository;
-import com.server.global.error.code.TermErrorCode;
 import com.server.global.error.code.UserErrorCode;
 import com.server.global.error.exception.BusinessException;
+import com.server.global.service.S3Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserService {
     private final UserRepository userRepository;
     private final TermAgreementRepository termAgreementRepository;
+    private final S3Service s3Service;
 
     // 계정 복구 후 유효 기간 (30일)
     private static final long ACCOUNT_RESTORATION_PERIOD_DAYS = 30;
@@ -215,5 +218,38 @@ public class UserService {
         } catch (Exception e) {
             log.error("Error during scheduled account purge task: {}", e.getMessage(), e);
         }
+    }
+
+    /**
+     * 사용자 프로필 이미지 업데이트
+     * 
+     * @param user 현재 사용자
+     * @param file 새 프로필 이미지
+     * @return 업데이트된 프로필 이미지 URL이 포함된 DTO
+     */
+    @Transactional
+    public ProfileImageResponseDto updateProfileImage(User user, MultipartFile file) {
+        if (user == null) {
+            throw new BusinessException(UserErrorCode.NOT_FOUND);
+        }
+
+        // 기존 프로필 이미지가 있으면 S3에서 삭제
+        String oldThumbnail = user.getThumbnail();
+        if (oldThumbnail != null && !oldThumbnail.isEmpty()) {
+            s3Service.deleteImage(oldThumbnail);
+        }
+
+        // 새 이미지 업로드
+        String imageUrl = s3Service.uploadImage(file, "profile");
+
+        // 사용자 정보 업데이트
+        user.setThumbnail(imageUrl);
+        userRepository.save(user);
+
+        log.info("Profile image updated for user ID {}: {}", user.getId(), imageUrl);
+
+        // 응답 DTO 생성
+        ProfileImageResponseDto responseDto = new ProfileImageResponseDto(imageUrl);
+        return responseDto;
     }
 }
