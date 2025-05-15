@@ -59,3 +59,9 @@ kakao:
   map:
     api:
       key: "kakao-map-key"
+aws:
+  s3:
+    access-key: access-key
+    secret-key: secret-key
+    region: region
+    bucket: bucket
