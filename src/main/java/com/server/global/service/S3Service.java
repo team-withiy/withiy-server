@@ -25,17 +25,26 @@ public class S3Service {
     @Value("${aws.s3.bucket}")
     private String bucket;
 
+    @Value("${aws.s3.url}")
+    private String s3Url;
+
+    @Value("${aws.s3.cloudfront-url}")
+    private String cloudfrontUrl;
+
     /**
      * 이미지 파일을 S3에 업로드
      * 
      * @param file 업로드할 이미지 파일
      * @param directory 업로드할 디렉토리 (예: "profile", "course", 등)
-     * @return 업로드된 이미지의 URL
+     * @return 업로드된 이미지의 URL (CloudFront URL)
      */
     public String uploadImage(MultipartFile file, String directory) {
         try {
             // 파일 확장자 추출
             String originalFilename = file.getOriginalFilename();
+            if (originalFilename == null) {
+                throw new RuntimeException("Original filename is null");
+            }
             String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
 
             // 고유한 파일명 생성
@@ -50,8 +59,8 @@ public class S3Service {
             s3Client.putObject(
                     new PutObjectRequest(bucket, fileName, file.getInputStream(), metadata));
 
-            // 업로드된 파일의 URL 생성
-            String imageUrl = s3Client.getUrl(bucket, fileName).toString();
+            // CloudFront URL 생성 (S3 URL 대신)
+            String imageUrl = cloudfrontUrl + fileName;
             log.info("Image uploaded successfully: {}", imageUrl);
 
             return imageUrl;
@@ -65,7 +74,7 @@ public class S3Service {
     /**
      * S3에서 이미지 삭제
      * 
-     * @param imageUrl 삭제할 이미지의 URL
+     * @param imageUrl 삭제할 이미지의 URL (CloudFront 또는 S3 URL)
      */
     public void deleteImage(String imageUrl) {
         if (imageUrl == null || imageUrl.isEmpty()) {
@@ -73,8 +82,21 @@ public class S3Service {
         }
 
         try {
-            // URL에서 key 추출
-            String key = imageUrl.substring(imageUrl.indexOf(bucket) + bucket.length() + 1);
+            // CloudFront URL에서 key 추출
+            String key;
+            if (imageUrl.contains(cloudfrontUrl)) {
+                // CloudFront URL인 경우
+                key = imageUrl.substring(cloudfrontUrl.length());
+            } else if (imageUrl.contains(s3Url)) {
+                // S3 URL인 경우
+                key = imageUrl.substring(s3Url.length());
+            } else if (imageUrl.contains(bucket)) {
+                // 기존 S3 URL 형식인 경우 (역호환성)
+                key = imageUrl.substring(imageUrl.indexOf(bucket) + bucket.length() + 1);
+            } else {
+                log.error("Invalid image URL format: {}", imageUrl);
+                return;
+            }
 
             // S3에서 이미지 삭제
             s3Client.deleteObject(new DeleteObjectRequest(bucket, key));
