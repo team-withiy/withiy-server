@@ -65,3 +65,5 @@ aws:
     secret-key: secret-key
     region: region
     bucket: bucket
+    url: https://s3
+    cloudfront-url: https://cloudfront
