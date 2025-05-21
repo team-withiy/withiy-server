@@ -16,8 +16,10 @@ import com.server.domain.user.dto.ProfileImageResponseDto;
 import com.server.domain.user.dto.UserDto;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.repository.UserRepository;
+import com.server.global.dto.ImageResponseDto;
 import com.server.global.error.code.UserErrorCode;
 import com.server.global.error.exception.BusinessException;
+import com.server.global.service.ImageService;
 import com.server.global.service.S3Service;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final TermAgreementRepository termAgreementRepository;
     private final S3Service s3Service;
+    private final ImageService imageService;
 
     // 계정 복구 후 유효 기간 (30일)
     private static final long ACCOUNT_RESTORATION_PERIOD_DAYS = 30;
@@ -233,14 +236,15 @@ public class UserService {
             throw new BusinessException(UserErrorCode.NOT_FOUND);
         }
 
-        // 기존 프로필 이미지가 있으면 S3에서 삭제
+        // 기존 프로필 이미지가 있으면 삭제
         String oldThumbnail = user.getThumbnail();
         if (oldThumbnail != null && !oldThumbnail.isEmpty()) {
-            s3Service.deleteImage(oldThumbnail);
+            imageService.deleteImage(oldThumbnail);
         }
 
-        // 새 이미지 업로드
-        String imageUrl = s3Service.uploadImage(file, "profile");
+        // 새 이미지 업로드 (공통 이미지 서비스 사용)
+        ImageResponseDto imageResponseDto = imageService.uploadImage(file, "user", user.getId());
+        String imageUrl = imageResponseDto.getImageUrl();
 
         // 사용자 정보 업데이트
         user.setThumbnail(imageUrl);
