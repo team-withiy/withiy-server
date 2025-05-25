@@ -14,6 +14,7 @@ import com.server.domain.term.entity.TermAgreement;
 import com.server.domain.term.repository.TermAgreementRepository;
 import com.server.domain.user.dto.ProfileImageResponseDto;
 import com.server.domain.user.dto.UserDto;
+import com.server.domain.user.dto.UserProfileResponseDto;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.repository.UserRepository;
 import com.server.global.dto.ImageResponseDto;
@@ -255,5 +256,34 @@ public class UserService {
         // 응답 DTO 생성
         ProfileImageResponseDto responseDto = new ProfileImageResponseDto(imageUrl);
         return responseDto;
+    }
+
+    /**
+     * 유저 코드로 사용자 프로필 조회
+     * 
+     * @param userCode 조회할 사용자의 고유 코드
+     * @return 사용자 프로필 정보
+     */
+    @Transactional(readOnly = true)
+    public UserProfileResponseDto getUserProfileByCode(String userCode) {
+        if (userCode == null || userCode.trim().isEmpty()) {
+            log.warn("User code is null or empty");
+            throw new BusinessException(UserErrorCode.INVALID_PARAMETER);
+        }
+
+        User user = userRepository.findByCode(userCode).orElseThrow(() -> {
+            log.warn("User not found with userCode: {}", userCode);
+            throw new BusinessException(UserErrorCode.NOT_FOUND);
+        });
+
+        // 삭제된 사용자인지 확인
+        if (user.getDeletedAt() != null) {
+            log.warn("Attempt to access deleted user profile with userCode: {}", userCode);
+            throw new BusinessException(UserErrorCode.NOT_FOUND);
+        }
+
+        log.info("User profile retrieved for userCode: {}, nickname: {}", userCode,
+                user.getNickname());
+        return UserProfileResponseDto.from(user);
     }
 }
