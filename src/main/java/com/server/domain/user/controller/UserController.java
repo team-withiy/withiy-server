@@ -5,6 +5,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.server.domain.user.dto.RegisterUserInDto;
 import com.server.domain.user.dto.RestoreAccountDto;
 import com.server.domain.user.dto.UserDto;
+import com.server.domain.user.dto.UserProfileResponseDto;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.service.UserService;
 import com.server.global.dto.ApiResponseDto;
@@ -38,6 +40,16 @@ public class UserController {
     public ApiResponseDto<UserDto> getUser(@AuthenticationPrincipal User user) {
         UserDto userDto = userService.getUser(user);
         return ApiResponseDto.success(HttpStatus.OK.value(), userDto);
+    }
+
+    // 사용자 프로필 조회 (userCode로)
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/profile/{userCode}")
+    @Operation(summary = "사용자 프로필 조회", description = "userCode를 이용하여 사용자의 기본 프로필 정보 조회")
+    public ApiResponseDto<UserProfileResponseDto> getUserProfile(@PathVariable String userCode) {
+        UserProfileResponseDto userProfile = userService.getUserProfileByCode(userCode);
+        return ApiResponseDto.success(HttpStatus.OK.value(), userProfile);
     }
 
     // 사용자 탈퇴
