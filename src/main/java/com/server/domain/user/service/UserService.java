@@ -21,7 +21,6 @@ import com.server.global.dto.ImageResponseDto;
 import com.server.global.error.code.UserErrorCode;
 import com.server.global.error.exception.BusinessException;
 import com.server.global.service.ImageService;
-import com.server.global.service.S3Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 public class UserService {
     private final UserRepository userRepository;
     private final TermAgreementRepository termAgreementRepository;
-    private final S3Service s3Service;
     private final ImageService imageService;
 
     // 계정 복구 후 유효 기간 (30일)
