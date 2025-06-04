@@ -1,7 +1,6 @@
 package com.server.domain.category.entity;
 
 import com.server.domain.place.entity.Place;
-import com.server.domain.section.entity.Section;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,9 +30,6 @@ public class Category {
 
     @Column(name = "icon")
     private String icon;
-
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Section> sections = new ArrayList<>();
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Place> places = new ArrayList<>();

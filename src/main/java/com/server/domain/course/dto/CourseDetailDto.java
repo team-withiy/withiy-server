@@ -1,6 +1,6 @@
 package com.server.domain.course.dto;
 
-import com.server.domain.place.dto.PlaceDetailDto;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +19,6 @@ public class CourseDetailDto {
     private String thumbnail;
     private List<CourseImageDto> courseImageDtos;
 
-    private List<PlaceDetailDto> placeDetailDtos;
 
 
 }

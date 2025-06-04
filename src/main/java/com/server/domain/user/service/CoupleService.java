@@ -54,8 +54,7 @@ public class CoupleService {
         }
 
         // 5. 커플 생성 및 저장
-        Couple couple = Couple.builder().user1(user).user2(partner).firstMetDate(null).build();
-
+        Couple couple = new Couple(user, partner, null);
         coupleRepository.save(couple);
         log.info("새로운 커플이 연결되었습니다. 유저1: {}, 유저2: {}", user.getNickname(), partner.getNickname());
 

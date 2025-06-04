@@ -29,7 +29,7 @@ COPY gradlew /server/
 COPY build.gradle /server/
 COPY settings.gradle /server/
 
-RUN ./gradlew build
+RUN ./gradlew build -x test  #실행시간 단축 위해 테스트 빼고 진행 -> 테스트 실행하고 싶으면 -x test 지우세요
 
 # Stage 2: Run
 FROM openjdk:17-jdk-slim
