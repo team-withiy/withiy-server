@@ -282,6 +282,16 @@ public class UserService {
 
         log.info("User profile retrieved for userCode: {}, nickname: {}", userCode,
                 user.getNickname());
+
+        // 커플 정보가 있는 경우, 커플 정보도 포함하여 반환
+        if (user.getCouple() != null) {
+            log.info("User {} is in a couple with ID: {}", user.getNickname(),
+                    user.getCouple().getId());
+        } else {
+            log.info("User {} is not in a couple", user.getNickname());
+        }
+
+
         return UserProfileResponseDto.from(user);
     }
 }

@@ -24,11 +24,14 @@ public class UserProfileResponseDto {
             example = "https://cdn.withiy.com/users/profile/abc123.jpg")
     private String profileImageUrl;
 
+    private Boolean hasCouple;
+
     public static UserProfileResponseDto from(User user) {
         return UserProfileResponseDto.builder()
                 .userCode(user.getCode())
                 .nickname(user.getNickname())
                 .profileImageUrl(user.getThumbnail())
+                .hasCouple(user.getCouple() != null)
                 .build();
     }
 }
