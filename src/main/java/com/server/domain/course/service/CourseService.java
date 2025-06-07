@@ -6,7 +6,7 @@ import com.server.domain.course.entity.Course;
 import com.server.domain.course.entity.CourseImage;
 import com.server.domain.course.repository.CourseBookmarkRepository;
 import com.server.domain.course.repository.CourseRepository;
-import com.server.domain.place.dto.PlaceDetailDto;
+
 import com.server.domain.place.repository.PlaceRepository;
 import com.server.global.dto.ImageResponseDto;
 import com.server.global.error.code.CourseErrorCode;
@@ -33,7 +33,7 @@ public class CourseService {
         private final PlaceRepository placeRepository;
         private final ImageService imageService;
 
-        @Transactional
+/*        @Transactional
         public CourseDetailDto getCourseDetail(Long courseId) {
                 Course course = courseRepository.findById(courseId).orElseThrow(
                                 () -> new BusinessException(CourseErrorCode.NOT_FOUND));
@@ -63,7 +63,7 @@ public class CourseService {
                 return CourseDetailDto.builder().name(course.getName())
                                 .thumbnail(course.getThumbnail()).courseImageDtos(courseImages)
                                 .placeDetailDtos(placeDetails).build();
-        }
+        }*/
 
         /**
          * 코스 이미지 업로드
@@ -102,7 +102,7 @@ public class CourseService {
          * @param file 업로드할 이미지 파일
          * @return 업데이트된 코스 정보
          */
-        @Transactional
+        /*@Transactional
         public CourseDetailDto updateCourseThumbnail(Long courseId, MultipartFile file) {
                 Course course = courseRepository.findById(courseId).orElseThrow(
                                 () -> new BusinessException(CourseErrorCode.NOT_FOUND));
@@ -125,5 +125,5 @@ public class CourseService {
                                 imageResponseDto.getImageUrl());
 
                 return getCourseDetail(courseId);
-        }
+        }*/
 }

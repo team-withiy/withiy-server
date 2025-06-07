@@ -65,7 +65,7 @@ public class CoupleServiceTest {
         createdDateTime = LocalDateTime.of(2025, 4, 29, 12, 0);
 
         // Setup couple
-        couple = Couple.builder().user1(user1).user2(user2).firstMetDate(firstMetDate).build();
+        couple = new Couple(user1, user2, firstMetDate);
         couple.setId(1L);
         couple.setCreatedAt(createdDateTime);
         couple.setUpdatedAt(createdDateTime);

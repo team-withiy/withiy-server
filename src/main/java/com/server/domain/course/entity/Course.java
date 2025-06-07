@@ -1,8 +1,6 @@
 package com.server.domain.course.entity;
 
-import com.server.domain.place.entity.PlaceImage;
-import com.server.domain.section.entity.Section;
-import com.server.domain.section.entity.SectionCourse;
+import com.server.domain.album.entity.Album;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -43,8 +41,7 @@ public class Course {
     private List<CoursePlace> coursePlaces = new ArrayList<>();
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SectionCourse> sectionCourses = new ArrayList<>();
-
+    private List<Album> albums = new ArrayList<>();
 
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)

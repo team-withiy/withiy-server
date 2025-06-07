@@ -1,7 +1,6 @@
 package com.server.domain.course.dto;
 
 import com.server.domain.course.entity.CourseImage;
-import com.server.domain.place.entity.PlaceImage;
 import lombok.*;
 
 @Setter

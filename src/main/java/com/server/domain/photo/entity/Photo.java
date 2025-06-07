@@ -1,6 +1,7 @@
-package com.server.domain.section.entity;
+package com.server.domain.photo.entity;
 
-import com.server.domain.course.entity.Course;
+import com.server.domain.album.entity.Album;
+import com.server.domain.category.entity.Category;
 import com.server.domain.place.entity.Place;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,29 +12,35 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.io.Serializable;
-
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "section_course")
-@IdClass(SectionCourseId.class)
-public class SectionCourse implements Serializable {
+@Table(name = "photo")
+public class Photo {
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "section_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Section section;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
 
-    @Id
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Course course;
+    @Column(name = "img_url")
+    private String imgUrl;
 
-    @Column(name = "sequence")
+    @Column(name = "sequence_order")
     private int sequence;
+
+    @Column(name = "is_private")
+    private boolean isPrivate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "place_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Place place;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "album_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Album album;
 }

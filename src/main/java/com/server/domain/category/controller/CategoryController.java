@@ -3,7 +3,7 @@ package com.server.domain.category.controller;
 import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.dto.CreateCategoryDto;
 import com.server.domain.category.service.CategoryService;
-import com.server.domain.section.dto.SectionDto;
+
 import com.server.global.dto.ApiResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;

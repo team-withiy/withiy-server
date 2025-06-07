@@ -1,8 +1,9 @@
 package com.server.domain.place.entity;
 
+import com.server.domain.album.entity.Album;
 import com.server.domain.category.entity.Category;
 import com.server.domain.course.entity.CoursePlace;
-import com.server.domain.section.entity.SectionPlace;
+import com.server.domain.photo.entity.Photo;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,8 +32,14 @@ public class Place {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "thumbnail")
-    private String thumbnail;
+    @Column(name = "region_1depth")
+    private String region1depth;
+
+    @Column(name = "region_2depth")
+    private String region2depth;
+
+    @Column(name = "region_3depth")
+    private String region3depth;
 
     @Column(name = "address")
     private String address;
@@ -52,10 +59,13 @@ public class Place {
     private Category category;
 
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlaceImage> placeImages = new ArrayList<>();
+    private List<PlaceBookmark> placeBookmarks = new ArrayList<>();
 
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SectionPlace> sectionPlaces = new ArrayList<>();
+    private List<Album> albums = new ArrayList<>();
+
+    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Photo> photos = new ArrayList<>();
 
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CoursePlace> coursePlaces = new ArrayList<>();
