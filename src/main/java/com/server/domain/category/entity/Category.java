@@ -31,7 +31,7 @@ public class Category {
     @Column(name = "icon")
     private String icon;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "category")
     private List<Place> places = new ArrayList<>();
 
     public Category(String name, String icon) {

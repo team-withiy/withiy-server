@@ -37,8 +37,12 @@ public class Album {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private Place place;
+
+    // 장소가 삭제되었을 경우 앨범에 장소 이름 저장해두기 위한 스냅샷
+    @Column(name = "place_name_snapshot")
+    private String placeNameSnapshot;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "couple_id")

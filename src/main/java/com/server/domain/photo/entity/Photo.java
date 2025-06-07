@@ -36,7 +36,7 @@ public class Photo {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private Place place;
 
     @ManyToOne(fetch = FetchType.LAZY)
