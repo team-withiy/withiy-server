@@ -1,6 +1,7 @@
 package com.server.domain.place.service;
 
 import com.server.domain.category.dto.CategoryDto;
+import com.server.domain.place.dto.PlaceDetailDto;
 import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.dto.PlaceFocusDto;
 import com.server.domain.place.entity.Place;
@@ -47,19 +48,35 @@ public class PlaceService {
                         return null;
         }
 
-        public PlaceDto getPlaceDetail(Long placeId) {
+        public PlaceDto getPlaceSimpleDetail(Long placeId) {
                 Place place = placeRepository.findById(placeId)
                         .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
 
                 return PlaceDto.from(place, false);
         }
 
-        public PlaceDto getPlaceDetailAfterLogin(Long placeId, Long userId) {
+        public PlaceDto getPlaceSimpleDetailAfterLogin(Long placeId, Long userId) {
                 Place place = placeRepository.findById(placeId)
                         .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
                 User user = userRepository.findById(userId)
                         .orElseThrow(()-> new BusinessException(UserErrorCode.NOT_FOUND));
                 boolean isBookmarked = placeBookmarkRepository.existsByPlaceAndUser(place, user);
                 return PlaceDto.from(place, isBookmarked);
+        }
+
+        public PlaceDetailDto getPlaceDetail(Long placeId) {
+                Place place = placeRepository.findById(placeId)
+                        .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
+                return PlaceDetailDto.from(place, false);
+
+        }
+
+        public PlaceDetailDto getPlaceDetailAfterLogin(Long placeId, Long userId) {
+                Place place = placeRepository.findById(placeId)
+                        .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
+                User user = userRepository.findById(userId)
+                        .orElseThrow(()-> new BusinessException(UserErrorCode.NOT_FOUND));
+                boolean isBookmarked = placeBookmarkRepository.existsByPlaceAndUser(place, user);
+                return PlaceDetailDto.from(place, isBookmarked);
         }
 }
