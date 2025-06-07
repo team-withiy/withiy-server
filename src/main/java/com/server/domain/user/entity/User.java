@@ -7,6 +7,7 @@ import java.util.List;
 import com.server.domain.course.entity.CourseBookmark;
 import com.server.domain.course.entity.CoursePlace;
 import com.server.domain.place.entity.PlaceBookmark;
+import com.server.domain.review.entity.Review;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -100,6 +101,8 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CourseBookmark> courseBookmarks = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>();
 
 
     @Builder
