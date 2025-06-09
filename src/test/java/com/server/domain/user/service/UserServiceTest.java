@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.server.domain.user.repository.CoupleRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,6 +38,9 @@ public class UserServiceTest {
 
     @Mock
     private TermAgreementRepository termAgreementRepository;
+
+    @Mock
+    private CoupleRepository coupleRepository;
 
     @InjectMocks
     private UserService userService;
@@ -78,6 +82,8 @@ public class UserServiceTest {
         for (TermAgreement agreement : user.getTermAgreements()) {
             agreement.setAgreed(true);
         }
+
+        when(coupleRepository.findByUser1OrUser2(any(), any())).thenReturn(Optional.empty());
 
         // Call the method
         UserDto userDto = userService.getUser(user);

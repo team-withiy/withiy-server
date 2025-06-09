@@ -1,6 +1,5 @@
 package com.server.domain.user.dto;
 
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.server.domain.user.entity.User;
 import com.server.global.config.S3UrlConfig;
@@ -20,19 +19,14 @@ public class UserDto {
     private Boolean restoreEnabled;
     private Boolean isRegistered;
     private String code;
-
-    private static S3UrlConfig s3UrlConfig;
+    private Boolean hasCouple;
+    private CoupleDto couple;
 
     public UserDto() {
         // Default constructor
     }
 
-    @Autowired
-    public void setS3UrlConfig(S3UrlConfig s3UrlConfig) {
-        UserDto.s3UrlConfig = s3UrlConfig;
-    }
-
-    public static UserDto from(User user, Boolean isRegistered) {
+    public static UserDto from(User user, Boolean isRegistered, CoupleDto couple, S3UrlConfig s3UrlConfig) {
         Boolean restoreEnabled;
         if (user.getDeletedAt() != null) {
             restoreEnabled = true;
@@ -49,7 +43,8 @@ public class UserDto {
         }
 
         return UserDto.builder().nickname(user.getNickname()).thumbnail(thumbnailUrl)
-                .restoreEnabled(restoreEnabled).isRegistered(isRegistered).code(user.getCode())
-                .build();
+            .restoreEnabled(restoreEnabled).isRegistered(isRegistered).code(user.getCode())
+            .hasCouple(couple != null).couple(couple)
+            .build();
     }
 }

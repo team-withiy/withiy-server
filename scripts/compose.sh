@@ -1,5 +1,6 @@
 #!/bin/bash
 
+cd "$(dirname "$0")/.."
 docker compose down -v
 docker rmi withiy-server-server --force
 

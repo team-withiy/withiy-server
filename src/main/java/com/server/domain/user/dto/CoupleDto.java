@@ -40,15 +40,8 @@ public class CoupleDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate connectedDate;
 
-    private static S3UrlConfig s3UrlConfig;
-
-    @Autowired
-    public void setS3UrlConfig(S3UrlConfig s3UrlConfig) {
-        CoupleDto.s3UrlConfig = s3UrlConfig;
-    }
-
     // 현재 사용자 기준으로 파트너 정보를 반환하는 팩토리 메서드
-    public static CoupleDto from(Couple couple, User currentUser) {
+    public static CoupleDto from(Couple couple, User currentUser, S3UrlConfig s3UrlConfig) {
         User partner = couple.getUser1().getId().equals(currentUser.getId()) ? couple.getUser2()
                 : couple.getUser1();
 
