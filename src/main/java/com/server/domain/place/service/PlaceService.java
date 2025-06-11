@@ -9,6 +9,7 @@ import com.server.domain.place.repository.PlaceBookmarkRepository;
 import com.server.domain.place.repository.PlaceRepository;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.repository.UserRepository;
+import com.server.global.config.S3UrlConfig;
 import com.server.global.dto.ImageResponseDto;
 import com.server.global.error.code.PlaceErrorCode;
 import com.server.global.error.code.UserErrorCode;
@@ -30,6 +31,7 @@ public class PlaceService {
         private final PlaceRepository placeRepository;
         private final PlaceBookmarkRepository placeBookmarkRepository;
         private final UserRepository userRepository;
+        private final S3UrlConfig s3UrlConfig;
 
         public List<PlaceFocusDto> getMapFocusPlaces(String swLat, String swLng, String neLat, String neLng) {
 
@@ -67,7 +69,7 @@ public class PlaceService {
         public PlaceDetailDto getPlaceDetail(Long placeId) {
                 Place place = placeRepository.findById(placeId)
                         .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
-                return PlaceDetailDto.from(place, false);
+                return PlaceDetailDto.from(place, false, s3UrlConfig);
 
         }
 
@@ -77,6 +79,6 @@ public class PlaceService {
                 User user = userRepository.findById(userId)
                         .orElseThrow(()-> new BusinessException(UserErrorCode.NOT_FOUND));
                 boolean isBookmarked = placeBookmarkRepository.existsByPlaceAndUser(place, user);
-                return PlaceDetailDto.from(place, isBookmarked);
+                return PlaceDetailDto.from(place, isBookmarked, s3UrlConfig);
         }
 }

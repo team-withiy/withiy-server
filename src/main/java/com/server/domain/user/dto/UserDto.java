@@ -1,6 +1,7 @@
 package com.server.domain.user.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.server.domain.user.entity.User;
 import com.server.global.config.S3UrlConfig;
 
@@ -20,6 +21,7 @@ public class UserDto {
     private Boolean isRegistered;
     private String code;
     private Boolean hasCouple;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private CoupleDto couple;
 
     public UserDto() {
