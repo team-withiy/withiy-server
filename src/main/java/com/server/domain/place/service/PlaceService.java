@@ -1,11 +1,17 @@
 package com.server.domain.place.service;
 
 import com.server.domain.category.dto.CategoryDto;
+import com.server.domain.place.dto.PlaceDetailDto;
+import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.dto.PlaceFocusDto;
 import com.server.domain.place.entity.Place;
+import com.server.domain.place.repository.PlaceBookmarkRepository;
 import com.server.domain.place.repository.PlaceRepository;
+import com.server.domain.user.entity.User;
+import com.server.domain.user.repository.UserRepository;
 import com.server.global.dto.ImageResponseDto;
 import com.server.global.error.code.PlaceErrorCode;
+import com.server.global.error.code.UserErrorCode;
 import com.server.global.error.exception.BusinessException;
 import com.server.global.service.ImageService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +28,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PlaceService {
         private final PlaceRepository placeRepository;
+        private final PlaceBookmarkRepository placeBookmarkRepository;
+        private final UserRepository userRepository;
 
         public List<PlaceFocusDto> getMapFocusPlaces(String swLat, String swLng, String neLat, String neLng) {
 
@@ -38,5 +46,37 @@ public class PlaceService {
                 }
                 else
                         return null;
+        }
+
+        public PlaceDto getPlaceSimpleDetail(Long placeId) {
+                Place place = placeRepository.findById(placeId)
+                        .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
+
+                return PlaceDto.from(place, false);
+        }
+
+        public PlaceDto getPlaceSimpleDetailAfterLogin(Long placeId, Long userId) {
+                Place place = placeRepository.findById(placeId)
+                        .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
+                User user = userRepository.findById(userId)
+                        .orElseThrow(()-> new BusinessException(UserErrorCode.NOT_FOUND));
+                boolean isBookmarked = placeBookmarkRepository.existsByPlaceAndUser(place, user);
+                return PlaceDto.from(place, isBookmarked);
+        }
+
+        public PlaceDetailDto getPlaceDetail(Long placeId) {
+                Place place = placeRepository.findById(placeId)
+                        .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
+                return PlaceDetailDto.from(place, false);
+
+        }
+
+        public PlaceDetailDto getPlaceDetailAfterLogin(Long placeId, Long userId) {
+                Place place = placeRepository.findById(placeId)
+                        .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
+                User user = userRepository.findById(userId)
+                        .orElseThrow(()-> new BusinessException(UserErrorCode.NOT_FOUND));
+                boolean isBookmarked = placeBookmarkRepository.existsByPlaceAndUser(place, user);
+                return PlaceDetailDto.from(place, isBookmarked);
         }
 }

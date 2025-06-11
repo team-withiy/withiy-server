@@ -3,8 +3,7 @@ package com.server.domain.place.dto;
 import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.place.entity.Place;
-import com.server.domain.place.repository.PlaceBookmarkRepository;
-import com.server.domain.user.entity.User;
+import com.server.domain.review.dto.ReviewDto;
 import lombok.*;
 
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PlaceDto {
+public class PlaceDetailDto {
     private Long id;
     private String name;
     private String address;
@@ -27,11 +26,11 @@ public class PlaceDto {
     private boolean isBookmarked;
     private Long score;
     private List<PhotoDto> photos;
+    private List<ReviewDto> reviews;
 
+    public static PlaceDetailDto from(Place place, boolean isBookmarked) {
 
-    public static PlaceDto from(Place place, boolean isBookmarked) {
-
-        return PlaceDto.builder()
+        return PlaceDetailDto.builder()
                 .id(place.getId())
                 .name(place.getName())
                 .address(place.getAddress())
@@ -44,7 +43,7 @@ public class PlaceDto {
                 .isBookmarked(isBookmarked)
                 .score(place.getScore())
                 .photos(place.getPhotos().stream().map(PhotoDto::from).toList())
+                .reviews(place.getReviews().stream().map(review -> ReviewDto.from(review, isBookmarked)).toList())
                 .build();
     }
-
 }

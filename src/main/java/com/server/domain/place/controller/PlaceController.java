@@ -1,5 +1,7 @@
 package com.server.domain.place.controller;
 
+import com.server.domain.place.dto.PlaceDetailDto;
+import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.dto.PlaceFocusDto;
 import com.server.domain.place.service.PlaceService;
 import com.server.domain.user.entity.User;
@@ -32,5 +34,28 @@ public class PlaceController {
     }
 
 
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{placeId}")
+    @Operation(summary = "특정 장소 정보 가져오기", description = "장소 id를 받아 특정 장소 간단한 정보 조회")
+    public ApiResponseDto<PlaceDto> getMapFocusPlaces(@PathVariable Long placeId, @AuthenticationPrincipal User user) {
+        PlaceDto placeDto;
+        if(user==null){
+            placeDto = placeService.getPlaceSimpleDetail(placeId);
+        }else {
+            placeDto = placeService.getPlaceSimpleDetailAfterLogin(placeId, user.getId());
+        }return ApiResponseDto.success(HttpStatus.OK.value(), placeDto);
+    }
 
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/detail/{placeId}")
+    @Operation(summary = "특정 장소 상세 정보 가져오기", description = "장소 id를 받아 특정 장소 자세한 정보 조회")
+    public ApiResponseDto<PlaceDetailDto> getPlaceDetail(@PathVariable Long placeId, @AuthenticationPrincipal User user){
+        PlaceDetailDto placeDetailDto;
+        if(user==null){
+            placeDetailDto = placeService.getPlaceDetail(placeId);
+        }else {
+            placeDetailDto = placeService.getPlaceDetailAfterLogin(placeId, user.getId());
+        }return ApiResponseDto.success(HttpStatus.OK.value(), placeDetailDto);
+
+    }
 }
