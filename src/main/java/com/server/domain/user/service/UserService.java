@@ -58,7 +58,7 @@ public class UserService {
         CoupleDto coupleDto = coupleRepository.findByUser1OrUser2(user, user)
             .map(couple -> CoupleDto.from(couple, user, s3UrlConfig))
             .orElse(null);
-
+        
         return UserDto.from(user, areAllRequiredTermsAgreed(user), coupleDto, s3UrlConfig);
     }
 
