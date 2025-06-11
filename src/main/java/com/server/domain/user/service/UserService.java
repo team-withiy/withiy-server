@@ -5,6 +5,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 
+import com.server.domain.user.dto.CoupleDto;
+import com.server.domain.user.repository.CoupleRepository;
+import com.server.global.config.S3UrlConfig;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,9 +35,11 @@ public class UserService {
     private final UserRepository userRepository;
     private final TermAgreementRepository termAgreementRepository;
     private final ImageService imageService;
+    private final S3UrlConfig s3UrlConfig;
 
     // 계정 복구 후 유효 기간 (30일)
     private static final long ACCOUNT_RESTORATION_PERIOD_DAYS = 30;
+    private final CoupleRepository coupleRepository;
 
     @Transactional
     public void saveRefreshToken(Long id, String refreshToken) {
@@ -50,7 +55,11 @@ public class UserService {
     }
 
     public UserDto getUser(User user) {
-        return UserDto.from(user, areAllRequiredTermsAgreed(user));
+        CoupleDto coupleDto = coupleRepository.findByUser1OrUser2(user, user)
+            .map(couple -> CoupleDto.from(couple, user, s3UrlConfig))
+            .orElse(null);
+
+        return UserDto.from(user, areAllRequiredTermsAgreed(user), coupleDto, s3UrlConfig);
     }
 
     @Transactional

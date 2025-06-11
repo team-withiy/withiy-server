@@ -2,6 +2,7 @@ package com.server.domain.user.service;
 
 import java.time.LocalDate;
 
+import com.server.global.config.S3UrlConfig;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ public class CoupleService {
 
     private final CoupleRepository coupleRepository;
     private final UserRepository userRepository;
+    private final S3UrlConfig s3UrlConfig;
 
     /**
      * 사용자 코드로 커플 연결을 시도합니다.
@@ -58,7 +60,7 @@ public class CoupleService {
         coupleRepository.save(couple);
         log.info("새로운 커플이 연결되었습니다. 유저1: {}, 유저2: {}", user.getNickname(), partner.getNickname());
 
-        return CoupleDto.from(couple, user);
+        return CoupleDto.from(couple, user, s3UrlConfig);
     }
 
     /**
@@ -72,7 +74,7 @@ public class CoupleService {
         Couple couple = coupleRepository.findByUser1OrUser2(user, user)
                 .orElseThrow(() -> new BusinessException(CoupleErrorCode.COUPLE_NOT_FOUND));
 
-        return CoupleDto.from(couple, user);
+        return CoupleDto.from(couple, user, s3UrlConfig);
     }
 
     /**
@@ -112,6 +114,6 @@ public class CoupleService {
 
         log.info("커플 ID: {}의 처음 만난 날짜가 {}로 업데이트되었습니다.", couple.getId(), firstMetDate);
 
-        return CoupleDto.from(couple, user);
+        return CoupleDto.from(couple, user, s3UrlConfig);
     }
 }
