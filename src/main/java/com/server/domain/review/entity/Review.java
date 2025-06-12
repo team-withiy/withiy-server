@@ -48,7 +48,7 @@ public class Review {
     @Column(name = "score")
     private Long score;
 
-    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "review")
     private List<Photo> photos = new ArrayList<>();
 
     @Column(name = "created_at", nullable = false)
