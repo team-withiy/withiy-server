@@ -4,6 +4,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.server.global.dto.ImageResponseDto;
 
+import java.util.List;
+
 /**
  * 이미지 업로드 및 관리를 위한 서비스 인터페이스
  */
@@ -41,4 +43,8 @@ public interface ImageService {
      * @return 유효성 검증 실패 이유 (유효한 경우 null)
      */
     String getValidationErrorMessage(MultipartFile file);
+
+    // 여러장의 이미지 업로드
+    List<ImageResponseDto> uploadImages(List<MultipartFile> files, String entityType, Long entityId);
+
 }

@@ -1,8 +1,6 @@
 package com.server.domain.place.controller;
 
-import com.server.domain.place.dto.PlaceDetailDto;
-import com.server.domain.place.dto.PlaceDto;
-import com.server.domain.place.dto.PlaceFocusDto;
+import com.server.domain.place.dto.*;
 import com.server.domain.place.service.PlaceService;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
@@ -24,6 +22,36 @@ import java.util.List;
 @RequestMapping("/api/places")
 public class PlaceController {
     private final PlaceService placeService;
+
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/admin")
+    @Operation(summary = "장소 생성 api", description = "관리자가 장소 등록할 수 있는 api, 하위카테고리 선택")
+    public ApiResponseDto<PlaceDto> createPlace(@RequestBody CreatePlaceDto createPlaceDto) {
+        PlaceDto placeDto = placeService.createPlace(createPlaceDto);
+        return ApiResponseDto.success(HttpStatus.OK.value(), placeDto);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/create")
+    @Operation(summary = "사용자 장소 최초 등록 api", description = "사용자가 처음으로 등록하는 장소 api")
+    public ApiResponseDto<PlaceDto> createPlaceFirst(@AuthenticationPrincipal User user, @RequestBody CreatePlaceByUserDto createPlaceByUserDto) {
+        PlaceDto placeDto = placeService.createPlaceFirst(user, createPlaceByUserDto);
+        return ApiResponseDto.success(HttpStatus.OK.value(), placeDto);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping
+    @Operation(summary = "사용자 장소 등록 api", description = "등록되어 있는 장소에 대한 사진/리뷰 저장하는 api")
+    public ApiResponseDto<PlaceDto> registerPlace(@AuthenticationPrincipal User user, @RequestBody RegisterPlaceDto registerPlaceDto) {
+        PlaceDto placeDto = placeService.registerPlace(user, registerPlaceDto);
+        return ApiResponseDto.success(HttpStatus.OK.value(), placeDto);
+    }
+
+
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/focus")

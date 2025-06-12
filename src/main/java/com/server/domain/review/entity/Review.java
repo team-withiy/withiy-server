@@ -54,4 +54,12 @@ public class Review {
     @Column(name = "created_at", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    public Review(Place place, User user, String contents,
+                  Long score){
+        this.place = place;
+        this.user = user;
+        this.contents = contents;
+        this.score = score;
+    }
 }

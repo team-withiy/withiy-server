@@ -5,6 +5,7 @@ import com.server.domain.photo.entity.Photo;
 import com.server.domain.place.entity.Place;
 import com.server.domain.schedule.entity.Schedule;
 import com.server.domain.user.entity.Couple;
+import com.server.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
@@ -45,9 +46,9 @@ public class Album {
     private String placeNameSnapshot;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "couple_id")
+    @JoinColumn(name = "user_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Couple couple;
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "schedule_id")
@@ -57,4 +58,11 @@ public class Album {
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Photo> photos = new ArrayList<>();
 
+
+    public Album(String title, Place place, String placeName, User user) {
+        this.title = title;
+        this.place = place;
+        this.placeNameSnapshot = placeName;
+        this.user = user;
+    }
 }

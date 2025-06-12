@@ -31,11 +31,26 @@ public class Category {
     @Column(name = "icon")
     private String icon;
 
+    // 상위 카테고리
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Category parent;
+
+    // 하위 카테고리 리스트
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Category> children = new ArrayList<>();
+
     @OneToMany(mappedBy = "category")
     private List<Place> places = new ArrayList<>();
 
     public Category(String name, String icon) {
         this.name = name;
         this.icon = icon;
+    }
+
+    // 하위 카테고리 추가 메서드
+    public void addChildCategory(Category child) {
+        children.add(child);
+        child.setParent(this);
     }
 }

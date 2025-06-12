@@ -1,12 +1,19 @@
 package com.server.domain.place.service;
 
+import com.server.domain.album.entity.Album;
+import com.server.domain.album.service.AlbumService;
 import com.server.domain.category.dto.CategoryDto;
-import com.server.domain.place.dto.PlaceDetailDto;
-import com.server.domain.place.dto.PlaceDto;
-import com.server.domain.place.dto.PlaceFocusDto;
+import com.server.domain.category.entity.Category;
+import com.server.domain.category.repository.CategoryRepository;
+import com.server.domain.photo.entity.Photo;
+import com.server.domain.photo.service.PhotoService;
+import com.server.domain.place.dto.*;
 import com.server.domain.place.entity.Place;
 import com.server.domain.place.repository.PlaceBookmarkRepository;
 import com.server.domain.place.repository.PlaceRepository;
+import com.server.domain.review.entity.Review;
+import com.server.domain.review.repository.ReviewRepository;
+import com.server.domain.review.service.ReviewService;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.repository.UserRepository;
 import com.server.global.config.S3UrlConfig;
@@ -32,6 +39,10 @@ public class PlaceService {
         private final PlaceBookmarkRepository placeBookmarkRepository;
         private final UserRepository userRepository;
         private final S3UrlConfig s3UrlConfig;
+        private final CategoryRepository categoryRepository;
+        private final ReviewService reviewService;
+        private final AlbumService albumService;
+        private final PhotoService photoService;
 
         public List<PlaceFocusDto> getMapFocusPlaces(String swLat, String swLng, String neLat, String neLng) {
 
@@ -80,5 +91,81 @@ public class PlaceService {
                         .orElseThrow(()-> new BusinessException(UserErrorCode.NOT_FOUND));
                 boolean isBookmarked = placeBookmarkRepository.existsByPlaceAndUser(place, user);
                 return PlaceDetailDto.from(place, isBookmarked, s3UrlConfig);
+        }
+
+        public PlaceDto createPlace(CreatePlaceDto createPlaceDto) {
+                Category category = categoryRepository.findByName(createPlaceDto.getCategory());
+                Place place = new Place(createPlaceDto.getName(), createPlaceDto.getRegion1depth(),
+                        createPlaceDto.getRegion2depth(), createPlaceDto.getRegion3depth(), createPlaceDto.getAddress(),
+                        createPlaceDto.getLatitude(), createPlaceDto.getLongitude(), category);
+                placeRepository.save(place);
+
+                return PlaceDto.from(place, false);
+        }
+
+        public PlaceDto createPlaceFirst(User user, CreatePlaceByUserDto createPlaceByUserDto) {
+
+                Category category = categoryRepository.findByName(createPlaceByUserDto.getCategory());
+                Place place = new Place(createPlaceByUserDto.getPlaceName(), createPlaceByUserDto.getAddress(),
+                        createPlaceByUserDto.getLatitude(), createPlaceByUserDto.getLongitude(), category, createPlaceByUserDto.getScore());
+                Place savedPlace = placeRepository.save(place);
+
+                Review savedreview = reviewService.save(savedPlace, user, createPlaceByUserDto.getReview(),
+                                createPlaceByUserDto.getScore());
+                savedPlace.addReview(savedreview);
+
+                Album album = new Album(createPlaceByUserDto.getPlaceName(), savedPlace,
+                        createPlaceByUserDto.getPlaceName(), user);
+                Album savedAlbum = albumService.save(album);
+                savedPlace.addAlbum(savedAlbum);
+
+                List<Photo> photos = createPlaceByUserDto.getPhotos().stream()
+                        .map(photoDto -> Photo.builder()
+                                .imgUrl(photoDto.getImgUrl())
+                                .sequence(photoDto.getSequence())
+                                .isPrivate(photoDto.isPrivate())
+                                .place(savedPlace)
+                                .album(savedAlbum)
+                                .review(savedreview)
+                                .build())
+                        .toList();
+                photoService.saveAll(photos);
+
+                photos.forEach(place::addPhoto);
+                placeRepository.save(place);
+
+                boolean isBookmarked = placeBookmarkRepository.existsByPlaceAndUser(savedPlace, user);
+                return PlaceDto.from(savedPlace, isBookmarked);
+        }
+
+        public PlaceDto registerPlace(User user, RegisterPlaceDto registerPlaceDto) {
+                Place place = placeRepository.findById(registerPlaceDto.getPlaceId())
+                        .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
+                Review savedreview = reviewService.save(place, user, registerPlaceDto.getReview(),
+                        registerPlaceDto.getScore());
+                place.addReview(savedreview);
+
+                Album album = new Album(place.getName(), place,
+                        place.getName(), user);
+                Album savedAlbum = albumService.save(album);
+                place.addAlbum(savedAlbum);
+                List<Photo> photos = registerPlaceDto.getPhotos().stream()
+                        .map(photoDto -> Photo.builder()
+                                .imgUrl(photoDto.getImgUrl())
+                                .sequence(photoDto.getSequence())
+                                .isPrivate(photoDto.isPrivate())
+                                .place(place)
+                                .album(savedAlbum)
+                                .review(savedreview)
+                                .build())
+                        .toList();
+
+                photoService.saveAll(photos);
+
+                photos.forEach(place::addPhoto);
+                placeRepository.save(place);
+
+                boolean isBookmarked = placeBookmarkRepository.existsByPlaceAndUser(place, user);
+                return PlaceDto.from(place, isBookmarked);
         }
 }

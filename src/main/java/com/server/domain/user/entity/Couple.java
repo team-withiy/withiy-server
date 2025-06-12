@@ -54,8 +54,6 @@ public class Couple {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "couple", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Album> albums = new ArrayList<>();
 
     public Couple(User user1, User user2, LocalDate firstMetDate){
         this.user1 = user1;
