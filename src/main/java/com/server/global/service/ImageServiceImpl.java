@@ -8,6 +8,9 @@ import com.server.global.dto.ImageResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 이미지 업로드 및 관리를 위한 서비스 구현체
  */
@@ -48,6 +51,26 @@ public class ImageServiceImpl implements ImageService {
         return ImageResponseDto.builder().imageUrl(imageUrl).entityType(entityType)
                 .entityId(entityId).build();
     }
+
+    //여러장 이미지 업로드
+    @Override
+    public List<ImageResponseDto> uploadImages(List<MultipartFile> files, String entityType, Long entityId) {
+        if (files == null || files.isEmpty()) {
+            throw new IllegalArgumentException("파일 목록이 비어 있습니다.");
+        }
+
+        List<ImageResponseDto> responseList = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+            if (!validateImage(file)) {
+                throw new IllegalArgumentException(getValidationErrorMessage(file));
+            }
+            responseList.add(uploadImage(file, entityType, entityId));
+        }
+
+        return responseList;
+    }
+
 
     /**
      * URL로부터 이미지 삭제

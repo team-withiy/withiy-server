@@ -4,12 +4,10 @@ import com.server.domain.album.entity.Album;
 import com.server.domain.category.entity.Category;
 import com.server.domain.course.entity.CoursePlace;
 import com.server.domain.photo.entity.Photo;
+import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.review.entity.Review;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -21,6 +19,7 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "place")
@@ -73,4 +72,56 @@ public class Place {
 
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
+
+
+    public void addPhoto(Photo photo) {
+        this.photos.add(photo);
+        photo.setPlace(this);
+    }
+
+    public void addReview(Review review) {
+        this.reviews.add(review);
+        review.setPlace(this);
+        updateAverageScore();
+    }
+    private void updateAverageScore() {
+        if (reviews.isEmpty()) {
+            this.score = 0L;
+            return;
+        }
+
+        double average = reviews.stream()
+                .mapToLong(Review::getScore)
+                .average()
+                .orElse(0.0);
+
+        this.score = Math.round(average); // 반올림하여 Long으로 저장
+    }
+
+    public void addAlbum(Album album) {
+        this.albums.add(album);
+        album.setPlace(this);
+    }
+
+    public Place(String name, String region1depth, String region2depth, String region3depth, String address,
+                 String latitude, String longitude, Category category){
+        this.name = name;
+        this.region1depth = region1depth;
+        this.region2depth = region2depth;
+        this.region3depth = region3depth;
+        this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.category = category;
+    }
+
+    public Place(String name, String address,
+                 String latitude, String longitude, Category category, Long score){
+        this.name = name;
+        this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.category = category;
+        this.score = score;
+    }
 }

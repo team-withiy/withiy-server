@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PlaceRepository extends JpaRepository<Place, Long> {
     @Query(value = "SELECT * FROM place p WHERE " +
@@ -15,6 +16,7 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
     List<Place> findByLatitudeBetweenAndLongitudeBetween(
             @Param("minLat") String minLat, @Param("maxLat") String maxLat,
             @Param("minLng") String minLng, @Param("maxLng") String maxLng);
+
 
 
 
