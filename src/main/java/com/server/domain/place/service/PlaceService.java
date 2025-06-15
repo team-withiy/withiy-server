@@ -1,6 +1,7 @@
 package com.server.domain.place.service;
 
 import com.server.domain.album.entity.Album;
+import com.server.domain.album.repository.AlbumRepository;
 import com.server.domain.album.service.AlbumService;
 import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
@@ -40,10 +41,12 @@ public class PlaceService {
         private final UserRepository userRepository;
         private final S3UrlConfig s3UrlConfig;
         private final CategoryRepository categoryRepository;
+        private final AlbumRepository albumRepository;
         private final ReviewService reviewService;
         private final AlbumService albumService;
         private final PhotoService photoService;
 
+        @Transactional
         public List<PlaceFocusDto> getMapFocusPlaces(String swLat, String swLng, String neLat, String neLng) {
 
                 List<Place> places = placeRepository.findByLatitudeBetweenAndLongitudeBetween(swLat, neLat, swLng, neLng);
@@ -61,6 +64,7 @@ public class PlaceService {
                         return null;
         }
 
+        @Transactional
         public PlaceDto getPlaceSimpleDetail(Long placeId) {
                 Place place = placeRepository.findById(placeId)
                         .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
@@ -68,6 +72,7 @@ public class PlaceService {
                 return PlaceDto.from(place, false);
         }
 
+        @Transactional
         public PlaceDto getPlaceSimpleDetailAfterLogin(Long placeId, Long userId) {
                 Place place = placeRepository.findById(placeId)
                         .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
@@ -77,6 +82,7 @@ public class PlaceService {
                 return PlaceDto.from(place, isBookmarked);
         }
 
+        @Transactional
         public PlaceDetailDto getPlaceDetail(Long placeId) {
                 Place place = placeRepository.findById(placeId)
                         .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
@@ -84,6 +90,7 @@ public class PlaceService {
 
         }
 
+        @Transactional
         public PlaceDetailDto getPlaceDetailAfterLogin(Long placeId, Long userId) {
                 Place place = placeRepository.findById(placeId)
                         .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
@@ -93,6 +100,7 @@ public class PlaceService {
                 return PlaceDetailDto.from(place, isBookmarked, s3UrlConfig);
         }
 
+        @Transactional
         public PlaceDto createPlace(CreatePlaceDto createPlaceDto) {
                 Category category = categoryRepository.findByName(createPlaceDto.getCategory());
                 Place place = new Place(createPlaceDto.getName(), createPlaceDto.getRegion1depth(),
@@ -103,6 +111,7 @@ public class PlaceService {
                 return PlaceDto.from(place, false);
         }
 
+        @Transactional
         public PlaceDto createPlaceFirst(User user, CreatePlaceByUserDto createPlaceByUserDto) {
 
                 Category category = categoryRepository.findByName(createPlaceByUserDto.getCategory());
@@ -138,6 +147,7 @@ public class PlaceService {
                 return PlaceDto.from(savedPlace, isBookmarked);
         }
 
+        @Transactional
         public PlaceDto registerPlace(User user, RegisterPlaceDto registerPlaceDto) {
                 Place place = placeRepository.findById(registerPlaceDto.getPlaceId())
                         .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
@@ -167,5 +177,43 @@ public class PlaceService {
 
                 boolean isBookmarked = placeBookmarkRepository.existsByPlaceAndUser(place, user);
                 return PlaceDto.from(place, isBookmarked);
+        }
+
+        @Transactional
+        public PlaceDetailDto updatePlace(Long placeId, UpdatePlaceDto updatePlaceDto) {
+                Place place = placeRepository.findById(placeId)
+                        .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
+
+                if (updatePlaceDto.getName()!=null) place.setName(updatePlaceDto.getName());
+                if (updatePlaceDto.getAddress()!=null) place.setAddress(updatePlaceDto.getAddress());
+                if (updatePlaceDto.getRegion1depth()!=null) place.setRegion1depth(updatePlaceDto.getRegion1depth());
+                if (updatePlaceDto.getRegion2depth()!=null) place.setRegion2depth(updatePlaceDto.getRegion2depth());
+                if (updatePlaceDto.getRegion3depth()!=null) place.setRegion3depth(updatePlaceDto.getRegion3depth());
+                if (updatePlaceDto.getLatitude()!=null) place.setLatitude(updatePlaceDto.getLatitude());
+                if (updatePlaceDto.getLongitude()!=null) place.setLongitude(updatePlaceDto.getLongitude());
+                if (updatePlaceDto.getScore()!=null) place.setScore(updatePlaceDto.getScore());
+                if(updatePlaceDto.getCategory()!=null){
+                        Category category = categoryRepository.findByName(updatePlaceDto.getName());
+                        place.setCategory(category);
+                }
+
+                placeRepository.save(place);
+
+                return PlaceDetailDto.from(place, false, null);
+        }
+
+        @Transactional
+        public String deletePlace(Long placeId) {
+                Place place = placeRepository.findById(placeId)
+                        .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
+                String result = place.getName();
+                place.getAlbums().forEach(album -> {
+                        album.setPlaceNameSnapshot(result);
+                        albumRepository.save(album);
+                }); // 장소가 삭제되어도 앨범에 장소 이름이 남음.
+                placeRepository.delete(place);
+
+                return result+" delete.";
+
         }
 }
