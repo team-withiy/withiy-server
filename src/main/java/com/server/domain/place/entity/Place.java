@@ -3,6 +3,7 @@ package com.server.domain.place.entity;
 import com.server.domain.album.entity.Album;
 import com.server.domain.category.entity.Category;
 import com.server.domain.course.entity.CoursePlace;
+import com.server.domain.folder.entity.FolderPlace;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.review.entity.Review;
@@ -72,6 +73,9 @@ public class Place {
 
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FolderPlace> folderPlaces = new ArrayList<>();
 
 
     public void addPhoto(Photo photo) {
