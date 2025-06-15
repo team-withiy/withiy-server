@@ -86,4 +86,26 @@ public class PlaceController {
         }return ApiResponseDto.success(HttpStatus.OK.value(), placeDetailDto);
 
     }
+
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.OK)
+    @PatchMapping("/{placeId}")
+    @Operation(summary = "특정 장소 정보 수정", description = "장소 id와 수정하고 싶은 컬럼을 받아 장소 정보 수정")
+    public ApiResponseDto<PlaceDetailDto> updatePlace(@PathVariable Long placeId, @RequestBody UpdatePlaceDto updatePlaceDto){
+        PlaceDetailDto placeDetailDto = placeService.updatePlace(placeId, updatePlaceDto);
+        return ApiResponseDto.success(HttpStatus.OK.value(), placeDetailDto);
+
+    }
+
+    //@PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/{placeId}")
+    @Operation(summary = "특정 장소 삭제", description = "장소 id를 받아 특정 장소 삭제")
+    public ApiResponseDto<String> deletePlace(@PathVariable Long placeId){
+        String result = placeService.deletePlace(placeId);
+        return ApiResponseDto.success(HttpStatus.OK.value(), result);
+
+    }
+
 }
