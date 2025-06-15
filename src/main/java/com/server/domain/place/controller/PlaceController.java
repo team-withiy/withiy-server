@@ -98,7 +98,7 @@ public class PlaceController {
 
     }
 
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{placeId}")
     @Operation(summary = "특정 장소 삭제", description = "장소 id를 받아 특정 장소 삭제")
