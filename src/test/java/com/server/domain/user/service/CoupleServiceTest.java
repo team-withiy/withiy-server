@@ -88,7 +88,7 @@ public class CoupleServiceTest {
         });
 
         // Call the method
-        CoupleDto result = coupleService.connectCouple(user1, "USER2_CODE");
+        CoupleDto result = coupleService.connectCouple(user1, "USER2_CODE", firstMetDate);
 
         // Verify
         assertNotNull(result);
@@ -106,7 +106,7 @@ public class CoupleServiceTest {
 
         // Call and verify
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            coupleService.connectCouple(user1, "USER2_CODE");
+            coupleService.connectCouple(user1, "USER2_CODE", firstMetDate);
         });
 
         assertEquals(CoupleErrorCode.ALREADY_CONNECTED, exception.getErrorCode());
@@ -120,7 +120,7 @@ public class CoupleServiceTest {
 
         // Call and verify
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            coupleService.connectCouple(user1, "NONEXISTENT_CODE");
+            coupleService.connectCouple(user1, "NONEXISTENT_CODE", firstMetDate);
         });
 
         assertEquals(CoupleErrorCode.PARTNER_NOT_FOUND, exception.getErrorCode());
@@ -134,7 +134,7 @@ public class CoupleServiceTest {
 
         // Call and verify
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            coupleService.connectCouple(user1, "USER1_CODE");
+            coupleService.connectCouple(user1, "USER1_CODE", firstMetDate);
         });
 
         assertEquals(CoupleErrorCode.SELF_CONNECTION_NOT_ALLOWED, exception.getErrorCode());
@@ -149,7 +149,7 @@ public class CoupleServiceTest {
 
         // Call and verify
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            coupleService.connectCouple(user1, "USER2_CODE");
+            coupleService.connectCouple(user1, "USER2_CODE", firstMetDate);
         });
 
         assertEquals(CoupleErrorCode.PARTNER_ALREADY_CONNECTED, exception.getErrorCode());

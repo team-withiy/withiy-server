@@ -95,9 +95,10 @@ public class CoupleControllerTest {
         // Setup mock data
         CoupleConnectionRequestDto requestDto = new CoupleConnectionRequestDto();
         requestDto.setPartnerCode("PARTNER_CODE");
+        requestDto.setFirstMetDate(LocalDate.of(2025, 1, 1));
 
         // Setup mock coupleService behavior
-        when(coupleService.connectCouple(any(User.class), any(String.class)))
+        when(coupleService.connectCouple(any(User.class), any(String.class), any(LocalDate.class)))
                 .thenReturn(mockCoupleDto);
 
         // Execute request with JWT authentication and verify response

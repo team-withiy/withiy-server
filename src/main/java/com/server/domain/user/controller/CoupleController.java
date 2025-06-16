@@ -41,7 +41,8 @@ public class CoupleController {
     public ApiResponseDto<CoupleDto> connectCouple(@AuthenticationPrincipal User user,
             @RequestBody CoupleConnectionRequestDto requestDto) {
 
-        CoupleDto coupleDto = coupleService.connectCouple(user, requestDto.getPartnerCode());
+        CoupleDto coupleDto = coupleService.connectCouple(user, requestDto.getPartnerCode(),
+            requestDto.getFirstMetDate());
 
         return ApiResponseDto.success(HttpStatus.CREATED.value(), coupleDto);
     }

@@ -35,7 +35,7 @@ public class CoupleService {
      * @return 생성된 커플 정보를 담은 DTO
      */
     @Transactional
-    public CoupleDto connectCouple(User user, String partnerCode) {
+    public CoupleDto connectCouple(User user, String partnerCode, LocalDate firstMetDate) {
         // 1. 현재 유저가 이미 커플인지 확인
         if (user.isConnectedCouple()) {
             throw new BusinessException(CoupleErrorCode.ALREADY_CONNECTED);
@@ -56,7 +56,7 @@ public class CoupleService {
         }
 
         // 5. 커플 생성 및 저장
-        Couple couple = new Couple(user, partner, null);
+        Couple couple = new Couple(user, partner, firstMetDate);
         coupleRepository.save(couple);
         log.info("새로운 커플이 연결되었습니다. 유저1: {}, 유저2: {}", user.getNickname(), partner.getNickname());
 
