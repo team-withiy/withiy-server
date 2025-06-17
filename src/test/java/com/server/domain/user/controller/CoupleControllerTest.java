@@ -110,6 +110,22 @@ public class CoupleControllerTest {
     }
 
     @Test
+    @DisplayName("Validate couple first met date")
+    void validateFirstMetDateTest() throws Exception {
+        // Setup mock data
+        CoupleConnectionRequestDto requestDto = new CoupleConnectionRequestDto();
+        requestDto.setPartnerCode("PARTNER_CODE");
+        requestDto.setFirstMetDate(LocalDate.now().plusDays(1)); // 미래 날짜
+
+        // Execute request with JWT authentication and verify response
+        mockMvc.perform(post("/api/couples").with(JwtTestUtil.withJwt(jwtService, mockUser))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto))).andDo(print())
+            .andExpect(status().isBadRequest()) // 실패 기대
+            .andExpect(jsonPath("$.message").value("처음 만난 날은 오늘 이전이어야 합니다."));
+    }
+
+    @Test
     @DisplayName("Get couple information test")
     void getCoupleTest() throws Exception {
         // Setup mock coupleService behavior

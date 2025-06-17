@@ -1,14 +1,18 @@
 package com.server.global.error.handler;
 
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.server.global.dto.ApiResponseDto;
 import com.server.global.error.exception.AuthException;
 import com.server.global.error.exception.BusinessException;
+
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -27,5 +31,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponseDto<Object>> handleAccessDeniedException(AccessDeniedException e) {
         HttpStatus status = HttpStatus.UNAUTHORIZED;
         return ResponseEntity.status(status).body(ApiResponseDto.error(status.value(), e.getMessage()));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponseDto<Object>> handleValidationException(MethodArgumentNotValidException e) {
+        String errorMessage = e.getBindingResult().getFieldErrors().stream()
+            .map(DefaultMessageSourceResolvable::getDefaultMessage)
+            .collect(Collectors.joining(", "));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ApiResponseDto.error(HttpStatus.BAD_REQUEST.value(), errorMessage));
     }
 }
