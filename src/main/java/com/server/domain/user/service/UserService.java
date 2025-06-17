@@ -303,4 +303,13 @@ public class UserService {
 
         return UserProfileResponseDto.from(user);
     }
+
+    @Transactional
+    public void clearRefreshToken(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(UserErrorCode.NOT_FOUND));
+        user.updateRefreshToken(null);
+        userRepository.save(user);
+        log.info("Cleared refresh token for user ID: {}", userId);
+    }
 }

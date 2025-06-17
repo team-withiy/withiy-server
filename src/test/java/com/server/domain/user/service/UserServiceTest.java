@@ -324,4 +324,19 @@ public class UserServiceTest {
         assertEquals(originalNickname, user.getNickname());
         verify(userRepository).save(user);
     }
+
+    @Test
+    @DisplayName("Set refresh token null test - logout user")
+    void logoutUserTest() {
+        // given
+        user.setRefreshToken("dummy-refresh-token");
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        // when
+        userService.clearRefreshToken(1L);
+
+        // then
+        assertNull(user.getRefreshToken());
+        verify(userRepository).save(user);
+    }
 }
