@@ -78,7 +78,7 @@ public class PlaceService {
                         .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
                 User user = userRepository.findById(userId)
                         .orElseThrow(()-> new BusinessException(UserErrorCode.NOT_FOUND));
-                boolean isBookmarked = placeBookmarkRepository.existsByPlaceAndUser(place, user);
+                boolean isBookmarked = placeBookmarkRepository.existsByPlaceIdAndUserId(place.getId(), user.getId());
                 return PlaceDto.from(place, isBookmarked);
         }
 
@@ -96,7 +96,7 @@ public class PlaceService {
                         .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
                 User user = userRepository.findById(userId)
                         .orElseThrow(()-> new BusinessException(UserErrorCode.NOT_FOUND));
-                boolean isBookmarked = placeBookmarkRepository.existsByPlaceAndUser(place, user);
+                boolean isBookmarked = placeBookmarkRepository.existsByPlaceIdAndUserId(place.getId(), user.getId());
                 return PlaceDetailDto.from(place, isBookmarked, s3UrlConfig);
         }
 
@@ -143,7 +143,7 @@ public class PlaceService {
                 photos.forEach(place::addPhoto);
                 placeRepository.save(place);
 
-                boolean isBookmarked = placeBookmarkRepository.existsByPlaceAndUser(savedPlace, user);
+                boolean isBookmarked = placeBookmarkRepository.existsByPlaceIdAndUserId(place.getId(), user.getId());
                 return PlaceDto.from(savedPlace, isBookmarked);
         }
 
@@ -175,7 +175,7 @@ public class PlaceService {
                 photos.forEach(place::addPhoto);
                 placeRepository.save(place);
 
-                boolean isBookmarked = placeBookmarkRepository.existsByPlaceAndUser(place, user);
+                boolean isBookmarked = placeBookmarkRepository.existsByPlaceIdAndUserId(place.getId(), user.getId());
                 return PlaceDto.from(place, isBookmarked);
         }
 
