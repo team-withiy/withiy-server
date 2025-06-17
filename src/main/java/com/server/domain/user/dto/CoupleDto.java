@@ -2,6 +2,7 @@ package com.server.domain.user.dto;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.PastOrPresent;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.annotation.JsonFormat;

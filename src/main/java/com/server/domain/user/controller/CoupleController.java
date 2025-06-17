@@ -1,5 +1,6 @@
 package com.server.domain.user.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -37,11 +38,11 @@ public class CoupleController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     @Operation(summary = "커플 연결",
-            description = "사용자 코드를 사용하여 커플을 연결합니다. 선택적으로 처음 만난 날짜를 지정할 수 있습니다.")
+        description = "사용자 코드를 사용하여 커플을 연결합니다. 선택적으로 처음 만난 날짜를 지정할 수 있습니다.")
     public ApiResponseDto<CoupleDto> connectCouple(@AuthenticationPrincipal User user,
-            @RequestBody CoupleConnectionRequestDto requestDto) {
-
-        CoupleDto coupleDto = coupleService.connectCouple(user, requestDto.getPartnerCode());
+                                                   @Valid @RequestBody CoupleConnectionRequestDto requestDto) {
+        CoupleDto coupleDto = coupleService.connectCouple(user, requestDto.getPartnerCode(),
+            requestDto.getFirstMetDate());
 
         return ApiResponseDto.success(HttpStatus.CREATED.value(), coupleDto);
     }
@@ -71,7 +72,7 @@ public class CoupleController {
     @PatchMapping("/first-met-date")
     @Operation(summary = "처음 만난 날짜 설정", description = "이미 연결된 커플의 처음 만난 날짜를 설정하거나 변경합니다.")
     public ApiResponseDto<CoupleDto> updateFirstMetDate(@AuthenticationPrincipal User user,
-            @RequestBody FirstMetDateUpdateDto requestDto) {
+                                                        @Valid @RequestBody FirstMetDateUpdateDto requestDto) {
 
         CoupleDto coupleDto = coupleService.updateFirstMetDate(user, requestDto.getFirstMetDate());
 
