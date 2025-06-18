@@ -98,4 +98,16 @@ public class UserController {
 
         return ApiResponseDto.success(HttpStatus.OK.value(), message);
     }
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/logout")
+    @Operation(summary = "로그아웃", description = "로그인한 유저 로그아웃")
+    public ApiResponseDto<String> logout(@AuthenticationPrincipal User user) {
+
+        // TODO: Redis에서 refresh token 관리
+        userService.clearRefreshToken(user.getId());
+        return ApiResponseDto.success(HttpStatus.OK.value(), "Logout successful");
+    }
+
 }
