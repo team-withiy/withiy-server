@@ -2,6 +2,7 @@ package com.server.domain.folder.controller;
 
 import com.server.domain.folder.dto.CreateFolderDto;
 import com.server.domain.folder.dto.FolderDto;
+import com.server.domain.folder.dto.UpdateFolderDto;
 import com.server.domain.folder.service.FolderService;
 import com.server.domain.place.dto.CreatePlaceDto;
 import com.server.domain.place.dto.PlaceDto;
@@ -41,4 +42,24 @@ public class FolderController {
         FolderDto folderDto = folderService.createFolder(user, createFolderDto);
         return ApiResponseDto.success(HttpStatus.OK.value(), folderDto);
     }
+
+    @PreAuthorize("hasRole('USER')")
+    @ResponseStatus(HttpStatus.OK)
+    @PatchMapping("/{folderId}")
+    @Operation(summary = "폴더 수정 api", description = "폴더 이름/색상 수정")
+    public ApiResponseDto<FolderDto> updateFolder(@PathVariable Long folderId, @AuthenticationPrincipal User user,
+                                                  @RequestBody UpdateFolderDto updateFolderDto) {
+        FolderDto folderDto = folderService.updateFolder(folderId, user, updateFolderDto);
+        return ApiResponseDto.success(HttpStatus.OK.value(), folderDto);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/{folderId}")
+    @Operation(summary = "폴더 삭제 api", description = "특정 폴더 삭제, 폴더 안에 저장되어있던 장소도 저장 해제(해당폴더 저장)")
+    public ApiResponseDto<String> deleteFolder(@PathVariable Long folderId, @AuthenticationPrincipal User user) {
+        String result = folderService.deleteFolder(folderId, user);
+        return ApiResponseDto.success(HttpStatus.OK.value(), result);
+    }
+
 }
