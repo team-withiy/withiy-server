@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProfileImageResponseDto {
+public class ProfileResponseDto {
+    private String nickname;
     private String thumbnail;
 }

@@ -6,16 +6,15 @@ import java.util.List;
 import java.util.Map;
 
 import com.server.domain.user.dto.CoupleDto;
+import com.server.domain.user.dto.ProfileResponseDto;
 import com.server.domain.user.repository.CoupleRepository;
 import com.server.global.config.S3UrlConfig;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.server.domain.term.entity.TermAgreement;
 import com.server.domain.term.repository.TermAgreementRepository;
-import com.server.domain.user.dto.ProfileImageResponseDto;
 import com.server.domain.user.dto.UserDto;
 import com.server.domain.user.dto.UserProfileResponseDto;
 import com.server.domain.user.entity.User;
@@ -235,34 +234,23 @@ public class UserService {
      * 사용자 프로필 이미지 업데이트
      * 
      * @param user 현재 사용자
-     * @param file 새 프로필 이미지
-     * @return 업데이트된 프로필 이미지 URL이 포함된 DTO
+     * @param nickname 새 닉네임
+     * @param thumbnail 새 프로필 이미지 URL
+     * @return 업데이트된 프로필 정보가 포함된 DTO
      */
     @Transactional
-    public ProfileImageResponseDto updateProfileImage(User user, MultipartFile file) {
+    public ProfileResponseDto updateProfile(User user, String nickname, String thumbnail) {
         if (user == null) {
             throw new BusinessException(UserErrorCode.NOT_FOUND);
         }
 
-        // 기존 프로필 이미지가 있으면 삭제
-        String oldThumbnail = user.getThumbnail();
-        if (oldThumbnail != null && !oldThumbnail.isEmpty()) {
-            imageService.deleteImage(oldThumbnail);
-        }
-
-        // 새 이미지 업로드 (공통 이미지 서비스 사용)
-        ImageResponseDto imageResponseDto = imageService.uploadImage(file, "user", user.getId());
-        String imageUrl = imageResponseDto.getImageUrl();
-
         // 사용자 정보 업데이트
-        user.setThumbnail(imageUrl);
+        user.setNickname(nickname);
+        user.setThumbnail(thumbnail);
         userRepository.save(user);
 
-        log.info("Profile image updated for user ID {}: {}", user.getId(), imageUrl);
-
         // 응답 DTO 생성
-        ProfileImageResponseDto responseDto = new ProfileImageResponseDto(imageUrl);
-        return responseDto;
+        return new ProfileResponseDto(nickname, thumbnail);
     }
 
     /**
