@@ -1,20 +1,20 @@
 package com.server.domain.user.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import com.server.domain.user.dto.ProfileUpdateDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -167,5 +166,19 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(restoreAccountDto))).andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Set new profile test - nickname is empty")
+    void validUserNicknameTest() throws Exception {
+        // Setup mock data
+        ProfileUpdateDto profileUpdateDto = new ProfileUpdateDto(null, null);
+
+        // Execute request with JWT authentication and verify response
+        mockMvc.perform(put("/api/users/profile").with(JwtTestUtil.withJwt(jwtService, mockUser))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(profileUpdateDto))).andDo(print())
+            .andExpect(status().isBadRequest()) // 실패 기대
+            .andExpect(jsonPath("$.message").value("닉네임은 필수 항목입니다."));
     }
 }

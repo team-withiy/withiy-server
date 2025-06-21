@@ -339,4 +339,20 @@ public class UserServiceTest {
         assertNull(user.getRefreshToken());
         verify(userRepository).save(user);
     }
+
+    @Test
+    @DisplayName("Set new profile test = set nickname and thumbnail")
+    void updateProfileTest() {
+        // given
+        String newNickname = "newNickname";
+        String newThumbnail = "newThumbnail.jpg";
+
+        // when
+        userService.updateProfile(user, newNickname, newThumbnail);
+
+        // then
+        assertEquals(newNickname, user.getNickname());
+        assertEquals(newThumbnail, user.getThumbnail());
+        verify(userRepository).save(user);
+    }
 }

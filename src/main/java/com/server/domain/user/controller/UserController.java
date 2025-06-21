@@ -1,21 +1,12 @@
 package com.server.domain.user.controller;
 
+import com.server.domain.user.dto.*;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.server.domain.user.dto.RegisterUserInDto;
-import com.server.domain.user.dto.RestoreAccountDto;
-import com.server.domain.user.dto.UserDto;
-import com.server.domain.user.dto.UserProfileResponseDto;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.service.UserService;
 import com.server.global.dto.ApiResponseDto;
@@ -108,6 +99,21 @@ public class UserController {
         // TODO: Redis에서 refresh token 관리
         userService.clearRefreshToken(user.getId());
         return ApiResponseDto.success(HttpStatus.OK.value(), "Logout successful");
+    }
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping(value = "/profile")
+    @Operation(summary = "프로필 업데이트",
+        description = "사용자의 프로필을 업데이트합니다. 닉네임 및 프로필 이미지를 포함할 수 있습니다.")
+    public ApiResponseDto<ProfileResponseDto> updateProfile(
+        @AuthenticationPrincipal User user, @Valid @RequestBody ProfileUpdateDto requestDto) {
+
+        log.info("Profile image update requested for user: {}", user.getNickname());
+
+        ProfileResponseDto responseDto = userService.updateProfile(user, requestDto.getNickname(),
+            requestDto.getThumbnail());
+        return ApiResponseDto.success(HttpStatus.OK.value(), responseDto);
     }
 
 }
