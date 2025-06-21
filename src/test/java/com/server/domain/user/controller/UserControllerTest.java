@@ -14,7 +14,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import java.util.HashMap;
 import java.util.Map;
 
-import com.server.domain.user.dto.ProfileUpdateDto;
+import com.server.domain.user.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,9 +33,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.server.domain.user.dto.RegisterUserInDto;
-import com.server.domain.user.dto.RestoreAccountDto;
-import com.server.domain.user.dto.UserDto;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.service.UserService;
 import com.server.global.jwt.JwtAuthentication;
@@ -169,10 +166,13 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Set new profile test - nickname is empty")
-    void validUserNicknameTest() throws Exception {
+    @DisplayName("Set new profile test - valid nickname")
+    void updateProfileTest() throws Exception {
         // Setup mock data
         ProfileUpdateDto profileUpdateDto = new ProfileUpdateDto(null, null);
+
+        // Setup mock userService behavior
+        when(userService.deleteUser(any(User.class), anyBoolean())).thenReturn("testUser");
 
         // Execute request with JWT authentication and verify response
         mockMvc.perform(put("/api/users/profile").with(JwtTestUtil.withJwt(jwtService, mockUser))
@@ -181,4 +181,19 @@ public class UserControllerTest {
             .andExpect(status().isBadRequest()) // 실패 기대
             .andExpect(jsonPath("$.message").value("닉네임은 필수 항목입니다."));
     }
+
+    @Test
+    @DisplayName("Set notifications - valid notification settings")
+    void updateNotificationSettingsTest() throws Exception {
+        // Setup mock data
+        NotificationSettingsDto notificationSettingsDto = new NotificationSettingsDto(null, false);
+
+        // Execute request with JWT authentication and verify response
+        mockMvc.perform(put("/api/users/notifications/settings").with(JwtTestUtil.withJwt(jwtService, mockUser))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(notificationSettingsDto))).andDo(print())
+            .andExpect(status().isBadRequest()) // 실패 기대
+            .andExpect(jsonPath("$.message").value("데이트 알림 설정은 필수 항목입니다."));
+    }
+
 }

@@ -5,8 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 
-import com.server.domain.user.dto.CoupleDto;
-import com.server.domain.user.dto.ProfileResponseDto;
+import com.server.domain.user.dto.*;
 import com.server.domain.user.repository.CoupleRepository;
 import com.server.global.config.S3UrlConfig;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,8 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.server.domain.term.entity.TermAgreement;
 import com.server.domain.term.repository.TermAgreementRepository;
-import com.server.domain.user.dto.UserDto;
-import com.server.domain.user.dto.UserProfileResponseDto;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.repository.UserRepository;
 import com.server.global.dto.ImageResponseDto;
@@ -299,5 +296,15 @@ public class UserService {
         user.updateRefreshToken(null);
         userRepository.save(user);
         log.info("Cleared refresh token for user ID: {}", userId);
+    }
+
+    @Transactional
+    public void updateNotificationSettings(User principalUser, NotificationSettingsDto notificationSettingsDto) {
+
+        User user = userRepository.findById(principalUser.getId())
+            .orElseThrow(() -> new BusinessException(UserErrorCode.NOT_FOUND));
+
+        user.setDateNotificationEnabled(notificationSettingsDto.getDateNotificationEnabled());
+        user.setEventNotificationEnabled(notificationSettingsDto.getEventNotificationEnabled());
     }
 }

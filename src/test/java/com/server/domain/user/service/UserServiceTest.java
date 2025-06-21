@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.server.domain.user.dto.NotificationSettingsDto;
 import com.server.domain.user.repository.CoupleRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -341,7 +342,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Set new profile test = set nickname and thumbnail")
+    @DisplayName("Set new profile test - set nickname and thumbnail")
     void updateProfileTest() {
         // given
         String newNickname = "newNickname";
@@ -354,5 +355,25 @@ public class UserServiceTest {
         assertEquals(newNickname, user.getNickname());
         assertEquals(newThumbnail, user.getThumbnail());
         verify(userRepository).save(user);
+    }
+
+    @Test
+    @DisplayName("알림 설정 변경 - 데이트 알림 ON, 이벤트 알림 OFF")
+    void updateNotificationSettingsTest() {
+        // given
+        Boolean dateNotificationEnabled = true;
+        Boolean eventNotificationEnabled = false;
+        NotificationSettingsDto notificationSettingsDto = new NotificationSettingsDto(dateNotificationEnabled, eventNotificationEnabled);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        // when
+        userService.updateNotificationSettings(user, notificationSettingsDto);
+
+
+        // then
+        assertAll(
+            () -> assertEquals(dateNotificationEnabled, user.getDateNotificationEnabled()),
+            () -> assertEquals(eventNotificationEnabled, user.getEventNotificationEnabled())
+        );
     }
 }
