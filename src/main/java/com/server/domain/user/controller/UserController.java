@@ -116,4 +116,15 @@ public class UserController {
         return ApiResponseDto.success(HttpStatus.OK.value(), responseDto);
     }
 
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping(value = "/notifications/settings")
+    public ApiResponseDto<String> updateNotificationSettings(
+        @AuthenticationPrincipal User user, @Valid @RequestBody NotificationSettingsDto requestDto) {
+
+        log.info("Notification settings update requested for user: {}", user.getNickname());
+
+        userService.updateNotificationSettings(user, requestDto);
+        return ApiResponseDto.success(HttpStatus.OK.value(), "Notification settings updated successfully");
+    }
 }

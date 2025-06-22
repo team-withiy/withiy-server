@@ -116,6 +116,13 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Folder> folders = new ArrayList<>();
 
+    // date_notification_enabled
+    @Column(name = "date_notification_enabled")
+    private Boolean dateNotificationEnabled = true;
+    // event_notification_enabled
+    @Column(name = "event_notification_enabled")
+    private Boolean eventNotificationEnabled = true;
+
 
     @Builder
     public User(String nickname, String thumbnail, List<Term> terms, String code) {
