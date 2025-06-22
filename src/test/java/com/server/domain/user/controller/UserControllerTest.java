@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -175,7 +176,7 @@ public class UserControllerTest {
         when(userService.deleteUser(any(User.class), anyBoolean())).thenReturn("testUser");
 
         // Execute request with JWT authentication and verify response
-        mockMvc.perform(put("/api/users/profile").with(JwtTestUtil.withJwt(jwtService, mockUser))
+        mockMvc.perform(patch("/api/users/profile").with(JwtTestUtil.withJwt(jwtService, mockUser))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(profileUpdateDto))).andDo(print())
             .andExpect(status().isBadRequest()) // 실패 기대

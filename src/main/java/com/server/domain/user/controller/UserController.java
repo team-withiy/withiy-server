@@ -103,7 +103,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping(value = "/profile")
+    @PatchMapping(value = "/profile")
     @Operation(summary = "프로필 업데이트",
         description = "사용자의 프로필을 업데이트합니다. 닉네임 및 프로필 이미지를 포함할 수 있습니다.")
     public ApiResponseDto<ProfileResponseDto> updateProfile(
