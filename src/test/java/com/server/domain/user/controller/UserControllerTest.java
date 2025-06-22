@@ -167,13 +167,10 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Set new profile test - valid nickname")
-    void updateProfileTest() throws Exception {
+    @DisplayName("프로필 업데이트 테스트 - 닉네임이 null일 때 실패")
+    void updateProfile_withNullNickname_shouldFail() throws Exception {
         // Setup mock data
         ProfileUpdateDto profileUpdateDto = new ProfileUpdateDto(null, null);
-
-        // Setup mock userService behavior
-        when(userService.deleteUser(any(User.class), anyBoolean())).thenReturn("testUser");
 
         // Execute request with JWT authentication and verify response
         mockMvc.perform(patch("/api/users/profile").with(JwtTestUtil.withJwt(jwtService, mockUser))
@@ -184,8 +181,8 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Set notifications - valid notification settings")
-    void updateNotificationSettingsTest() throws Exception {
+    @DisplayName("알림 설정 업데이트 테스트 - 필수값이 null일 때 실패")
+    void updateNotificationSettings_withNullValue_shouldFail() throws Exception {
         // Setup mock data
         NotificationSettingsDto notificationSettingsDto = new NotificationSettingsDto(null, false);
 

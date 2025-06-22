@@ -306,5 +306,6 @@ public class UserService {
 
         user.setDateNotificationEnabled(notificationSettingsDto.getDateNotificationEnabled());
         user.setEventNotificationEnabled(notificationSettingsDto.getEventNotificationEnabled());
+        userRepository.save(user);
     }
 }

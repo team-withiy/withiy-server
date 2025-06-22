@@ -375,5 +375,6 @@ public class UserServiceTest {
             () -> assertEquals(dateNotificationEnabled, user.getDateNotificationEnabled()),
             () -> assertEquals(eventNotificationEnabled, user.getEventNotificationEnabled())
         );
+        verify(userRepository).save(user);
     }
 }
