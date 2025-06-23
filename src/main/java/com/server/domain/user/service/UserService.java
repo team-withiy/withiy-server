@@ -110,7 +110,7 @@ public class UserService {
     }
 
     @Transactional
-    public String registerUser(User user, Map<Long, Boolean> termAgreements, String nickname) {
+    public String registerUser(User user, Map<Long, Boolean> termAgreements, String nickname, String thumbnail) {
         if (user == null) {
             throw new BusinessException(UserErrorCode.NOT_FOUND);
         }
@@ -124,6 +124,13 @@ public class UserService {
         if (nickname != null && !nickname.trim().isEmpty()) {
             user.setNickname(nickname);
             log.debug("Updated nickname for user ID {}: {}", user.getId(), nickname);
+        }
+
+        // 프로필 이미지 설정 (제공된 경우)
+        if (thumbnail != null && !thumbnail.trim().isEmpty()) {
+            // Consider adding URL validation here for security and data integrity.
+            user.setThumbnail(thumbnail);
+            log.debug("Updated thumbnail for user ID {}: {}", user.getId(), thumbnail);
         }
 
         // Update each term agreement based on the provided term ID and boolean value
@@ -153,7 +160,7 @@ public class UserService {
 
     @Transactional
     public String registerUser(User user, Map<Long, Boolean> termAgreements) {
-        return registerUser(user, termAgreements, null);
+        return registerUser(user, termAgreements, null, null);
     }
 
     @Transactional
