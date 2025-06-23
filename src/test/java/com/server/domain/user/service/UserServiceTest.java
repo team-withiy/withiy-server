@@ -278,7 +278,7 @@ public class UserServiceTest {
         String newNickname = "newNickname";
 
         // Call the method
-        String result = userService.registerUser(user, termAgreements, newNickname);
+        String result = userService.registerUser(user, termAgreements, newNickname, null);
 
         // Verify the results
         assertEquals(newNickname, result);
@@ -299,9 +299,8 @@ public class UserServiceTest {
         termAgreements.put(1L, true); // Required term
         String originalNickname = user.getNickname();
         String emptyNickname = "   ";
-
         // Call the method
-        String result = userService.registerUser(user, termAgreements, emptyNickname);
+        String result = userService.registerUser(user, termAgreements, emptyNickname, null);
 
         // Verify that the nickname remains unchanged
         assertEquals(originalNickname, result);
@@ -318,7 +317,7 @@ public class UserServiceTest {
         String originalNickname = user.getNickname();
 
         // Call the method
-        String result = userService.registerUser(user, termAgreements, null);
+        String result = userService.registerUser(user, termAgreements, null, null);
 
         // Verify that the nickname remains unchanged
         assertEquals(originalNickname, result);

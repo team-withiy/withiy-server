@@ -12,4 +12,5 @@ import lombok.Setter;
 public class RegisterUserInDto {
     private Map<Long, Boolean> termAgreements; // Key: Term ID, Value: Agreed or not
     private String nickname; // 사용자 닉네임
+    private String thumbnail; // 프로필 이미지 URL
 }
