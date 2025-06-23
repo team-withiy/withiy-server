@@ -127,7 +127,8 @@ public class UserService {
         }
 
         // 프로필 이미지 설정 (제공된 경우)
-        if (thumbnail != null) {
+        if (thumbnail != null && !thumbnail.trim().isEmpty()) {
+            // Consider adding URL validation here for security and data integrity.
             user.setThumbnail(thumbnail);
             log.debug("Updated thumbnail for user ID {}: {}", user.getId(), thumbnail);
         }
