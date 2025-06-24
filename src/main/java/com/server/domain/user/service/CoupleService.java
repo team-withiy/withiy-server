@@ -3,6 +3,7 @@ package com.server.domain.user.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.server.domain.user.dto.CoupleRestoreStatusDto;
 import com.server.global.config.S3UrlConfig;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,6 +76,10 @@ public class CoupleService {
         Couple couple = coupleRepository.findByUser1OrUser2(user, user)
                 .orElseThrow(() -> new BusinessException(CoupleErrorCode.COUPLE_NOT_FOUND));
 
+        if( couple.getDeletedAt() != null) {
+            throw new BusinessException(CoupleErrorCode.COUPLE_ALREADY_DISCONNECTED);
+        }
+
         return CoupleDto.from(couple, user, s3UrlConfig);
     }
 
@@ -139,5 +144,34 @@ public class CoupleService {
         log.info("커플이 복구되었습니다. 커플 ID: {}", couple.getId());
 
         return couple.getId();
+    }
+
+    public CoupleRestoreStatusDto getRestoreStatus(User user, Long coupleId) {
+        // 커플 정보 조회
+        Couple couple = coupleRepository.findByUser1OrUser2(user, user)
+            .orElseThrow(() -> new BusinessException(CoupleErrorCode.COUPLE_NOT_FOUND));
+
+        // 커플 ID가 일치하는지 확인
+        if(!coupleId.equals(couple.getId())) {
+            throw new BusinessException(CoupleErrorCode.INVALID_COUPLE_ID);
+        }
+
+        // 커플이 삭제된 상태인지 확인
+        if( couple.getDeletedAt() == null) {
+            throw new BusinessException(CoupleErrorCode.COUPLE_ALREADY_CONNECTED);
+        }
+
+        // 삭제된 날짜가 현재 시간으로부터 30일 이내인지 확인
+        boolean restorable = isRestorable(couple.getDeletedAt());
+
+        return CoupleRestoreStatusDto.builder()
+            .coupleId(coupleId)
+            .restorable(restorable)
+            .deletedAt(couple.getDeletedAt())
+            .build();
+    }
+
+    private boolean isRestorable(LocalDateTime deletedAt) {
+        return deletedAt.isAfter(LocalDateTime.now().minusDays(30));
     }
 }

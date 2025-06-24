@@ -28,13 +28,9 @@ public class UserDto {
         // Default constructor
     }
 
-    public static UserDto from(User user, Boolean isRegistered, CoupleDto couple, S3UrlConfig s3UrlConfig) {
-        Boolean restoreEnabled;
-        if (user.getDeletedAt() != null) {
-            restoreEnabled = true;
-        } else {
-            restoreEnabled = false;
-        }
+    public static UserDto from(User user, boolean isRegistered, CoupleDto couple, S3UrlConfig s3UrlConfig) {
+        boolean restoreEnabled;
+        restoreEnabled = user.getDeletedAt() != null;
 
         // 썸네일 URL이 S3 URL인 경우 CloudFront URL로 변환
         String thumbnailUrl = user.getThumbnail();
