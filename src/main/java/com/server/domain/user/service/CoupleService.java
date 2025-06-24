@@ -39,7 +39,7 @@ public class CoupleService {
     public CoupleDto connectCouple(User user, String partnerCode, LocalDate firstMetDate) {
         // 1. 현재 유저가 이미 커플인지 확인
         if (user.isConnectedCouple()) {
-            throw new BusinessException(CoupleErrorCode.ALREADY_CONNECTED);
+            throw new BusinessException(CoupleErrorCode.COUPLE_ALREADY_CONNECTED);
         }
 
         // 2. 상대방 유저 조회
@@ -89,6 +89,10 @@ public class CoupleService {
         Couple couple = coupleRepository.findByUser1OrUser2(user, user)
                 .orElseThrow(() -> new BusinessException(CoupleErrorCode.COUPLE_NOT_FOUND));
 
+        // 이미 해제된 커플인지 확인
+        if (couple.getDeletedAt() != null) {
+            throw new BusinessException(CoupleErrorCode.COUPLE_ALREADY_DISCONNECTED);
+        }
 
         couple.setDeletedAt(LocalDateTime.now());
         Long coupleId = couple.getId();
@@ -126,7 +130,7 @@ public class CoupleService {
 
         // 이미 복구된 커플인지 확인
         if (couple.getDeletedAt() == null) {
-            throw new BusinessException(CoupleErrorCode.COUPLE_ALREADY_ACTIVE);
+            throw new BusinessException(CoupleErrorCode.COUPLE_ALREADY_CONNECTED);
         }
 
         // 커플 복구
