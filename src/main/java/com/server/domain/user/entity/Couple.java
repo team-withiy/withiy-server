@@ -54,6 +54,9 @@ public class Couple {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
+    @Column(name = "deletedAt", nullable = true)
+    private LocalDateTime deletedAt;
+
 
     public Couple(User user1, User user2, LocalDate firstMetDate){
         this.user1 = user1;

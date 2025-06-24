@@ -69,6 +69,16 @@ public class CoupleController {
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/restore")
+    @Operation(summary = "커플 연결 복구", description = "현재 로그인한 사용자의 커플 관계를 복구합니다.")
+    public ApiResponseDto<Long> restoreCouple(@AuthenticationPrincipal User user) {
+        Long coupleId = coupleService.restoreCouple(user);
+
+        return ApiResponseDto.success(HttpStatus.OK.value(), coupleId);
+    }
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.OK)
     @PatchMapping("/first-met-date")
     @Operation(summary = "처음 만난 날짜 설정", description = "이미 연결된 커플의 처음 만난 날짜를 설정하거나 변경합니다.")
     public ApiResponseDto<CoupleDto> updateFirstMetDate(@AuthenticationPrincipal User user,

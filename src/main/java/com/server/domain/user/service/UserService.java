@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserService {
     private final UserRepository userRepository;
     private final TermAgreementRepository termAgreementRepository;
-    private final ImageService imageService;
+    private final CoupleService coupleService;
     private final S3UrlConfig s3UrlConfig;
 
     // 계정 복구 후 유효 기간 (30일)
