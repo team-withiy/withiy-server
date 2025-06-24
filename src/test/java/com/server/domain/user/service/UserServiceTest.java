@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.server.domain.user.dto.CoupleDto;
 import com.server.domain.user.dto.NotificationSettingsDto;
-import com.server.domain.user.repository.CoupleRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,6 @@ import com.server.domain.term.repository.TermAgreementRepository;
 import com.server.domain.user.dto.UserDto;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.repository.UserRepository;
-import com.server.global.error.code.TermErrorCode;
 import com.server.global.error.code.UserErrorCode;
 import com.server.global.error.exception.BusinessException;
 
@@ -41,7 +40,7 @@ public class UserServiceTest {
     private TermAgreementRepository termAgreementRepository;
 
     @Mock
-    private CoupleRepository coupleRepository;
+    private CoupleService coupleService;
 
     @InjectMocks
     private UserService userService;
@@ -84,7 +83,7 @@ public class UserServiceTest {
             agreement.setAgreed(true);
         }
 
-        when(coupleRepository.findByUser1OrUser2(any(), any())).thenReturn(Optional.empty());
+        when(coupleService.getCouple(any())).thenReturn(mock(CoupleDto.class));
 
         // Call the method
         UserDto userDto = userService.getUser(user);
@@ -137,6 +136,7 @@ public class UserServiceTest {
         assertEquals("testUser", result);
         assertNotNull(user.getDeletedAt());
         verify(userRepository).save(user);
+        verify(coupleService).disconnectCouple(user);
     }
 
     @Test
@@ -367,7 +367,6 @@ public class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         // when
         userService.updateNotificationSettings(user, notificationSettingsDto);
-
 
         // then
         assertAll(
