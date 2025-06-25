@@ -65,8 +65,8 @@ public class CoupleController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/restore-status")
     @Operation(summary = "커플 복구 가능 여부 조회", description = "커플 정보가 복구 가능한지 여부를 반환합니다.")
-    public ApiResponseDto<CoupleRestoreStatusDto> getRestoreStatus(@AuthenticationPrincipal User user, @RequestParam Long coupleId) {
-        CoupleRestoreStatusDto statusDto = coupleService.getRestoreStatus(user, coupleId);
+    public ApiResponseDto<CoupleRestoreStatusDto> getRestoreStatus(@AuthenticationPrincipal User user) {
+        CoupleRestoreStatusDto statusDto = coupleService.getRestoreStatus(user);
 
         return ApiResponseDto.success(HttpStatus.OK.value(), statusDto);
     }

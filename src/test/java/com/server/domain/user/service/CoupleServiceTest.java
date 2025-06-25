@@ -272,7 +272,7 @@ public class CoupleServiceTest {
         when(coupleRepository.findByUser1OrUser2(user1, user1)).thenReturn(Optional.of(couple));
 
         // Call the method
-        CoupleRestoreStatusDto result = coupleService.getRestoreStatus(user1, 1L);
+        CoupleRestoreStatusDto result = coupleService.getRestoreStatus(user1);
 
         // Verify
         assertNotNull(result);
@@ -288,7 +288,7 @@ public class CoupleServiceTest {
         when(coupleRepository.findByUser1OrUser2(user1, user1)).thenReturn(Optional.of(couple));
 
         // Call the method
-        CoupleRestoreStatusDto result = coupleService.getRestoreStatus(user1, 1L);
+        CoupleRestoreStatusDto result = coupleService.getRestoreStatus(user1);
 
         // Verify
         assertNotNull(result);

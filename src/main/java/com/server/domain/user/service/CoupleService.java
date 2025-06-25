@@ -146,15 +146,10 @@ public class CoupleService {
         return couple.getId();
     }
 
-    public CoupleRestoreStatusDto getRestoreStatus(User user, Long coupleId) {
+    public CoupleRestoreStatusDto getRestoreStatus(User user) {
         // 커플 정보 조회
         Couple couple = coupleRepository.findByUser1OrUser2(user, user)
             .orElseThrow(() -> new BusinessException(CoupleErrorCode.COUPLE_NOT_FOUND));
-
-        // 커플 ID가 일치하는지 확인
-        if(!coupleId.equals(couple.getId())) {
-            throw new BusinessException(CoupleErrorCode.INVALID_COUPLE_ID);
-        }
 
         // 커플이 삭제된 상태인지 확인
         if( couple.getDeletedAt() == null) {
@@ -165,7 +160,7 @@ public class CoupleService {
         boolean restorable = isRestorable(couple.getDeletedAt());
 
         return CoupleRestoreStatusDto.builder()
-            .coupleId(coupleId)
+            .coupleId(couple.getId())
             .restorable(restorable)
             .deletedAt(couple.getDeletedAt())
             .build();
