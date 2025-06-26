@@ -1,7 +1,9 @@
 package com.server.domain.user.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
+import com.server.domain.user.dto.CoupleRestoreStatusDto;
 import com.server.global.config.S3UrlConfig;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +40,7 @@ public class CoupleService {
     public CoupleDto connectCouple(User user, String partnerCode, LocalDate firstMetDate) {
         // 1. 현재 유저가 이미 커플인지 확인
         if (user.isConnectedCouple()) {
-            throw new BusinessException(CoupleErrorCode.ALREADY_CONNECTED);
+            throw new BusinessException(CoupleErrorCode.COUPLE_ALREADY_CONNECTED);
         }
 
         // 2. 상대방 유저 조회
@@ -74,6 +76,10 @@ public class CoupleService {
         Couple couple = coupleRepository.findByUser1OrUser2(user, user)
                 .orElseThrow(() -> new BusinessException(CoupleErrorCode.COUPLE_NOT_FOUND));
 
+        if( couple.getDeletedAt() != null) {
+            throw new BusinessException(CoupleErrorCode.COUPLE_ALREADY_DISCONNECTED);
+        }
+
         return CoupleDto.from(couple, user, s3UrlConfig);
     }
 
@@ -88,8 +94,14 @@ public class CoupleService {
         Couple couple = coupleRepository.findByUser1OrUser2(user, user)
                 .orElseThrow(() -> new BusinessException(CoupleErrorCode.COUPLE_NOT_FOUND));
 
+        // 이미 해제된 커플인지 확인
+        if (couple.getDeletedAt() != null) {
+            throw new BusinessException(CoupleErrorCode.COUPLE_ALREADY_DISCONNECTED);
+        }
+
+        couple.setDeletedAt(LocalDateTime.now());
         Long coupleId = couple.getId();
-        coupleRepository.delete(couple);
+        coupleRepository.save(couple);
         log.info("커플이 해제되었습니다. 커플 ID: {}", coupleId);
 
         return coupleId;
@@ -115,5 +127,46 @@ public class CoupleService {
         log.info("커플 ID: {}의 처음 만난 날짜가 {}로 업데이트되었습니다.", couple.getId(), firstMetDate);
 
         return CoupleDto.from(couple, user, s3UrlConfig);
+    }
+
+    public Long restoreCouple(User user) {
+        Couple couple = coupleRepository.findByUser1OrUser2(user, user)
+                .orElseThrow(() -> new BusinessException(CoupleErrorCode.COUPLE_NOT_FOUND));
+
+        // 이미 복구된 커플인지 확인
+        if (couple.getDeletedAt() == null) {
+            throw new BusinessException(CoupleErrorCode.COUPLE_ALREADY_CONNECTED);
+        }
+
+        // 커플 복구
+        couple.setDeletedAt(null);
+        coupleRepository.save(couple);
+        log.info("커플이 복구되었습니다. 커플 ID: {}", couple.getId());
+
+        return couple.getId();
+    }
+
+    public CoupleRestoreStatusDto getRestoreStatus(User user) {
+        // 커플 정보 조회
+        Couple couple = coupleRepository.findByUser1OrUser2(user, user)
+            .orElseThrow(() -> new BusinessException(CoupleErrorCode.COUPLE_NOT_FOUND));
+
+        // 커플이 삭제된 상태인지 확인
+        if( couple.getDeletedAt() == null) {
+            throw new BusinessException(CoupleErrorCode.COUPLE_ALREADY_CONNECTED);
+        }
+
+        // 삭제된 날짜가 현재 시간으로부터 30일 이내인지 확인
+        boolean restorable = isRestorable(couple.getDeletedAt());
+
+        return CoupleRestoreStatusDto.builder()
+            .coupleId(couple.getId())
+            .restorable(restorable)
+            .deletedAt(couple.getDeletedAt())
+            .build();
+    }
+
+    private boolean isRestorable(LocalDateTime deletedAt) {
+        return deletedAt.isAfter(LocalDateTime.now().minusDays(30));
     }
 }

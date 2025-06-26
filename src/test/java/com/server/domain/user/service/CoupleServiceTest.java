@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import com.server.domain.user.dto.CoupleRestoreStatusDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -109,7 +110,7 @@ public class CoupleServiceTest {
             coupleService.connectCouple(user1, "USER2_CODE", firstMetDate);
         });
 
-        assertEquals(CoupleErrorCode.ALREADY_CONNECTED, exception.getErrorCode());
+        assertEquals(CoupleErrorCode.COUPLE_ALREADY_CONNECTED, exception.getErrorCode());
     }
 
     @Test
@@ -197,7 +198,8 @@ public class CoupleServiceTest {
 
         // Verify
         assertEquals(1L, result);
-        verify(coupleRepository).delete(couple);
+        assertNotNull(couple.getDeletedAt());
+        verify(coupleRepository).save(couple);
     }
 
     @Test
@@ -244,5 +246,53 @@ public class CoupleServiceTest {
         });
 
         assertEquals(CoupleErrorCode.COUPLE_NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("Restore couple - successful restoration")
+    void RestoreCoupleSuccessTest() {
+        // Setup
+        couple.setDeletedAt(LocalDateTime.now().minusDays(1));
+        when(coupleRepository.findByUser1OrUser2(user1, user1)).thenReturn(Optional.of(couple));
+
+        // Call the method
+        Long result = coupleService.restoreCouple(user1);
+
+        // Verify
+        assertEquals(1L, result);
+        assertNull(couple.getDeletedAt());
+        verify(coupleRepository).save(couple);
+    }
+
+    @Test
+    @DisplayName("Get restore status - successful retrieval")
+    void getRestoreStatusSuccessTest() {
+        // Setup
+        couple.setDeletedAt(LocalDateTime.now().minusDays(1));
+        when(coupleRepository.findByUser1OrUser2(user1, user1)).thenReturn(Optional.of(couple));
+
+        // Call the method
+        CoupleRestoreStatusDto result = coupleService.getRestoreStatus(user1);
+
+        // Verify
+        assertNotNull(result);
+        assertTrue(result.isRestorable());
+        assertNotNull(result.getDeletedAt());
+    }
+
+    @Test
+    @DisplayName("Get restore status - deletedAt is over 30 days ago")
+    void getRestoreStatusNotRestorableTest() {
+        // Setup
+        couple.setDeletedAt(LocalDateTime.now().minusDays(31));
+        when(coupleRepository.findByUser1OrUser2(user1, user1)).thenReturn(Optional.of(couple));
+
+        // Call the method
+        CoupleRestoreStatusDto result = coupleService.getRestoreStatus(user1);
+
+        // Verify
+        assertNotNull(result);
+        assertFalse(result.isRestorable());
+        assertNotNull(result.getDeletedAt());
     }
 }

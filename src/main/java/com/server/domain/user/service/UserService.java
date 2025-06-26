@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.server.domain.user.dto.*;
-import com.server.domain.user.repository.CoupleRepository;
 import com.server.global.config.S3UrlConfig;
+import com.server.global.error.code.CoupleErrorCode;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,10 +16,8 @@ import com.server.domain.term.entity.TermAgreement;
 import com.server.domain.term.repository.TermAgreementRepository;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.repository.UserRepository;
-import com.server.global.dto.ImageResponseDto;
 import com.server.global.error.code.UserErrorCode;
 import com.server.global.error.exception.BusinessException;
-import com.server.global.service.ImageService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,12 +28,11 @@ import lombok.extern.slf4j.Slf4j;
 public class UserService {
     private final UserRepository userRepository;
     private final TermAgreementRepository termAgreementRepository;
-    private final ImageService imageService;
+    private final CoupleService coupleService;
     private final S3UrlConfig s3UrlConfig;
 
     // 계정 복구 후 유효 기간 (30일)
     private static final long ACCOUNT_RESTORATION_PERIOD_DAYS = 30;
-    private final CoupleRepository coupleRepository;
 
     @Transactional
     public void saveRefreshToken(Long id, String refreshToken) {
@@ -51,10 +48,20 @@ public class UserService {
     }
 
     public UserDto getUser(User user) {
-        CoupleDto coupleDto = coupleRepository.findByUser1OrUser2(user, user)
-            .map(couple -> CoupleDto.from(couple, user, s3UrlConfig))
-            .orElse(null);
-        
+        CoupleDto coupleDto = null;
+
+        try {
+            coupleDto = coupleService.getCouple(user);
+        } catch(BusinessException e) {
+            // 커플 정보가 없으면, coupleDto는 null로 유지
+            if (e.getErrorCode() == CoupleErrorCode.COUPLE_NOT_FOUND) {
+                log.info("커플 정보가 없습니다: {}", e.getMessage());
+            } else {
+                log.error("커플 정보를 조회하는 중 오류 발생: {}", e.getMessage(), e);
+                throw e;
+            }
+        }
+
         return UserDto.from(user, areAllRequiredTermsAgreed(user), coupleDto, s3UrlConfig);
     }
 
@@ -91,6 +98,9 @@ public class UserService {
             userRepository.save(user); // Save the updated user entity
             log.info("User account '{}' has been reset for re-registration.", originalNickname);
         }
+
+        // If the user is in a couple, disconnect them
+        coupleService.disconnectCouple(user);
         return originalNickname; // Return original nickname, controller can decide on response
                                  // message
     }

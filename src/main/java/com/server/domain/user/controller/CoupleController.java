@@ -1,17 +1,11 @@
 package com.server.domain.user.controller;
 
+import com.server.domain.user.dto.CoupleRestoreStatusDto;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.server.domain.user.dto.CoupleConnectionRequestDto;
 import com.server.domain.user.dto.CoupleDto;
@@ -63,6 +57,26 @@ public class CoupleController {
     @Operation(summary = "커플 연결 해제", description = "현재 로그인한 사용자의 커플 관계를 해제합니다.")
     public ApiResponseDto<Long> disconnectCouple(@AuthenticationPrincipal User user) {
         Long coupleId = coupleService.disconnectCouple(user);
+
+        return ApiResponseDto.success(HttpStatus.OK.value(), coupleId);
+    }
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/restore-status")
+    @Operation(summary = "커플 복구 가능 여부 조회", description = "커플 정보가 복구 가능한지 여부를 반환합니다.")
+    public ApiResponseDto<CoupleRestoreStatusDto> getRestoreStatus(@AuthenticationPrincipal User user) {
+        CoupleRestoreStatusDto statusDto = coupleService.getRestoreStatus(user);
+
+        return ApiResponseDto.success(HttpStatus.OK.value(), statusDto);
+    }
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/restore")
+    @Operation(summary = "커플 연결 복구", description = "현재 로그인한 사용자의 커플 관계를 복구합니다.")
+    public ApiResponseDto<Long> restoreCouple(@AuthenticationPrincipal User user) {
+        Long coupleId = coupleService.restoreCouple(user);
 
         return ApiResponseDto.success(HttpStatus.OK.value(), coupleId);
     }
