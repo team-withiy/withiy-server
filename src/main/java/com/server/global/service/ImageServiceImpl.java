@@ -1,5 +1,6 @@
 package com.server.global.service;
 
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -7,9 +8,11 @@ import com.server.global.dto.ImageResponseDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 이미지 업로드 및 관리를 위한 서비스 구현체
@@ -21,6 +24,7 @@ public class ImageServiceImpl implements ImageService {
 
     private final S3Service s3Service;
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    private final WebClient webClient;
 
     /**
      * 이미지 파일을 업로드하고 URL을 반환
@@ -69,6 +73,50 @@ public class ImageServiceImpl implements ImageService {
         }
 
         return responseList;
+    }
+
+    @Override
+    public MultipartFile downloadImage(String pictureUrl) {
+        try {
+            // 1. 이미지 다운로드
+            byte[] imageBytes = webClient.get()
+                .uri(pictureUrl)
+                .retrieve()
+                .bodyToMono(byte[].class)
+                .block();
+
+            if (imageBytes == null || imageBytes.length == 0) {
+                log.warn("이미지 바이트가 null이거나 비어 있음: {}", pictureUrl);
+                return null;
+            }
+
+            // 2. 확장자 추출 (기본 jpg)
+            String extension = getImageExtension(pictureUrl);
+            String filename = UUID.randomUUID() + "." + extension;
+
+            // 3. MultipartFile 생성
+            return new MockMultipartFile(
+                "file",                 // name
+                filename,               // originalFilename
+                "image/" + extension,   // contentType
+                imageBytes              // content
+            );
+
+        } catch (Exception e) {
+            log.error("이미지 다운로드 중 오류 발생: {}", pictureUrl, e);
+            return null;
+        }
+    }
+
+    private String getImageExtension(String url) {
+        try {
+            String noQuery = url.split("\\?")[0]; // 쿼리 파라미터 제거
+            String ext = noQuery.substring(noQuery.lastIndexOf('.') + 1).toLowerCase();
+            if (ext.matches("jpg|jpeg|png|gif|bmp|webp")) {
+                return ext;
+            }
+        } catch (Exception ignored) {}
+        return "jpg"; // 기본 확장자 fallback
     }
 
 

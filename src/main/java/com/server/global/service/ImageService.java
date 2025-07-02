@@ -47,4 +47,5 @@ public interface ImageService {
     // 여러장의 이미지 업로드
     List<ImageResponseDto> uploadImages(List<MultipartFile> files, String entityType, Long entityId);
 
+    MultipartFile downloadImage(String picture);
 }

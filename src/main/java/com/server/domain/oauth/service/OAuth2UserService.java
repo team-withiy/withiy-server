@@ -3,6 +3,10 @@ package com.server.domain.oauth.service;
 import java.util.List;
 import java.util.Map;
 
+import com.server.domain.user.entity.User;
+import com.server.global.error.code.ProfileErrorCode;
+import com.server.global.error.exception.BusinessException;
+import com.server.global.service.ImageService;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -20,6 +24,7 @@ import com.server.domain.term.repository.TermRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @Service
@@ -28,6 +33,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
     private final OAuthRepository oAuthRepository;
     private final TermRepository termRepository;
     private final TermAgreementRepository termAgreementRepository;
+    private final ImageService imageService;
 
     @Transactional
     @Override
@@ -47,9 +53,26 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         // 5. 회원가입 및 로그인
         OAuth oAuth = getOrSave(oAuth2UserInfo);
+        User user = oAuth.getUser();
+
+        // 소셜 프로필 사진이 있는 경우 S3에 업로드
+        String pictureUrl = oAuth2UserInfo.getPicture();
+        if (pictureUrl != null && !pictureUrl.isEmpty()) {
+            // 소셜 프로필 사진 다운로드
+            MultipartFile file = imageService.downloadImage(pictureUrl);
+            // 사진을 S3에 업로드
+            if (file == null || file.isEmpty()) {
+                log.warn("다운로드 이미지 파일이 비어 있습니다: {}", pictureUrl);
+                throw new BusinessException(ProfileErrorCode.DOWNLOAD_PROFILE_IMAGE_EMPTY);
+            }
+            String imageUrl = imageService.uploadImage(file, "user", user.getId()).getImageUrl();
+            log.info("변경된 프로필 사진 URL: {}", imageUrl);
+            // S3 에 업로드된 프로필 사진 URL 설정
+            user.setThumbnail(imageUrl);
+        }
 
         // 6. OAuth2User로 반환
-        return new PrincipalDetails(oAuth.getUser(), oAuth2UserAttributes, userNameAttributeName);
+        return new PrincipalDetails(user, oAuth2UserAttributes, userNameAttributeName);
     }
 
     private OAuth getOrSave(OAuth2UserInfo oAuth2UserInfo) {
