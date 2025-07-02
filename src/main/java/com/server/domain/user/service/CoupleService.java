@@ -77,7 +77,7 @@ public class CoupleService {
                 .orElseThrow(() -> new BusinessException(CoupleErrorCode.COUPLE_NOT_FOUND));
 
         if( couple.getDeletedAt() != null) {
-            throw new BusinessException(CoupleErrorCode.COUPLE_ALREADY_DISCONNECTED);
+            throw new BusinessException(CoupleErrorCode.COUPLE_NOT_FOUND);
         }
 
         return CoupleDto.from(couple, user, s3UrlConfig);

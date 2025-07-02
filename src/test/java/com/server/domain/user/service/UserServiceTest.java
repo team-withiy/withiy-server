@@ -13,6 +13,7 @@ import java.util.Optional;
 
 import com.server.domain.user.dto.CoupleDto;
 import com.server.domain.user.dto.NotificationSettingsDto;
+import com.server.global.error.code.CoupleErrorCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -95,6 +96,31 @@ public class UserServiceTest {
         assertEquals("USER123", userDto.getCode());
         assertFalse(userDto.getRestoreEnabled());
         assertTrue(userDto.getIsRegistered());
+    }
+
+    @Test
+    @DisplayName("Get user with disconnected couple test")
+    void getUserWithDisconnectedCoupleTest() {
+        // Setup all required terms as agreed
+        for (TermAgreement agreement : user.getTermAgreements()) {
+            agreement.setAgreed(true);
+        }
+
+        // Simulate couple being disconnected
+        when(coupleService.getCouple(any())).thenThrow(new BusinessException(CoupleErrorCode.COUPLE_NOT_FOUND));
+
+        // Call the method
+        UserDto userDto = userService.getUser(user);
+
+        // Verify the results
+        assertNotNull(userDto);
+        assertEquals("testUser", userDto.getNickname());
+        assertEquals("thumbnail.jpg", userDto.getThumbnail());
+        assertEquals("USER123", userDto.getCode());
+        assertFalse(userDto.getRestoreEnabled());
+        assertTrue(userDto.getIsRegistered());
+        assertFalse(userDto.getHasCouple());
+        assertNull(userDto.getCouple());
     }
 
     @Test
