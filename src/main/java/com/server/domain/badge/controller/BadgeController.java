@@ -1,5 +1,6 @@
 package com.server.domain.badge.controller;
 
+import com.server.domain.badge.dto.BadgeResponseDto;
 import com.server.domain.badge.entity.BadgeType;
 import com.server.domain.badge.entity.CharacterType;
 import com.server.domain.badge.service.BadgeService;
@@ -13,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,5 +51,16 @@ public class BadgeController {
         badgeService.updateMainBadge(user, badgeType, characterType);
         return ApiResponseDto.success(HttpStatus.OK.value(),
                 String.format("메인 배지를 '%s'로 변경했습니다.", badgeType));
+    }
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/all")
+    @Operation(summary = "모든 배지 조회",
+        description = "사용자가 획득한 배지 정보도 포함하여 모든 배지 정보를 조회합니다.")
+    public ApiResponseDto<List<BadgeResponseDto>> getAllBadges(
+        @AuthenticationPrincipal User user) {
+        List<BadgeResponseDto> badges = badgeService.getBadgeListWithUserInfo(user);
+        return ApiResponseDto.success(HttpStatus.OK.value(), badges);
     }
 }

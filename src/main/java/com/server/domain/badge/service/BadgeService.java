@@ -76,4 +76,35 @@ public class BadgeService {
         newMainUserBadge.setIsMain(true);
         newMainUserBadge.setCharacterType(characterType);
     }
+
+    @Transactional
+    public List<BadgeResponseDto> getBadgeListWithUserInfo(User user) {
+        // 1. 모든 배지 정보를 조회합니다.
+        List<Badge> allBadges = badgeRepository.findAll();
+
+        // 2. 유저가 보유한 배지 정보를 조회합니다.
+        Map<BadgeType, UserBadge> ownedMap = userBadgeRepository.findByUser(user).stream()
+            .collect(Collectors.toMap(
+                ub -> ub.getBadge().getType(),
+                Function.identity()
+            ));
+
+        return allBadges.stream()
+            .map(badge -> {
+                UserBadge userBadge = ownedMap.get(badge.getType());
+                boolean isOwned = userBadge != null;
+                boolean isMain = isOwned && Boolean.TRUE.equals(userBadge.getIsMain());
+                CharacterType characterType = isOwned ? userBadge.getCharacterType() : null;
+
+                return BadgeResponseDto.builder()
+                    .badgeType(badge.getType())
+                    .badgeLabel(badge.getType().getLabel())
+                    .item(badge.getType().getItem())
+                    .isOwned(isOwned)
+                    .isMain(isMain)
+                    .characterType(characterType)
+                    .build();
+            })
+            .collect(Collectors.toList());
+    }
 }
