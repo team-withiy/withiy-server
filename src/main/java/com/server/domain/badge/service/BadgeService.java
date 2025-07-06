@@ -2,6 +2,7 @@ package com.server.domain.badge.service;
 
 import com.server.domain.badge.condition.BadgeCondition;
 import com.server.domain.badge.condition.BadgeConditionFactory;
+import com.server.domain.badge.dto.BadgeResponseDto;
 import com.server.domain.badge.entity.Badge;
 import com.server.domain.badge.entity.BadgeType;
 import com.server.domain.badge.entity.CharacterType;
@@ -12,6 +13,11 @@ import com.server.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -50,5 +56,24 @@ public class BadgeService {
 
             userBadgeRepository.save(userBadge);
         }
+    }
+
+    @Transactional
+    public void updateMainBadge(User user, BadgeType badgeType, CharacterType characterType) {
+
+        // 1. 기존 메인 배지를 찾아서 메인 배지 설정을 해제합니다.
+        UserBadge mainBadge = userBadgeRepository.findByUserAndIsMainTrue(user).orElse(null);
+        if (mainBadge != null) {
+            mainBadge.setIsMain(false);
+            userBadgeRepository.save(mainBadge);
+        }
+
+        // 2. 유저가 보유한 배지인지 확인합니다.
+        UserBadge newMainUserBadge = userBadgeRepository.findByUserAndBadgeType(user, badgeType)
+                .orElseThrow(() -> new IllegalArgumentException("해당 배지를 찾을 수 없습니다."));
+
+        // 3. 새로운 배지를 메인 배지로 설정합니다.
+        newMainUserBadge.setIsMain(true);
+        newMainUserBadge.setCharacterType(characterType);
     }
 }
