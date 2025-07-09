@@ -90,7 +90,7 @@ public class OAuth2UserInfo {
         log.info("새 사용자를 위한 랜덤 코드 생성: {}", randomCode);
 
         User user =
-                User.builder().nickname(nickname).thumbnail(picture).terms(terms).code(randomCode) // 생성된
+                User.builder().nickname(nickname).terms(terms).code(randomCode) // 생성된
                                                                                                    // 랜덤
                                                                                                    // 코드
                                                                                                    // 설정

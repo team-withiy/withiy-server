@@ -2,6 +2,7 @@ package com.server.domain.oauth.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.server.domain.user.entity.User;
 import com.server.global.error.code.ProfileErrorCode;
@@ -55,22 +56,6 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         OAuth oAuth = getOrSave(oAuth2UserInfo);
         User user = oAuth.getUser();
 
-        // 소셜 프로필 사진이 있는 경우 S3에 업로드
-        String pictureUrl = oAuth2UserInfo.getPicture();
-        if (pictureUrl != null && !pictureUrl.isEmpty()) {
-            // 소셜 프로필 사진 다운로드
-            MultipartFile file = imageService.downloadImage(pictureUrl);
-            // 사진을 S3에 업로드
-            if (file == null || file.isEmpty()) {
-                log.warn("다운로드 이미지 파일이 비어 있습니다: {}", pictureUrl);
-                throw new BusinessException(ProfileErrorCode.DOWNLOAD_PROFILE_IMAGE_EMPTY);
-            }
-            String imageUrl = imageService.uploadImage(file, "user", user.getId()).getImageUrl();
-            log.info("변경된 프로필 사진 URL: {}", imageUrl);
-            // S3 에 업로드된 프로필 사진 URL 설정
-            user.setThumbnail(imageUrl);
-        }
-
         // 6. OAuth2User로 반환
         return new PrincipalDetails(user, oAuth2UserAttributes, userNameAttributeName);
     }
@@ -80,14 +65,27 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
             log.info("Provider: {}, ProviderId: {}", oAuth2UserInfo.getProvider(),
                     oAuth2UserInfo.getProviderId());
 
-            OAuth oAuth = oAuthRepository.findByProviderAndProviderId(oAuth2UserInfo.getProvider(),
-                    oAuth2UserInfo.getProviderId()).orElseGet(() -> {
-                        log.info("새 사용자 등록: {}", oAuth2UserInfo.getNickname());
-                        return oAuth2UserInfo.toEntity(termRepository.findAll());
-                    });
+            Optional<OAuth> optionalOAuth = oAuthRepository.findByProviderAndProviderId(oAuth2UserInfo.getProvider(),
+                    oAuth2UserInfo.getProviderId());
 
-            log.info("사용자 정보: {}", oAuth.getUser().getNickname());
-            oAuth = oAuthRepository.save(oAuth);
+            OAuth oAuth;
+            if (optionalOAuth.isPresent()) {
+                oAuth = optionalOAuth.get();
+            } else {
+                log.info("새 사용자 등록: {}", oAuth2UserInfo.getNickname());
+                oAuth = oAuth2UserInfo.toEntity(termRepository.findAll());
+                User newUser = oAuth.getUser();
+
+                // 프로필 이미지가 있는 경우에만 처리
+                String pictureUrl = oAuth2UserInfo.getPicture();
+                if (pictureUrl != null && !pictureUrl.isBlank()) {
+                    MultipartFile file = imageService.downloadImage(pictureUrl);
+                    String imageUrl = imageService.uploadImage(file, "user", newUser.getId()).getImageUrl();
+                    newUser.setThumbnail(imageUrl);
+                }
+                oAuthRepository.save(oAuth);
+            }
+
             List<TermAgreement> termAgreements = oAuth.getUser().getTermAgreements();
             for (TermAgreement termAgreement : termAgreements) {
                 termAgreementRepository.save(termAgreement);
