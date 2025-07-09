@@ -162,7 +162,6 @@ public class UserServiceTest {
         assertEquals("testUser", result);
         assertNotNull(user.getDeletedAt());
         verify(userRepository).save(user);
-        verify(coupleService).disconnectCouple(user);
     }
 
     @Test

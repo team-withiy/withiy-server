@@ -99,8 +99,6 @@ public class UserService {
             log.info("User account '{}' has been reset for re-registration.", originalNickname);
         }
 
-        // If the user is in a couple, disconnect them
-        coupleService.disconnectCouple(user);
         return originalNickname; // Return original nickname, controller can decide on response
                                  // message
     }
