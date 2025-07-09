@@ -172,9 +172,10 @@ public class UserServiceTest {
 
         // Verify the results
         assertEquals("testUser", result); // Should return original nickname
-        assertNotNull(user.getDeletedAt()); // deletedAt should be set
+        assertNull(user.getDeletedAt()); // deletedAt should be set
         assertNull(user.getThumbnail()); // Thumbnail should be cleared
         assertNull(user.getRefreshToken()); // Refresh token should be cleared
+        assertNull(user.getNickname());
 
         // Verify term agreements are reset
         for (TermAgreement agreement : user.getTermAgreements()) {

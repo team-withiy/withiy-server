@@ -78,9 +78,9 @@ public class UserService {
             log.info("User account '{}' marked for deletion (soft delete).", originalNickname);
         } else { // False: User wants to "Start Anew" (e.g., POST /api/users/restore with restore:
                  // false)
-            // Reset the account for re-registration, do not hard delete.
-            // 1. Set deletedAt to signify the account is in a reset/inactive state.
-            user.setDeletedAt(LocalDateTime.now());
+
+            // 1. Clear soft delete timestamp
+            user.setDeletedAt(null);
 
             // 2. Reset all term agreements to false
             if (user.getTermAgreements() != null) {
@@ -94,7 +94,7 @@ public class UserService {
             // 3. Reset user-specific profile data
             user.setThumbnail(null); // Clear profile picture
             user.updateRefreshToken(null); // Clear refresh token
-
+            user.setNickname(null); // Clear nickname to allow re-registration
             userRepository.save(user); // Save the updated user entity
             log.info("User account '{}' has been reset for re-registration.", originalNickname);
         }

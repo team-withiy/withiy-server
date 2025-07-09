@@ -82,7 +82,7 @@ public class UserController {
             nickname = userService.restoreAccount(user.getId());
             message = String.format("User account %s restored successfully", nickname);
         } else {
-            // 계정 삭제
+            // 계정 초기화
             nickname = userService.deleteUser(user, false);
             message = String.format("User account %s deleted successfully", nickname);
         }
