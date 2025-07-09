@@ -98,7 +98,7 @@ public class BadgeService {
 
                 return BadgeResponseDto.builder()
                     .badgeType(badge.getType())
-                    .badgeLabel(badge.getType().getLabel())
+                    .badgeDescription(badge.getType().getDescription())
                     .item(badge.getType().getItem())
                     .isOwned(isOwned)
                     .isMain(isMain)

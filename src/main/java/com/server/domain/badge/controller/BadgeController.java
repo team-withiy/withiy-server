@@ -1,13 +1,13 @@
 package com.server.domain.badge.controller;
 
 import com.server.domain.badge.dto.BadgeResponseDto;
-import com.server.domain.badge.entity.BadgeType;
-import com.server.domain.badge.entity.CharacterType;
+import com.server.domain.badge.dto.BadgeSelectionRequestDto;
 import com.server.domain.badge.service.BadgeService;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,12 +31,11 @@ public class BadgeController {
     @Operation(summary = "배지 획득",
         description = "배지 발급 조건을 만족하면 배지를 획득합니다.")
     public ApiResponseDto<String> claimBadge(@AuthenticationPrincipal User user,
-                                             @RequestParam BadgeType badgeType,
-                                             @RequestParam CharacterType characterType) {
+                                             @Valid @RequestBody BadgeSelectionRequestDto requestDto) {
 
-        badgeService.claimBadge(user, badgeType, characterType);
+        badgeService.claimBadge(user, requestDto.getBadgeType(), requestDto.getCharacterType());
         return ApiResponseDto.success(HttpStatus.CREATED.value(),
-                String.format("배지 '%s'를 획득했습니다.", badgeType));
+                String.format("배지 '%s'를 획득했습니다.", requestDto.getBadgeType()));
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -46,11 +45,10 @@ public class BadgeController {
         description = "사용자가 보유한 배지 중 하나를 메인 배지로 변경합니다.")
     public ApiResponseDto<String> updateMainBadge(
             @AuthenticationPrincipal User user,
-            @RequestParam BadgeType badgeType,
-            @RequestParam CharacterType characterType) {
-        badgeService.updateMainBadge(user, badgeType, characterType);
+            @Valid @RequestBody BadgeSelectionRequestDto requestDto) {
+        badgeService.updateMainBadge(user, requestDto.getBadgeType(), requestDto.getCharacterType());
         return ApiResponseDto.success(HttpStatus.OK.value(),
-                String.format("메인 배지를 '%s'로 변경했습니다.", badgeType));
+                String.format("메인 배지를 '%s'로 변경했습니다.", requestDto.getBadgeType()));
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")

@@ -5,10 +5,10 @@ import com.server.domain.user.entity.User;
 import org.springframework.stereotype.Component;
 
 @Component
-public class WidiCoupleBadgeCondition implements BadgeCondition{
+public class WithiyCoupleBadgeCondition implements BadgeCondition{
     @Override
     public BadgeType getBadgeType() {
-        return BadgeType.WIDI_COUPLE;
+        return BadgeType.WITHIY_COUPLE;
     }
 
     @Override
