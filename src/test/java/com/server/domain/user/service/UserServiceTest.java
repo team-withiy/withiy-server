@@ -400,6 +400,36 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Set new profile test - set only thumbnail")
+    void updateProfileWithOnlyThumbnailTest() {
+        // given
+        String newThumbnail = "newThumbnail.jpg";
+
+        // when
+        userService.updateProfile(user, null, newThumbnail);
+
+        // then
+        assertEquals("testUser", user.getNickname()); // Nickname should remain unchanged
+        assertEquals(newThumbnail, user.getThumbnail());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    @DisplayName("Set new profile test - set only nickname")
+    void updateProfileWithOnlyNicknameTest() {
+        // given
+        String newNickname = "newNickname";
+
+        // when
+        userService.updateProfile(user, newNickname, null);
+
+        // then
+        assertEquals(newNickname, user.getNickname());
+        assertEquals("thumbnail.jpg", user.getThumbnail()); // Thumbnail should remain unchanged
+        verify(userRepository).save(user);
+    }
+
+    @Test
     @DisplayName("알림 설정 변경 - 데이트 알림 ON, 이벤트 알림 OFF")
     void updateNotificationSettingsTest() {
         // given

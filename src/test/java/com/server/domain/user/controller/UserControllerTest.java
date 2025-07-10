@@ -167,20 +167,6 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("프로필 업데이트 테스트 - 닉네임이 null일 때 실패")
-    void updateProfile_withNullNickname_shouldFail() throws Exception {
-        // Setup mock data
-        ProfileUpdateDto profileUpdateDto = new ProfileUpdateDto(null, null);
-
-        // Execute request with JWT authentication and verify response
-        mockMvc.perform(patch("/api/users/profile").with(JwtTestUtil.withJwt(jwtService, mockUser))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(profileUpdateDto))).andDo(print())
-            .andExpect(status().isBadRequest()) // 실패 기대
-            .andExpect(jsonPath("$.message").value("닉네임은 필수 항목입니다."));
-    }
-
-    @Test
     @DisplayName("알림 설정 업데이트 테스트 - 필수값이 null일 때 실패")
     void updateNotificationSettings_withNullValue_shouldFail() throws Exception {
         // Setup mock data
