@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.server.domain.oauth.entity.OAuth;
+import com.server.domain.oauth.repository.OAuthRepository;
 import com.server.domain.user.dto.CoupleDto;
 import com.server.domain.user.dto.NotificationSettingsDto;
 import com.server.global.error.code.CoupleErrorCode;
@@ -41,12 +43,16 @@ public class UserServiceTest {
     private TermAgreementRepository termAgreementRepository;
 
     @Mock
+    private OAuthRepository oauthRepository;
+
+    @Mock
     private CoupleService coupleService;
 
     @InjectMocks
     private UserService userService;
 
     private User user;
+    private OAuth oauth;
     private List<Term> terms;
     private List<TermAgreement> termAgreements;
 
@@ -64,6 +70,15 @@ public class UserServiceTest {
         user = User.builder().nickname("testUser").thumbnail("thumbnail.jpg").terms(terms)
                 .code("USER123").build();
         user.setId(1L);
+
+        // Setup OAuth object
+        oauth = OAuth.builder()
+            .provider("google")
+            .providerId("1234567890")
+            .thumbnail("https://google.com")
+            .nickname("testUser")
+            .email("email@email.com")
+            .build();
 
         // Setup TermAgreements
         termAgreements = new ArrayList<>();
@@ -167,15 +182,17 @@ public class UserServiceTest {
     @Test
     @DisplayName("Reset user for re-registration test (formerly hard delete)")
     void resetUserForReRegistrationTest() {
+        when(oauthRepository.findByUser(any())).thenReturn(Optional.of(oauth));
+
         // Call the method with forAccountWithdrawal = false
         String result = userService.deleteUser(user, false);
-
         // Verify the results
         assertEquals("testUser", result); // Should return original nickname
-        assertNull(user.getDeletedAt()); // deletedAt should be set
-        assertNull(user.getThumbnail()); // Thumbnail should be cleared
+        assertNull(user.getDeletedAt()); // deletedAt should be null
+        assertEquals("https://google.com", user.getThumbnail()); // Thumbnail should be cleared
+        assertEquals("testUser", user.getNickname());
         assertNull(user.getRefreshToken()); // Refresh token should be cleared
-        assertNull(user.getNickname());
+
 
         // Verify term agreements are reset
         for (TermAgreement agreement : user.getTermAgreements()) {
