@@ -264,12 +264,25 @@ public class UserService {
         }
 
         // 사용자 정보 업데이트
+        nickname = updateFieldIfValid(nickname, user.getNickname(), "nickname");
+        thumbnail = updateFieldIfValid(thumbnail, user.getThumbnail(), "thumbnail");
+        
         user.setNickname(nickname);
         user.setThumbnail(thumbnail);
         userRepository.save(user);
 
         // 응답 DTO 생성
         return new ProfileResponseDto(nickname, thumbnail);
+    }
+
+    private String updateFieldIfValid(String newValue, String currentValue, String fieldName) {
+        if (newValue == null || newValue.trim().isEmpty()) {
+            log.warn("{} is null or empty, using existing value: {}", fieldName, currentValue);
+            return currentValue;
+        } else {
+            log.info("Updating {} from {} to {}", fieldName, currentValue, newValue);
+            return newValue.trim(); // 공백 제거
+        }
     }
 
     /**

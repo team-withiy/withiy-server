@@ -14,7 +14,6 @@ import lombok.Setter;
 public class ProfileUpdateDto {
 
     @Schema(description = "새 닉네임", example = "위디2호")
-    @NotBlank(message = "닉네임은 필수 항목입니다.")
     private String nickname;
 
     @Schema(description = "프로필 이미지 URL", example = "https://example.com/images/profile.png")
