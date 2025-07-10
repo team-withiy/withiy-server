@@ -5,6 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 
+import com.server.domain.oauth.repository.OAuthRepository;
 import com.server.domain.user.dto.*;
 import com.server.global.config.S3UrlConfig;
 import com.server.global.error.code.CoupleErrorCode;
@@ -27,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserService {
     private final UserRepository userRepository;
+    private final OAuthRepository oauthRepository;
     private final TermAgreementRepository termAgreementRepository;
     private final CoupleService coupleService;
     private final S3UrlConfig s3UrlConfig;
@@ -92,9 +94,14 @@ public class UserService {
             }
 
             // 3. Reset user-specific profile data
-            user.setThumbnail(null); // Clear profile picture
+            oauthRepository.findByUser(user).ifPresent(oauth -> {
+                user.setThumbnail(oauth.getThumbnail());
+                user.setNickname(oauth.getNickname());
+                oauthRepository.save(oauth);
+                log.debug("Reset OAuth profile data for user '{}'.", originalNickname);
+            });
+
             user.updateRefreshToken(null); // Clear refresh token
-            user.setNickname(null); // Clear nickname to allow re-registration
             userRepository.save(user); // Save the updated user entity
             log.info("User account '{}' has been reset for re-registration.", originalNickname);
         }

@@ -90,15 +90,12 @@ public class OAuth2UserInfo {
         log.info("새 사용자를 위한 랜덤 코드 생성: {}", randomCode);
 
         User user =
-                User.builder().nickname(nickname).terms(terms).code(randomCode) // 생성된
-                                                                                                   // 랜덤
-                                                                                                   // 코드
-                                                                                                   // 설정
-                        .build();
-
-        return OAuth.builder().provider(provider).providerId(providerId).email(email).user(user)
+            User.builder()
+                .nickname(nickname).thumbnail(picture).terms(terms).code(randomCode) // 생성된 랜덤 코드 설정
                 .build();
 
+        return OAuth.builder().provider(provider)
+            .providerId(providerId).email(email).nickname(nickname).thumbnail(picture).user(user)
+            .build();
     }
-
 }
