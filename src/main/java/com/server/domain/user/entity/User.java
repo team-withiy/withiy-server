@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.server.domain.album.entity.Album;
 import com.server.domain.course.entity.CourseBookmark;
-import com.server.domain.course.entity.CoursePlace;
 import com.server.domain.folder.entity.Folder;
 import com.server.domain.place.entity.PlaceBookmark;
 import com.server.domain.review.entity.Review;

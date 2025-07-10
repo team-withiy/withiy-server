@@ -81,6 +81,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                 if (pictureUrl != null && !pictureUrl.isBlank()) {
                     MultipartFile file = imageService.downloadImage(pictureUrl);
                     String imageUrl = imageService.uploadImage(file, "user", newUser.getId()).getImageUrl();
+                    oAuth.updateThumbnail(imageUrl);
                     newUser.setThumbnail(imageUrl);
                 }
                 oAuthRepository.save(oAuth);
