@@ -58,7 +58,7 @@ public class User {
     @Column(name = "refresh_token", length = 512)
     private String refreshToken;
 
-    @Column(name = "nickname", nullable = false)
+    @Column(name = "nickname", nullable = true)
     private String nickname;
 
     @Column(name = "thumbnail")
