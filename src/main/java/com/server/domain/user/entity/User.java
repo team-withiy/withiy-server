@@ -116,10 +116,10 @@ public class User {
     private List<Folder> folders = new ArrayList<>();
 
     // date_notification_enabled
-    @Column(name = "date_notification_enabled")
+    @Column(name = "date_notification_enabled", nullable = false)
     private Boolean dateNotificationEnabled = true;
     // event_notification_enabled
-    @Column(name = "event_notification_enabled")
+    @Column(name = "event_notification_enabled", nullable = false)
     private Boolean eventNotificationEnabled = true;
 
 

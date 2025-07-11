@@ -11,11 +11,9 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class NotificationSettingsDto {
+public class NotificationSettingRequestDto {
     @Schema(description = "데이트 알림 설정", example = "true")
-    @NotNull(message = "데이트 알림 설정은 필수 항목입니다.")
     private Boolean dateNotificationEnabled;
     @Schema(description = "이벤트 알림 설정", example = "true")
-    @NotNull(message = "이벤트 알림 설정은 필수 항목입니다.")
     private Boolean eventNotificationEnabled;
 }

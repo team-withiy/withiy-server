@@ -5,25 +5,32 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.server.domain.user.entity.User;
 import com.server.global.config.S3UrlConfig;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
 public class UserDto {
+    @Schema(description = "사용자 닉네임", example = "위디1호")
     private String nickname;
+    @Schema(description = "프로필 이미지 URL", example = "https://cdn.example.com/user/6/uuid.jpg")
     private String thumbnail;
+    @Schema(description = "복구 가능 여부", example = "true")
     private Boolean restoreEnabled;
+    @Schema(description = "약관 동의 여부", example = "true")
     private Boolean isRegistered;
+    @Schema(description = "사용자 고유 코드", example = "aB3jK2M8p9cR1Vw_K0Nxug")
     private String code;
+    @Schema(description = "커플 여부", example = "true")
     private Boolean hasCouple;
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "커플 정보", nullable = true)
     private CoupleDto couple;
-
     public UserDto() {
         // Default constructor
     }
