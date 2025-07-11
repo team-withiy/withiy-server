@@ -118,13 +118,27 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping(value = "/notifications/settings")
+    @PatchMapping(value = "/notifications/settings")
+    @Operation(summary = "알림 설정 업데이트",
+        description = "사용자의 알림 설정을 업데이트합니다. 데이트 알림 설정이 필수입니다.")
     public ApiResponseDto<String> updateNotificationSettings(
-        @AuthenticationPrincipal User user, @Valid @RequestBody NotificationSettingsDto requestDto) {
+        @AuthenticationPrincipal User user, @Valid @RequestBody NotificationSettingRequestDto requestDto) {
 
         log.info("Notification settings update requested for user: {}", user.getNickname());
 
         userService.updateNotificationSettings(user, requestDto);
         return ApiResponseDto.success(HttpStatus.OK.value(), "Notification settings updated successfully");
+    }
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/notifications/settings")
+    @Operation(summary = "알림 설정 조회",
+        description = "사용자의 알림 설정을 조회합니다. 데이트 알림 설정이 포함됩니다.")
+    public ApiResponseDto<UserNotificationSettingResponseDto> getNotificationSettings(@AuthenticationPrincipal User user) {
+        log.info("Notification settings retrieval requested for user: {}", user.getNickname());
+
+        UserNotificationSettingResponseDto responseDto = userService.getNotificationSettings(user);
+        return ApiResponseDto.success(HttpStatus.OK.value(), responseDto);
     }
 }

@@ -24,6 +24,7 @@ public class UserProfileResponseDto {
             example = "https://cdn.withiy.com/users/profile/abc123.jpg")
     private String profileImageUrl;
 
+    @Schema(description = "커플 여부", example = "true")
     private Boolean hasCouple;
 
     public static UserProfileResponseDto from(User user) {

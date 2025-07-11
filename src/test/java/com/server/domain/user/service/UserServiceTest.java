@@ -14,7 +14,8 @@ import java.util.Optional;
 import com.server.domain.oauth.entity.OAuth;
 import com.server.domain.oauth.repository.OAuthRepository;
 import com.server.domain.user.dto.CoupleDto;
-import com.server.domain.user.dto.NotificationSettingsDto;
+import com.server.domain.user.dto.NotificationSettingRequestDto;
+import com.server.domain.user.dto.UserNotificationSettingResponseDto;
 import com.server.global.error.code.CoupleErrorCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -435,9 +436,8 @@ public class UserServiceTest {
         // given
         Boolean dateNotificationEnabled = true;
         Boolean eventNotificationEnabled = false;
-        NotificationSettingsDto notificationSettingsDto = new NotificationSettingsDto(dateNotificationEnabled, eventNotificationEnabled);
+        NotificationSettingRequestDto notificationSettingsDto = new NotificationSettingRequestDto(dateNotificationEnabled, eventNotificationEnabled);
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         // when
         userService.updateNotificationSettings(user, notificationSettingsDto);
 
@@ -447,5 +447,41 @@ public class UserServiceTest {
             () -> assertEquals(eventNotificationEnabled, user.getEventNotificationEnabled())
         );
         verify(userRepository).save(user);
+    }
+
+    @Test
+    @DisplayName("알림 설정 변경 - 데이트 알림 ON, 이벤트 알림 NULL")
+    void updateNotificationSettingsNullTest() {
+        // given
+        Boolean dateNotificationEnabled = true;
+        NotificationSettingRequestDto notificationSettingsDto = new NotificationSettingRequestDto(dateNotificationEnabled, null);
+
+        // when
+        userService.updateNotificationSettings(user, notificationSettingsDto);
+
+        // then
+        assertAll(
+            () -> assertEquals(dateNotificationEnabled, user.getDateNotificationEnabled()),
+            () -> assertTrue(user.getEventNotificationEnabled()) // Default value should be true
+        );
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    @DisplayName("알림 설정 조회 - 데이트 알림 ON, 이벤트 알림 OFF")
+    void getNotificationSettingsTest() {
+        // given
+        user.setDateNotificationEnabled(true);
+        user.setEventNotificationEnabled(false);
+
+        // when
+        UserNotificationSettingResponseDto responseDto = userService.getNotificationSettings(user);
+
+        // then
+        assertAll(
+            () -> assertEquals(user.getId(), responseDto.getUserId()),
+            () -> assertTrue(responseDto.getDateNotificationEnabled()),
+            () -> assertFalse(responseDto.getEventNotificationEnabled())
+        );
     }
 }

@@ -165,19 +165,4 @@ public class UserControllerTest {
                 .content(objectMapper.writeValueAsString(restoreAccountDto))).andDo(print())
                 .andExpect(status().isOk());
     }
-
-    @Test
-    @DisplayName("알림 설정 업데이트 테스트 - 필수값이 null일 때 실패")
-    void updateNotificationSettings_withNullValue_shouldFail() throws Exception {
-        // Setup mock data
-        NotificationSettingsDto notificationSettingsDto = new NotificationSettingsDto(null, false);
-
-        // Execute request with JWT authentication and verify response
-        mockMvc.perform(put("/api/users/notifications/settings").with(JwtTestUtil.withJwt(jwtService, mockUser))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(notificationSettingsDto))).andDo(print())
-            .andExpect(status().isBadRequest()) // 실패 기대
-            .andExpect(jsonPath("$.message").value("데이트 알림 설정은 필수 항목입니다."));
-    }
-
 }

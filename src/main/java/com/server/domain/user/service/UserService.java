@@ -264,8 +264,8 @@ public class UserService {
         }
 
         // 사용자 정보 업데이트
-        nickname = updateFieldIfValid(nickname, user.getNickname(), "nickname");
-        thumbnail = updateFieldIfValid(thumbnail, user.getThumbnail(), "thumbnail");
+        nickname = updateIfNotBlank(nickname, user.getNickname(), "nickname");
+        thumbnail = updateIfNotBlank(thumbnail, user.getThumbnail(), "thumbnail");
         
         user.setNickname(nickname);
         user.setThumbnail(thumbnail);
@@ -275,7 +275,7 @@ public class UserService {
         return new ProfileResponseDto(nickname, thumbnail);
     }
 
-    private String updateFieldIfValid(String newValue, String currentValue, String fieldName) {
+    private String updateIfNotBlank(String newValue, String currentValue, String fieldName) {
         if (newValue == null || newValue.trim().isEmpty()) {
             log.warn("{} is null or empty, using existing value: {}", fieldName, currentValue);
             return currentValue;
@@ -334,13 +334,30 @@ public class UserService {
     }
 
     @Transactional
-    public void updateNotificationSettings(User principalUser, NotificationSettingsDto notificationSettingsDto) {
-
-        User user = userRepository.findById(principalUser.getId())
-            .orElseThrow(() -> new BusinessException(UserErrorCode.NOT_FOUND));
-
-        user.setDateNotificationEnabled(notificationSettingsDto.getDateNotificationEnabled());
-        user.setEventNotificationEnabled(notificationSettingsDto.getEventNotificationEnabled());
+    public void updateNotificationSettings(User user, NotificationSettingRequestDto notificationSettingsDto) {
+        Boolean updatedDateSetting = updateIfNotNull(notificationSettingsDto.getDateNotificationEnabled(), user.getDateNotificationEnabled(), "dateNotificationEnabled");
+        Boolean updatedEventSetting = updateIfNotNull(notificationSettingsDto.getEventNotificationEnabled(), user.getEventNotificationEnabled(), "eventNotificationEnabled");
+        user.setDateNotificationEnabled(updatedDateSetting);
+        user.setEventNotificationEnabled(updatedEventSetting);
         userRepository.save(user);
+    }
+
+    private Boolean updateIfNotNull(Boolean newValue, Boolean currentValue, String fieldName) {
+        if (newValue == null) {
+            log.warn("{} is null, using existing value: {}", fieldName, currentValue);
+            return currentValue;
+        } else {
+            log.info("Updating {} from {} to {}", fieldName, currentValue, newValue);
+            return newValue;
+        }
+    }
+
+    @Transactional
+    public UserNotificationSettingResponseDto getNotificationSettings(User user) {
+        return UserNotificationSettingResponseDto.of(
+            user.getId(),
+            user.getDateNotificationEnabled(),
+            user.getEventNotificationEnabled()
+        );
     }
 }
