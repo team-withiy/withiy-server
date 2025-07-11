@@ -34,6 +34,7 @@ public class UserBadge {
     private CharacterType characterType;
 
     @Column(name = "isMain", nullable = false)
+    @Builder.Default
     private Boolean isMain = false;
 
     @Column(name = "created_at", nullable = false)
