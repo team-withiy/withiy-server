@@ -11,7 +11,9 @@ import lombok.Getter;
 public class BadgeResponseDto {
     @Schema(description = "배지 타입", example = "WITHIY_COUPLE")
     private BadgeType badgeType;
-    @Schema(description = "배지 설명 문구", example = "커플 연결")
+    @Schema(description = "배지 이름", example = "위디커플")
+    private String badgeName;
+    @Schema(description = "배지 설명 문구", example = "커플 연결을 하면 받을 수 있어요!")
     private String badgeDescription;
     @Schema(description = "아이템 이름 또는 이미지 설명", example = "하트 머리핀 or 머리띠")
     private String item;

@@ -10,6 +10,8 @@ import com.server.domain.badge.entity.UserBadge;
 import com.server.domain.badge.repository.BadgeRepository;
 import com.server.domain.badge.repository.UserBadgeRepository;
 import com.server.domain.user.entity.User;
+import com.server.global.error.BadgeErrorCode;
+import com.server.global.error.exception.BadgeException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,27 +34,28 @@ public class BadgeService {
 
         // 1. 배지 유효성 검사 로직을 구현합니다.
         Badge badge  = badgeRepository.findByType(badgeType)
-                .orElseThrow(() -> new IllegalArgumentException("배지를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BadgeException(BadgeErrorCode.BADGE_NOT_FOUND));
 
         // 2. 유저가 이미 배지를 획득했는지 확인합니다.
         boolean alreadyClaimed = userBadgeRepository.existsByUserAndBadge(user, badge);
         if( alreadyClaimed) {
-            throw new IllegalArgumentException("이미 획득한 배지입니다: " + badgeType);
+            throw new BadgeException(BadgeErrorCode.BADGE_ALREADY_EXISTS);
         }
 
         // 3. 유저 배지 획득 조건을 확인하고, 해당 배지를 획득할 수 있는지 검증합니다.
         BadgeCondition condition = conditionFactory.getCondition(badgeType)
-                .orElseThrow(() -> new IllegalArgumentException("조건 검증 로직이 존재하지 않는 배지입니다: " + badgeType));
+                .orElseThrow(() -> new BadgeException(BadgeErrorCode.BADGE_CONDITION_NOT_MET));
 
-//        boolean isQualified = condition.isSatisfied(user);
-        boolean isQualified = true; // TODO: 실제 조건 검증 로직을 구현해야 합니다.
+        boolean isQualified = condition.isSatisfied(user);
 
-        // 4. 배지 획득 로직을 구현합니다.
+        // 4. 배지 획득 로직을 구현합니다. 획득한 배지의 메인 배지 여부는 false로 설정합니다.
         if (isQualified) {
             UserBadge userBadge = UserBadge.builder()
-                    .user(user)
-                    .badge(badge)
-                    .build();
+                .user(user)
+                .badge(badge)
+                .characterType(characterType)
+                .isMain(false)
+                .build();
 
             userBadgeRepository.save(userBadge);
         }
@@ -62,22 +65,22 @@ public class BadgeService {
     public void updateMainBadge(User user, BadgeType badgeType, CharacterType characterType) {
 
         // 1. 기존 메인 배지를 찾아서 메인 배지 설정을 해제합니다.
-        UserBadge mainBadge = userBadgeRepository.findByUserAndIsMainTrue(user).orElse(null);
-        if (mainBadge != null) {
-            mainBadge.setIsMain(false);
-            userBadgeRepository.save(mainBadge);
-        }
+        userBadgeRepository.findByUserAndIsMainTrue(user)
+            .ifPresent(mainBadge -> {
+                mainBadge.setIsMain(false);
+                userBadgeRepository.save(mainBadge);
+            });
 
         // 2. 유저가 보유한 배지인지 확인합니다.
         UserBadge newMainUserBadge = userBadgeRepository.findByUserAndBadgeType(user, badgeType)
-                .orElseThrow(() -> new IllegalArgumentException("해당 배지를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BadgeException(BadgeErrorCode.BADGE_NOT_CLAIMED));
 
         // 3. 새로운 배지를 메인 배지로 설정합니다.
         newMainUserBadge.setIsMain(true);
         newMainUserBadge.setCharacterType(characterType);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<BadgeResponseDto> getBadgeListWithUserInfo(User user) {
         // 1. 모든 배지 정보를 조회합니다.
         List<Badge> allBadges = badgeRepository.findAll();
@@ -98,6 +101,7 @@ public class BadgeService {
 
                 return BadgeResponseDto.builder()
                     .badgeType(badge.getType())
+                    .badgeName(badge.getType().getDisplayName())
                     .badgeDescription(badge.getType().getDescription())
                     .item(badge.getType().getItem())
                     .isOwned(isOwned)

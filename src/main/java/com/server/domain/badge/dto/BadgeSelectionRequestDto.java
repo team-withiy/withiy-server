@@ -10,6 +10,5 @@ public class BadgeSelectionRequestDto {
     @NotNull
     private BadgeType badgeType;
 
-    @NotNull
     private CharacterType characterType;
 }

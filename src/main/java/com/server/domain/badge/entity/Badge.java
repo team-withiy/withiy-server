@@ -1,7 +1,7 @@
 package com.server.domain.badge.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -11,16 +11,17 @@ import java.time.LocalDateTime;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Badge {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Enumerated(EnumType.STRING)
+    @Column(unique = true, nullable = false)
     private BadgeType type;
-
-    @Column
-    private String description;
 
     @Column(name = "created_at", nullable = false)
     @CreationTimestamp
@@ -29,4 +30,9 @@ public class Badge {
     @Column(name = "updated_at", nullable = false)
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @Builder
+    public Badge(BadgeType type) {
+        this.type = type;
+    }
 }
