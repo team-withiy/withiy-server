@@ -44,8 +44,7 @@ public class BadgeService {
         BadgeCondition condition = conditionFactory.getCondition(badgeType)
                 .orElseThrow(() -> new IllegalArgumentException("조건 검증 로직이 존재하지 않는 배지입니다: " + badgeType));
 
-//        boolean isQualified = condition.isSatisfied(user);
-        boolean isQualified = true; // TODO: 실제 조건 검증 로직을 구현해야 합니다.
+        boolean isQualified = condition.isSatisfied(user);
 
         // 4. 배지 획득 로직을 구현합니다.
         if (isQualified) {
@@ -62,13 +61,11 @@ public class BadgeService {
     public void updateMainBadge(User user, BadgeType badgeType, CharacterType characterType) {
 
         // 1. 기존 메인 배지를 찾아서 메인 배지 설정을 해제합니다.
-        UserBadge mainBadge = userBadgeRepository.findByUserAndIsMainTrue(user).orElse(null);
-        if (mainBadge != null) {
-            mainBadge.setIsMain(false);
-            userBadgeRepository.save(mainBadge);
-        }
+        userBadgeRepository.findByUserAndIsMainTrue(user)
+            .ifPresent(mainBadge -> mainBadge.setIsMain(false));
 
         // 2. 유저가 보유한 배지인지 확인합니다.
+        // TODO : specific exceptions (e.g., BadgeNotFoundException, BadgeAlreadyClaimedException).
         UserBadge newMainUserBadge = userBadgeRepository.findByUserAndBadgeType(user, badgeType)
                 .orElseThrow(() -> new IllegalArgumentException("해당 배지를 찾을 수 없습니다."));
 
@@ -77,7 +74,7 @@ public class BadgeService {
         newMainUserBadge.setCharacterType(characterType);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<BadgeResponseDto> getBadgeListWithUserInfo(User user) {
         // 1. 모든 배지 정보를 조회합니다.
         List<Badge> allBadges = badgeRepository.findAll();

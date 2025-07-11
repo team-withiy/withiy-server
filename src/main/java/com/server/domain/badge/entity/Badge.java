@@ -16,10 +16,11 @@ public class Badge {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Enumerated(EnumType.STRING)
+    @Column(unique = true, nullable = false)
     private BadgeType type;
 
-    @Column
+    @Column(name = "description")
     private String description;
 
     @Column(name = "created_at", nullable = false)
