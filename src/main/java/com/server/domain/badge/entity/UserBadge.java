@@ -33,8 +33,8 @@ public class UserBadge {
     @Column(name = "character_type")
     private CharacterType characterType;
 
-    @Column(nullable = false)
-    private Boolean isMain;
+    @Column(name = "isMain", nullable = false)
+    private Boolean isMain = false;
 
     @Column(name = "created_at", nullable = false)
     @CreationTimestamp

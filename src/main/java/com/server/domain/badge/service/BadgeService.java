@@ -34,7 +34,7 @@ public class BadgeService {
 
         // 1. 배지 유효성 검사 로직을 구현합니다.
         Badge badge  = badgeRepository.findByType(badgeType)
-                .orElseThrow(() -> new BadgeException(BadgeErrorCode.Badge_NOT_FOUND));
+                .orElseThrow(() -> new BadgeException(BadgeErrorCode.BADGE_NOT_FOUND));
 
         // 2. 유저가 이미 배지를 획득했는지 확인합니다.
         boolean alreadyClaimed = userBadgeRepository.existsByUserAndBadge(user, badge);
@@ -66,12 +66,14 @@ public class BadgeService {
 
         // 1. 기존 메인 배지를 찾아서 메인 배지 설정을 해제합니다.
         userBadgeRepository.findByUserAndIsMainTrue(user)
-            .ifPresent(mainBadge -> mainBadge.setIsMain(false));
+            .ifPresent(mainBadge -> {
+                mainBadge.setIsMain(false);
+                userBadgeRepository.save(mainBadge);
+            });
 
         // 2. 유저가 보유한 배지인지 확인합니다.
-        // TODO : specific exceptions (e.g., BadgeNotFoundException, BadgeAlreadyClaimedException).
         UserBadge newMainUserBadge = userBadgeRepository.findByUserAndBadgeType(user, badgeType)
-                .orElseThrow(() -> new BadgeException(BadgeErrorCode.Badge_NOT_FOUND));
+                .orElseThrow(() -> new BadgeException(BadgeErrorCode.BADGE_NOT_CLAIMED));
 
         // 3. 새로운 배지를 메인 배지로 설정합니다.
         newMainUserBadge.setIsMain(true);
