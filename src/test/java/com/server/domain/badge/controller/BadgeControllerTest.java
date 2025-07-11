@@ -1,4 +1,7 @@
 package com.server.domain.badge.controller;
 
-public class BadgeController {
+public class BadgeControllerTest {
+
+
+
 }
