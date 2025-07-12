@@ -38,7 +38,7 @@ public class BadgeService {
 
         // 2. 유저가 이미 배지를 획득했는지 확인합니다.
         boolean alreadyClaimed = userBadgeRepository.existsByUserAndBadge(user, badge);
-        if( alreadyClaimed) {
+        if(alreadyClaimed) {
             throw new BadgeException(BadgeErrorCode.BADGE_ALREADY_EXISTS);
         }
 

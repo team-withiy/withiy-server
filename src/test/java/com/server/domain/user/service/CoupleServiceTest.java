@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import com.server.domain.user.dto.CoupleRestoreStatusDto;
+import com.server.domain.user.dto.RestoreCoupleDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -167,11 +167,32 @@ public class CoupleServiceTest {
 
         // Verify
         assertNotNull(result);
+        assertFalse(result.getRestoreEnabled());
         assertEquals(1L, result.getId());
         assertEquals("User2", result.getPartnerNickname());
         assertEquals("user2_thumbnail.jpg", result.getPartnerThumbnail());
         assertEquals(firstMetDate, result.getFirstMetDate());
     }
+
+    @Test
+    @DisplayName("Get couple - successful retrieval with restore enabled")
+    void getCoupleSuccessWithRestoreEnabledTest() {
+        // Setup
+        couple.setDeletedAt(LocalDateTime.now().minusDays(1)); // Simulate deleted couple
+        when(coupleRepository.findByUser1OrUser2(user1, user1)).thenReturn(Optional.of(couple));
+
+        // Call the method
+        CoupleDto result = coupleService.getCouple(user1);
+
+        // Verify
+        assertNotNull(result);
+        assertTrue(result.getRestoreEnabled());
+        assertEquals(1L, result.getId());
+        assertEquals("User2", result.getPartnerNickname());
+        assertEquals("user2_thumbnail.jpg", result.getPartnerThumbnail());
+        assertEquals(firstMetDate, result.getFirstMetDate());
+    }
+
 
     @Test
     @DisplayName("Get couple - not found")
@@ -249,50 +270,39 @@ public class CoupleServiceTest {
     }
 
     @Test
-    @DisplayName("Restore couple - successful restoration")
-    void RestoreCoupleSuccessTest() {
+    @DisplayName("Restore couple - successful restoration with restore flag true")
+    void RestoreCoupleSuccessWithRestoreTrueTest() {
         // Setup
+        RestoreCoupleDto requestDto = new RestoreCoupleDto(true);
         couple.setDeletedAt(LocalDateTime.now().minusDays(1));
         when(coupleRepository.findByUser1OrUser2(user1, user1)).thenReturn(Optional.of(couple));
 
         // Call the method
-        Long result = coupleService.restoreCouple(user1);
+        Long result = coupleService.restoreCouple(user1, requestDto.isRestore());
 
         // Verify
         assertEquals(1L, result);
         assertNull(couple.getDeletedAt());
+        assertNotNull(couple.getFirstMetDate());
         verify(coupleRepository).save(couple);
     }
 
+
     @Test
-    @DisplayName("Get restore status - successful retrieval")
-    void getRestoreStatusSuccessTest() {
+    @DisplayName("Restore couple - successful restoration with restore flag false")
+    void RestoreCoupleSuccessWithRestoreFalseTest() {
         // Setup
+        RestoreCoupleDto requestDto = new RestoreCoupleDto(false);
         couple.setDeletedAt(LocalDateTime.now().minusDays(1));
         when(coupleRepository.findByUser1OrUser2(user1, user1)).thenReturn(Optional.of(couple));
 
         // Call the method
-        CoupleRestoreStatusDto result = coupleService.getRestoreStatus(user1);
+        Long result = coupleService.restoreCouple(user1, requestDto.isRestore());
 
         // Verify
-        assertNotNull(result);
-        assertTrue(result.isRestorable());
-        assertNotNull(result.getDeletedAt());
-    }
-
-    @Test
-    @DisplayName("Get restore status - deletedAt is over 30 days ago")
-    void getRestoreStatusNotRestorableTest() {
-        // Setup
-        couple.setDeletedAt(LocalDateTime.now().minusDays(31));
-        when(coupleRepository.findByUser1OrUser2(user1, user1)).thenReturn(Optional.of(couple));
-
-        // Call the method
-        CoupleRestoreStatusDto result = coupleService.getRestoreStatus(user1);
-
-        // Verify
-        assertNotNull(result);
-        assertFalse(result.isRestorable());
-        assertNotNull(result.getDeletedAt());
+        assertEquals(1L, result);
+        assertNull(couple.getDeletedAt());
+        assertNull(couple.getFirstMetDate());
+        verify(coupleRepository).save(couple);
     }
 }

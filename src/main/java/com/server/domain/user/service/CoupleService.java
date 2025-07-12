@@ -76,10 +76,6 @@ public class CoupleService {
         Couple couple = coupleRepository.findByUser1OrUser2(user, user)
                 .orElseThrow(() -> new BusinessException(CoupleErrorCode.COUPLE_NOT_FOUND));
 
-        if( couple.getDeletedAt() != null) {
-            throw new BusinessException(CoupleErrorCode.COUPLE_NOT_FOUND);
-        }
-
         return CoupleDto.from(couple, user, s3UrlConfig);
     }
 
@@ -129,7 +125,7 @@ public class CoupleService {
         return CoupleDto.from(couple, user, s3UrlConfig);
     }
 
-    public Long restoreCouple(User user) {
+    public Long restoreCouple(User user, Boolean restore) {
         Couple couple = coupleRepository.findByUser1OrUser2(user, user)
                 .orElseThrow(() -> new BusinessException(CoupleErrorCode.COUPLE_NOT_FOUND));
 
@@ -140,6 +136,12 @@ public class CoupleService {
 
         // 커플 복구
         couple.setDeletedAt(null);
+
+        // restore이 false인 경우 커플 정보 초기화
+        if (!restore) {
+            couple.setFirstMetDate(null);
+        }
+
         coupleRepository.save(couple);
         log.info("커플이 복구되었습니다. 커플 ID: {}", couple.getId());
 
@@ -157,16 +159,16 @@ public class CoupleService {
         }
 
         // 삭제된 날짜가 현재 시간으로부터 30일 이내인지 확인
-        boolean restorable = isRestorable(couple.getDeletedAt());
+        boolean restoreEnabled = isRestoreEnabled(couple.getDeletedAt());
 
         return CoupleRestoreStatusDto.builder()
             .coupleId(couple.getId())
-            .restorable(restorable)
+            .restoreEnabled(restoreEnabled)
             .deletedAt(couple.getDeletedAt())
             .build();
     }
 
-    private boolean isRestorable(LocalDateTime deletedAt) {
+    private boolean isRestoreEnabled(LocalDateTime deletedAt) {
         return deletedAt.isAfter(LocalDateTime.now().minusDays(30));
     }
 }
