@@ -40,6 +40,7 @@ public class Folder {
     private User user;
 
     @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<FolderPlace> folderPlaces = new ArrayList<>();
 
     @Column(name = "created_at", nullable = false)

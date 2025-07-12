@@ -54,7 +54,7 @@ public class Couple {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @Column(name = "deletedAt", nullable = true)
+    @Column(name = "deletedAt")
     private LocalDateTime deletedAt;
 
 

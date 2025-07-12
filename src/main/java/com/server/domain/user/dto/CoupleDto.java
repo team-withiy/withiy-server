@@ -30,6 +30,9 @@ public class CoupleDto {
     @Schema(description = "파트너 프로필 이미지", example = "https://example.com/profile.jpg")
     private String partnerThumbnail;
 
+    @Schema(description = "복구 가능 여부", example = "true")
+    private Boolean restoreEnabled;
+
     @Schema(description = "처음 만난 날짜", example = "2025-01-01")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate firstMetDate;
@@ -40,6 +43,7 @@ public class CoupleDto {
 
     // 현재 사용자 기준으로 파트너 정보를 반환하는 팩토리 메서드
     public static CoupleDto from(Couple couple, User currentUser, S3UrlConfig s3UrlConfig) {
+
         User partner = couple.getUser1().getId().equals(currentUser.getId()) ? couple.getUser2()
                 : couple.getUser1();
 
@@ -51,8 +55,16 @@ public class CoupleDto {
                     thumbnailUrl.replace(s3UrlConfig.getS3Url(), s3UrlConfig.getCloudfrontUrl());
         }
 
-        return CoupleDto.builder().id(couple.getId()).partnerNickname(partner.getNickname())
-                .partnerThumbnail(thumbnailUrl).firstMetDate(couple.getFirstMetDate())
-                .connectedDate(couple.getCreatedAt().toLocalDate()).build();
+        // 복구 가능 여부
+        boolean restoreEnabled = couple.getDeletedAt() != null;
+
+        return CoupleDto.builder()
+            .id(couple.getId())
+            .partnerNickname(partner.getNickname())
+            .partnerThumbnail(thumbnailUrl)
+            .restoreEnabled(restoreEnabled)
+            .firstMetDate(couple.getFirstMetDate())
+            .connectedDate(couple.getCreatedAt().toLocalDate())
+            .build();
     }
 }

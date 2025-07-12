@@ -60,21 +60,27 @@ public class Place {
     private Category category;
 
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<PlaceBookmark> placeBookmarks = new ArrayList<>();
 
     @OneToMany(mappedBy = "place")
+    @Builder.Default
     private List<Album> albums = new ArrayList<>();
 
     @OneToMany(mappedBy = "place")
+    @Builder.Default
     private List<Photo> photos = new ArrayList<>();
 
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<CoursePlace> coursePlaces = new ArrayList<>();
 
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Review> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<FolderPlace> folderPlaces = new ArrayList<>();
 
 

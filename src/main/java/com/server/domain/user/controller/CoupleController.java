@@ -1,15 +1,12 @@
 package com.server.domain.user.controller;
 
-import com.server.domain.user.dto.CoupleRestoreStatusDto;
+import com.server.domain.user.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import com.server.domain.user.dto.CoupleConnectionRequestDto;
-import com.server.domain.user.dto.CoupleDto;
-import com.server.domain.user.dto.FirstMetDateUpdateDto;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.service.CoupleService;
 import com.server.global.dto.ApiResponseDto;
@@ -63,20 +60,11 @@ public class CoupleController {
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/restore-status")
-    @Operation(summary = "커플 복구 가능 여부 조회", description = "커플 정보가 복구 가능한지 여부를 반환합니다.")
-    public ApiResponseDto<CoupleRestoreStatusDto> getRestoreStatus(@AuthenticationPrincipal User user) {
-        CoupleRestoreStatusDto statusDto = coupleService.getRestoreStatus(user);
-
-        return ApiResponseDto.success(HttpStatus.OK.value(), statusDto);
-    }
-
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @ResponseStatus(HttpStatus.OK)
     @PostMapping("/restore")
     @Operation(summary = "커플 연결 복구", description = "현재 로그인한 사용자의 커플 관계를 복구합니다.")
-    public ApiResponseDto<Long> restoreCouple(@AuthenticationPrincipal User user) {
-        Long coupleId = coupleService.restoreCouple(user);
+    public ApiResponseDto<Long> restoreCouple(@AuthenticationPrincipal User user,
+                                              @RequestBody RestoreCoupleDto requestDto) {
+        Long coupleId = coupleService.restoreCouple(user, requestDto.isRestore());
 
         return ApiResponseDto.success(HttpStatus.OK.value(), coupleId);
     }
