@@ -10,8 +10,8 @@ import com.server.domain.badge.entity.UserBadge;
 import com.server.domain.badge.repository.BadgeRepository;
 import com.server.domain.badge.repository.UserBadgeRepository;
 import com.server.domain.user.entity.User;
-import com.server.global.error.BadgeErrorCode;
-import com.server.global.error.exception.BadgeException;
+import com.server.global.error.code.BadgeErrorCode;
+import com.server.global.error.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,17 +34,17 @@ public class BadgeService {
 
         // 1. 배지 유효성 검사 로직을 구현합니다.
         Badge badge  = badgeRepository.findByType(badgeType)
-                .orElseThrow(() -> new BadgeException(BadgeErrorCode.BADGE_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(BadgeErrorCode.BADGE_NOT_FOUND));
 
         // 2. 유저가 이미 배지를 획득했는지 확인합니다.
         boolean alreadyClaimed = userBadgeRepository.existsByUserAndBadge(user, badge);
         if(alreadyClaimed) {
-            throw new BadgeException(BadgeErrorCode.BADGE_ALREADY_EXISTS);
+            throw new BusinessException(BadgeErrorCode.BADGE_ALREADY_EXISTS);
         }
 
         // 3. 유저 배지 획득 조건을 확인하고, 해당 배지를 획득할 수 있는지 검증합니다.
         BadgeCondition condition = conditionFactory.getCondition(badgeType)
-                .orElseThrow(() -> new BadgeException(BadgeErrorCode.BADGE_CONDITION_NOT_MET));
+                .orElseThrow(() -> new BusinessException(BadgeErrorCode.BADGE_CONDITION_NOT_MET));
 
         boolean isQualified = condition.isSatisfied(user);
 
@@ -73,7 +73,7 @@ public class BadgeService {
 
         // 2. 유저가 보유한 배지인지 확인합니다.
         UserBadge newMainUserBadge = userBadgeRepository.findByUserAndBadgeType(user, badgeType)
-                .orElseThrow(() -> new BadgeException(BadgeErrorCode.BADGE_NOT_CLAIMED));
+                .orElseThrow(() -> new BusinessException(BadgeErrorCode.BADGE_NOT_CLAIMED));
 
         // 3. 새로운 배지를 메인 배지로 설정합니다.
         newMainUserBadge.setIsMain(true);
