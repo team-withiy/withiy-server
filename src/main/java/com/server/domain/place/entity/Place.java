@@ -33,6 +33,9 @@ public class Place {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "thumbnail")
+    private String thumbnail;
+
     @Column(name = "region_1depth")
     private String region1depth;
 

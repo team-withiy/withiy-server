@@ -9,7 +9,7 @@ import com.server.domain.course.entity.CourseBookmark;
 import com.server.domain.folder.entity.Folder;
 import com.server.domain.place.entity.PlaceBookmark;
 import com.server.domain.review.entity.Review;
-import com.server.domain.schedule.entity.Schedule;
+import com.server.domain.dateSchedule.entity.DateSchedule;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -107,7 +107,7 @@ public class User {
     private List<Review> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Schedule> schedules = new ArrayList<>();
+    private List<DateSchedule> schedules = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Album> albums = new ArrayList<>();

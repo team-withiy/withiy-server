@@ -1,6 +1,5 @@
-package com.server.global.error;
+package com.server.global.error.code;
 
-import com.server.global.error.code.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
