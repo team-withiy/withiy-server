@@ -17,7 +17,5 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
             @Param("minLat") String minLat, @Param("maxLat") String maxLat,
             @Param("minLng") String minLng, @Param("maxLng") String maxLng);
 
-
-
-
+    List<Place> findByNameContainingIgnoreCase(String keyword);
 }

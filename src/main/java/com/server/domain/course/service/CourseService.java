@@ -1,13 +1,17 @@
 package com.server.domain.course.service;
 
 import com.server.domain.course.dto.CourseDetailDto;
+import com.server.domain.course.dto.CourseDto;
 import com.server.domain.course.dto.CourseImageDto;
 import com.server.domain.course.entity.Course;
+import com.server.domain.course.entity.CourseBookmark;
 import com.server.domain.course.entity.CourseImage;
 import com.server.domain.course.repository.CourseBookmarkRepository;
 import com.server.domain.course.repository.CourseRepository;
 
 import com.server.domain.place.repository.PlaceRepository;
+import com.server.domain.search.dto.BookmarkedCourseDto;
+import com.server.domain.user.entity.User;
 import com.server.global.dto.ImageResponseDto;
 import com.server.global.error.code.CourseErrorCode;
 import com.server.global.error.code.PlaceErrorCode;
@@ -93,6 +97,29 @@ public class CourseService {
                                 imageResponseDto.getImageUrl());
 
                 return CourseImageDto.builder().imageUrl(courseImage.getImageUrl()).build();
+        }
+
+        @Transactional
+        public List<BookmarkedCourseDto> getBookmarkedCourses(User user) {
+                return courseBookmarkRepository.findByUserWithCourse(user).stream()
+                        .map(CourseBookmark::getCourse)
+                        .map(BookmarkedCourseDto::from)
+                        .collect(Collectors.toList());
+        }
+
+        /**
+         * 코스 검색
+         *
+         * @param keyword 검색 키워드
+         * @param user 사용자 정보
+         * @return 검색된 코스 목록
+         */
+        @Transactional
+        public List<CourseDto> searchCoursesByKeyword(String keyword, User user) {
+                List<Course> courses = courseRepository.findByNameContainingIgnoreCase(keyword);
+                return courses.stream()
+                    .map(CourseDto::from)
+                    .collect(Collectors.toList());
         }
 
         /**

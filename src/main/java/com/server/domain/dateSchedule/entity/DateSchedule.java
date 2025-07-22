@@ -1,4 +1,4 @@
-package com.server.domain.schedule.entity;
+package com.server.domain.dateSchedule.entity;
 
 import com.server.domain.album.entity.Album;
 import com.server.domain.user.entity.User;
@@ -21,8 +21,8 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "schedule")
-public class Schedule {
+@Table(name = "date_schedule")
+public class DateSchedule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -31,8 +31,8 @@ public class Schedule {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "date")
-    private LocalDate date;
+    @Column(name = "scheduleAt")
+    private LocalDate scheduleAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -40,6 +40,6 @@ public class Schedule {
     private User user;
 
 
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "dateSchedule", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Album> albums = new ArrayList<>();
 }

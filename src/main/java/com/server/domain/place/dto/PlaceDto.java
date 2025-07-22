@@ -3,8 +3,8 @@ package com.server.domain.place.dto;
 import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.place.entity.Place;
-import com.server.domain.place.repository.PlaceBookmarkRepository;
-import com.server.domain.user.entity.User;
+import com.server.domain.place.entity.PlaceBookmark;
+import com.server.domain.search.dto.BookmarkedPlaceDto;
 import lombok.*;
 
 import java.util.List;
@@ -45,6 +45,23 @@ public class PlaceDto {
                 .score(place.getScore())
                 .photos(place.getPhotos().stream().map(PhotoDto::from).toList())
                 .build();
+    }
+
+    public static PlaceDto from(Place place) {
+
+        return PlaceDto.builder()
+            .id(place.getId())
+            .name(place.getName())
+            .address(place.getAddress())
+            .latitude(place.getLatitude())
+            .longitude(place.getLongitude())
+            .region1depth(place.getRegion1depth())
+            .region2depth(place.getRegion2depth())
+            .region3depth(place.getRegion3depth())
+            .category(CategoryDto.from(place.getCategory()))
+            .score(place.getScore())
+            .photos(place.getPhotos().stream().map(PhotoDto::from).toList())
+            .build();
     }
 
 }

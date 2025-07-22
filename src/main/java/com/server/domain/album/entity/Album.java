@@ -3,8 +3,7 @@ package com.server.domain.album.entity;
 import com.server.domain.course.entity.Course;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.place.entity.Place;
-import com.server.domain.schedule.entity.Schedule;
-import com.server.domain.user.entity.Couple;
+import com.server.domain.dateSchedule.entity.DateSchedule;
 import com.server.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -51,9 +50,9 @@ public class Album {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "schedule_id")
+    @JoinColumn(name = "date_schedule_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Schedule schedule;
+    private DateSchedule dateSchedule;
 
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Photo> photos = new ArrayList<>();

@@ -10,24 +10,23 @@ import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.service.PhotoService;
 import com.server.domain.place.dto.*;
 import com.server.domain.place.entity.Place;
+import com.server.domain.place.entity.PlaceBookmark;
 import com.server.domain.place.repository.PlaceBookmarkRepository;
 import com.server.domain.place.repository.PlaceRepository;
 import com.server.domain.review.entity.Review;
-import com.server.domain.review.repository.ReviewRepository;
 import com.server.domain.review.service.ReviewService;
+import com.server.domain.search.dto.BookmarkedPlaceDto;
+import com.server.domain.search.dto.SearchSource;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.repository.UserRepository;
 import com.server.global.config.S3UrlConfig;
-import com.server.global.dto.ImageResponseDto;
 import com.server.global.error.code.PlaceErrorCode;
 import com.server.global.error.code.UserErrorCode;
 import com.server.global.error.exception.BusinessException;
-import com.server.global.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -215,5 +214,41 @@ public class PlaceService {
 
                 return result+" delete.";
 
+        }
+
+        /**
+         * 사용자가 북마크한 장소 목록을 조회합니다.
+         * @param user 인증된 사용자 정보
+         * @return 사용자가 북마크한 장소 목록
+         */
+        @Transactional
+        public List<BookmarkedPlaceDto> getBookmarkedPlaces(User user) {
+
+                List<PlaceBookmark> placeBookmarks = placeBookmarkRepository.findByUserWithPlace(user);
+
+                return placeBookmarks.stream()
+                    .map(PlaceBookmark::getPlace)
+                    .map(BookmarkedPlaceDto::from)
+                    .collect(Collectors.toList());
+        }
+
+        /**
+         * 키워드로 장소를 검색합니다.
+         * @param source 검색 소스 (MAIN, DATE_SCHEDULE 등)
+         * @param keyword 검색 키워드
+         * @param user 현재 사용자
+         * @return 검색된 장소 목록
+         */
+        @Transactional
+        public List<PlaceDto> searchPlacesByKeyword(SearchSource source, String keyword, User user) {
+
+                // 검색 소스가 DATE_SCHEDULE인 경우, DB에 장소 정보가 없으면 네이버 검색 API를 호출하여 장소 정보를 가져옵니다.
+                List<Place> places = placeRepository.findByNameContainingIgnoreCase(keyword);
+                if(places.isEmpty() && source == SearchSource.DATE_SCHEDULE) {
+                        // TODO : 네이버 검색 API를 호출하여 장소 정보를 가져오는 로직을 구현해야 합니다.
+                }
+                return places.stream()
+                    .map(PlaceDto::from)
+                    .collect(Collectors.toList());
         }
 }
