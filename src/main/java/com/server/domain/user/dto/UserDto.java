@@ -35,7 +35,7 @@ public class UserDto {
     private ActiveCoupleDto couple;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Schema(description = "복구 가능 커플 정보", nullable = true)
-    private RestorableCoupleDto restorableCoupleDto;
+    private RestorableCoupleDto restorableCouple;
 
     public static UserDto from(User user) {
         return UserDto.builder()
@@ -48,7 +48,7 @@ public class UserDto {
                 .hasCouple(false)
                 .hasRestorableCouple(false)
                 .couple(null)
-                .restorableCoupleDto(null)
+                .restorableCouple(null)
                 .build();
     }
 
@@ -63,7 +63,7 @@ public class UserDto {
                 .hasCouple(activeCoupleDto != null)
                 .couple(activeCoupleDto)
                 .hasRestorableCouple(false)
-                .restorableCoupleDto(null)
+                .restorableCouple(null)
                 .build();
     }
 
@@ -78,7 +78,7 @@ public class UserDto {
                 .hasCouple(false)
                 .couple(null)
                 .hasRestorableCouple(restorableCoupleDto != null)
-                .restorableCoupleDto(restorableCoupleDto)
+                .restorableCouple(restorableCoupleDto)
                 .build();
     }
 
