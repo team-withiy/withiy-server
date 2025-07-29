@@ -1,11 +1,8 @@
 package com.server.domain.user.entity;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.server.domain.album.entity.Album;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
@@ -14,7 +11,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -54,7 +50,7 @@ public class Couple {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @Column(name = "deletedAt")
+    @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
 
@@ -62,5 +58,13 @@ public class Couple {
         this.user1 = user1;
         this.user2 = user2;
         this.firstMetDate = firstMetDate;
+    }
+
+    public User getPartnerOf(User user) {
+        return user1.getId().equals(user.getId()) ? user2 : user1;
+    }
+
+    public boolean isRestorable() {
+        return deletedAt != null && Duration.between(deletedAt, LocalDateTime.now()).toDays() < 30;
     }
 }

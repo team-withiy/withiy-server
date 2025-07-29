@@ -1,5 +1,6 @@
 package com.server.domain.user.service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -7,8 +8,7 @@ import java.util.Map;
 
 import com.server.domain.oauth.repository.OAuthRepository;
 import com.server.domain.user.dto.*;
-import com.server.global.config.S3UrlConfig;
-import com.server.global.error.code.CoupleErrorCode;
+import com.server.domain.user.entity.Couple;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +31,6 @@ public class UserService {
     private final OAuthRepository oauthRepository;
     private final TermAgreementRepository termAgreementRepository;
     private final CoupleService coupleService;
-    private final S3UrlConfig s3UrlConfig;
 
     // 계정 복구 후 유효 기간 (30일)
     private static final long ACCOUNT_RESTORATION_PERIOD_DAYS = 30;
@@ -50,22 +49,26 @@ public class UserService {
     }
 
     public UserDto getUser(User user) {
-        CoupleDto coupleDto = null;
+        Couple couple = coupleService.getCoupleOrNull(user);
 
-        try {
-            coupleDto = coupleService.getCouple(user);
-        } catch(BusinessException e) {
-            // 커플 정보가 없으면, coupleDto는 null로 유지
-            if (e.getErrorCode() == CoupleErrorCode.COUPLE_NOT_FOUND) {
-                log.info("커플 정보가 없습니다: {}", e.getMessage());
-            } else {
-                log.error("커플 정보를 조회하는 중 오류 발생: {}", e.getMessage(), e);
-                throw e;
-            }
+        if (couple == null) {
+            return UserDto.from(user); // 커플 없음
         }
 
-        return UserDto.from(user, areAllRequiredTermsAgreed(user), coupleDto, s3UrlConfig);
+        User partner = couple.getPartnerOf(user);
+
+        if (couple.getDeletedAt() == null) {
+            // 커플 연결됨
+            return UserDto.from(user, ActiveCoupleDto.from(couple, partner));
+        }
+
+        if (couple.isRestorable()) {
+            return UserDto.from(user, RestorableCoupleDto.from(couple, partner));
+        }
+
+        return UserDto.from(user); // 삭제된 지 30일 이상
     }
+
 
     @Transactional
     public String deleteUser(User user, boolean forAccountWithdrawal) {

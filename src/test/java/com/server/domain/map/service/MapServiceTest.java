@@ -2,7 +2,6 @@ package com.server.domain.map.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -21,7 +20,6 @@ import org.springframework.web.reactive.function.client.WebClient.RequestHeaders
 import org.springframework.web.reactive.function.client.WebClient.ResponseSpec;
 
 import com.server.domain.map.dto.AddressDto;
-import com.server.domain.map.dto.CoordinateDto;
 import com.server.domain.map.dto.RegionDto;
 import com.server.domain.map.dto.request.AddressToCoordRequest;
 import com.server.domain.map.dto.request.CoordToAddressRequest;
@@ -40,10 +38,10 @@ public class MapServiceTest {
     private WebClient webClientMock;
 
     @Mock
-    private RequestHeadersUriSpec requestHeadersUriSpecMock;
+    private RequestHeadersUriSpec  requestHeadersUriSpecMock;
 
     @Mock
-    private RequestHeadersSpec requestHeadersSpecMock;
+    private RequestHeadersSpec  requestHeadersSpecMock;
 
     @Mock
     private ResponseSpec responseSpecMock;

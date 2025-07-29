@@ -13,10 +13,9 @@ import java.util.Optional;
 
 import com.server.domain.oauth.entity.OAuth;
 import com.server.domain.oauth.repository.OAuthRepository;
-import com.server.domain.user.dto.CoupleDto;
 import com.server.domain.user.dto.NotificationSettingRequestDto;
 import com.server.domain.user.dto.UserNotificationSettingResponseDto;
-import com.server.global.error.code.CoupleErrorCode;
+import com.server.domain.user.entity.Couple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -95,13 +94,26 @@ public class UserServiceTest {
     @Test
     @DisplayName("Get user information test")
     void getUserTest() {
+        // Given
+        // 유저와 파트너 설정
+        User partner = new User();
+        partner.setId(2L);
+        partner.setNickname("partnerUser");
+        partner.setThumbnail("partner-thumbnail.jpg");
+
+        user.setId(1L); // 현재 유저 ID 설정
+
+        Couple mockCouple = new Couple();
+        mockCouple.setId(10L);
+        mockCouple.setUser1(user);     // 현재 유저
+        mockCouple.setUser2(partner);  // 상대 유저
+
         // Setup all required terms as agreed
         for (TermAgreement agreement : user.getTermAgreements()) {
             agreement.setAgreed(true);
         }
 
-        when(coupleService.getCouple(any())).thenReturn(mock(CoupleDto.class));
-
+        when(coupleService.getCoupleOrNull(any())).thenReturn(mockCouple);
         // Call the method
         UserDto userDto = userService.getUser(user);
 
@@ -123,7 +135,7 @@ public class UserServiceTest {
         }
 
         // Simulate couple being disconnected
-        when(coupleService.getCouple(any())).thenThrow(new BusinessException(CoupleErrorCode.COUPLE_NOT_FOUND));
+        when(coupleService.getCoupleOrNull(any())).thenReturn(null);
 
         // Call the method
         UserDto userDto = userService.getUser(user);

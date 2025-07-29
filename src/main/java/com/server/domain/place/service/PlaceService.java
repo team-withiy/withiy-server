@@ -19,7 +19,6 @@ import com.server.domain.search.dto.BookmarkedPlaceDto;
 import com.server.domain.search.dto.SearchSource;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.repository.UserRepository;
-import com.server.global.config.S3UrlConfig;
 import com.server.global.error.code.PlaceErrorCode;
 import com.server.global.error.code.UserErrorCode;
 import com.server.global.error.exception.BusinessException;
@@ -38,7 +37,6 @@ public class PlaceService {
         private final PlaceRepository placeRepository;
         private final PlaceBookmarkRepository placeBookmarkRepository;
         private final UserRepository userRepository;
-        private final S3UrlConfig s3UrlConfig;
         private final CategoryRepository categoryRepository;
         private final AlbumRepository albumRepository;
         private final ReviewService reviewService;
@@ -85,7 +83,7 @@ public class PlaceService {
         public PlaceDetailDto getPlaceDetail(Long placeId) {
                 Place place = placeRepository.findById(placeId)
                         .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
-                return PlaceDetailDto.from(place, false, s3UrlConfig);
+                return PlaceDetailDto.from(place, false);
 
         }
 
@@ -96,7 +94,7 @@ public class PlaceService {
                 User user = userRepository.findById(userId)
                         .orElseThrow(()-> new BusinessException(UserErrorCode.NOT_FOUND));
                 boolean isBookmarked = placeBookmarkRepository.existsByPlaceIdAndUserId(place.getId(), user.getId());
-                return PlaceDetailDto.from(place, isBookmarked, s3UrlConfig);
+                return PlaceDetailDto.from(place, isBookmarked);
         }
 
         @Transactional
@@ -198,7 +196,7 @@ public class PlaceService {
 
                 placeRepository.save(place);
 
-                return PlaceDetailDto.from(place, false, null);
+                return PlaceDetailDto.from(place, false);
         }
 
         @Transactional
