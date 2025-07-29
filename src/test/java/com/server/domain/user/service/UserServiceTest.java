@@ -127,7 +127,7 @@ public class UserServiceTest {
         assertTrue(userDto.getIsRegistered());
         assertTrue(userDto.getHasCouple());
         assertNotNull(userDto.getCouple());
-        assertNull(userDto.getRestorableCoupleDto());
+        assertNull(userDto.getRestorableCouple());
         assertFalse(userDto.getHasRestorableCouple());
     }
 
@@ -155,7 +155,7 @@ public class UserServiceTest {
         assertFalse(userDto.getHasCouple());
         assertNull(userDto.getCouple());
         assertFalse(userDto.getHasRestorableCouple());
-        assertNull(userDto.getRestorableCoupleDto());
+        assertNull(userDto.getRestorableCouple());
     }
 
     @Test
@@ -193,7 +193,7 @@ public class UserServiceTest {
         assertFalse(userDto.getHasCouple());
         assertNull(userDto.getCouple());
         assertTrue(userDto.getHasRestorableCouple());
-        assertNotNull(userDto.getRestorableCoupleDto());
+        assertNotNull(userDto.getRestorableCouple());
     }
 
     @Test
@@ -231,7 +231,7 @@ public class UserServiceTest {
         assertFalse(userDto.getHasCouple());
         assertNull(userDto.getCouple());
         assertFalse(userDto.getHasRestorableCouple());
-        assertNull(userDto.getRestorableCoupleDto());
+        assertNull(userDto.getRestorableCouple());
     }
 
     @Test
