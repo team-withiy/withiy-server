@@ -34,7 +34,7 @@ public class UserDto {
     @Schema(description = "커플 정보", nullable = true)
     private ActiveCoupleDto couple;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @Schema(description = "복구 가능 커플 정보",nullable = true)
+    @Schema(description = "복구 가능 커플 정보", nullable = true)
     private RestorableCoupleDto restorableCoupleDto;
 
     public static UserDto from(User user) {
