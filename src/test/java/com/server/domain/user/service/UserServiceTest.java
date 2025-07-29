@@ -107,6 +107,7 @@ public class UserServiceTest {
         mockCouple.setId(10L);
         mockCouple.setUser1(user);     // 현재 유저
         mockCouple.setUser2(partner);  // 상대 유저
+        mockCouple.setDeletedAt(null);
 
         // Setup all required terms as agreed
         for (TermAgreement agreement : user.getTermAgreements()) {
@@ -124,11 +125,15 @@ public class UserServiceTest {
         assertEquals("USER123", userDto.getCode());
         assertFalse(userDto.getRestoreEnabled());
         assertTrue(userDto.getIsRegistered());
+        assertTrue(userDto.getHasCouple());
+        assertNotNull(userDto.getCouple());
+        assertNull(userDto.getRestorableCoupleDto());
+        assertFalse(userDto.getHasRestorableCouple());
     }
 
     @Test
-    @DisplayName("Get user with disconnected couple test")
-    void getUserWithDisconnectedCoupleTest() {
+    @DisplayName("Get user with no couple test")
+    void getUserWithNoCoupleTest() {
         // Setup all required terms as agreed
         for (TermAgreement agreement : user.getTermAgreements()) {
             agreement.setAgreed(true);
@@ -149,6 +154,84 @@ public class UserServiceTest {
         assertTrue(userDto.getIsRegistered());
         assertFalse(userDto.getHasCouple());
         assertNull(userDto.getCouple());
+        assertFalse(userDto.getHasRestorableCouple());
+        assertNull(userDto.getRestorableCoupleDto());
+    }
+
+    @Test
+    @DisplayName("Get user with restorable couple test")
+    void getUserWithRestorableCoupleTest() {
+        // Given
+        // 유저와 파트너 설정
+        User partner = new User();
+        partner.setId(2L);
+        partner.setNickname("partnerUser");
+        partner.setThumbnail("partner-thumbnail.jpg");
+
+        user.setId(1L); // 현재 유저 ID 설정
+
+        Couple mockCouple = new Couple();
+        mockCouple.setId(10L);
+        mockCouple.setUser1(user);     // 현재 유저
+        mockCouple.setUser2(partner);  // 상대 유저
+        mockCouple.setDeletedAt(LocalDateTime.now().minusDays(10));
+
+        // Setup all required terms as agreed
+        for (TermAgreement agreement : user.getTermAgreements()) {
+            agreement.setAgreed(true);
+        }
+        when(coupleService.getCoupleOrNull(any())).thenReturn(mockCouple);
+        // Call the method
+        UserDto userDto = userService.getUser(user);
+
+        assertNotNull(userDto);
+        assertEquals("testUser", userDto.getNickname());
+        assertEquals("thumbnail.jpg", userDto.getThumbnail());
+        assertEquals("USER123", userDto.getCode());
+        assertFalse(userDto.getRestoreEnabled());
+        assertTrue(userDto.getIsRegistered());
+        assertFalse(userDto.getHasCouple());
+        assertNull(userDto.getCouple());
+        assertTrue(userDto.getHasRestorableCouple());
+        assertNotNull(userDto.getRestorableCoupleDto());
+    }
+
+    @Test
+    @DisplayName("Get user with unrestorable couple test")
+    void getUserWithUnrestorableCoupleTest() {
+        // Given
+        // 유저와 파트너 설정
+        User partner = new User();
+        partner.setId(2L);
+        partner.setNickname("partnerUser");
+        partner.setThumbnail("partner-thumbnail.jpg");
+
+        user.setId(1L); // 현재 유저 ID 설정
+
+        Couple mockCouple = new Couple();
+        mockCouple.setId(10L);
+        mockCouple.setUser1(user);     // 현재 유저
+        mockCouple.setUser2(partner);  // 상대 유저
+        mockCouple.setDeletedAt(LocalDateTime.now().minusDays(31)); // 31일 이상 지난 커플
+
+        // Setup all required terms as agreed
+        for (TermAgreement agreement : user.getTermAgreements()) {
+            agreement.setAgreed(true);
+        }
+        when(coupleService.getCoupleOrNull(any())).thenReturn(mockCouple);
+        // Call the method
+        UserDto userDto = userService.getUser(user);
+
+        assertNotNull(userDto);
+        assertEquals("testUser", userDto.getNickname());
+        assertEquals("thumbnail.jpg", userDto.getThumbnail());
+        assertEquals("USER123", userDto.getCode());
+        assertFalse(userDto.getRestoreEnabled());
+        assertTrue(userDto.getIsRegistered());
+        assertFalse(userDto.getHasCouple());
+        assertNull(userDto.getCouple());
+        assertFalse(userDto.getHasRestorableCouple());
+        assertNull(userDto.getRestorableCoupleDto());
     }
 
     @Test
