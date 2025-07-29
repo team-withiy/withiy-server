@@ -1,5 +1,6 @@
 package com.server.domain.user.entity;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +68,7 @@ public class User {
     @Column(name = "code", nullable = true)
     private String code;
 
-    @Column(name = "deletedAt", nullable = true)
+    @Column(name = "deleted_at", nullable = true)
     private LocalDateTime deletedAt;
 
     @Column(name = "created_at", nullable = false)
@@ -144,5 +145,22 @@ public class User {
 
     public boolean isConnectedCouple() {
         return coupleAsUser1 != null || coupleAsUser2 != null;
+    }
+
+    public boolean hasAgreedToAllRequiredTerms() {
+        if (termAgreements == null || termAgreements.isEmpty()) {
+            return false;
+        }
+
+        for (TermAgreement agreement : termAgreements) {
+            if (agreement.getTerm().isRequired() && !agreement.isAgreed()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isRestorable() {
+        return deletedAt != null && Duration.between(deletedAt, LocalDateTime.now()).toDays() < 30;
     }
 }

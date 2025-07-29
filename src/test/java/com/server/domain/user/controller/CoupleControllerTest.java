@@ -77,8 +77,8 @@ public class CoupleControllerTest {
 
         // Setup mock CoupleDto
         mockCoupleDto = CoupleDto.builder().id(1L).partnerNickname("partnerName")
-                .partnerThumbnail("partner_thumbnail.jpg").firstMetDate(LocalDate.of(2025, 1, 1))
-                .connectedDate(LocalDate.now()).build();
+            .partnerThumbnail("partner_thumbnail.jpg").firstMetDate(LocalDate.of(2025, 1, 1))
+            .build();
 
         // Setup JWT service to return a valid token for any user ID
         when(jwtService.createAccessToken(any(Long.class))).thenReturn("mock-jwt-token");

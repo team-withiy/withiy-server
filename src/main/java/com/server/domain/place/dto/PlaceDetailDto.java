@@ -4,7 +4,6 @@ import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.place.entity.Place;
 import com.server.domain.review.dto.ReviewDto;
-import com.server.global.config.S3UrlConfig;
 import lombok.*;
 
 import java.util.List;
@@ -29,7 +28,7 @@ public class PlaceDetailDto {
     private List<PhotoDto> photos;
     private List<ReviewDto> reviews;
 
-    public static PlaceDetailDto from(Place place, boolean isBookmarked, S3UrlConfig s3UrlConfig) {
+    public static PlaceDetailDto from(Place place, boolean isBookmarked) {
 
         return PlaceDetailDto.builder()
                 .id(place.getId())
@@ -44,7 +43,7 @@ public class PlaceDetailDto {
                 .isBookmarked(isBookmarked)
                 .score(place.getScore())
                 .photos(place.getPhotos().stream().map(PhotoDto::from).toList())
-                .reviews(place.getReviews().stream().map(review -> ReviewDto.from(review, isBookmarked, s3UrlConfig)).toList())
+                .reviews(place.getReviews().stream().map(review -> ReviewDto.from(review, isBookmarked)).toList())
                 .build();
     }
 }
