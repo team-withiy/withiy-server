@@ -130,25 +130,30 @@ public class CoupleService {
         return CoupleDto.from(couple, user);
     }
 
+    /**
+     * 커플 관계를 복구하거나 완전히 삭제합니다.
+     *
+     * @param user 현재 사용자
+     * @param restore 복구 여부 (true: 복구, false: 완전 삭제)
+     * @return 복구된 커플의 ID
+     */
+    @Transactional
     public Long restoreCouple(User user, Boolean restore) {
         Couple couple = coupleRepository.findByUser1OrUser2(user, user)
                 .orElseThrow(() -> new BusinessException(CoupleErrorCode.COUPLE_NOT_FOUND));
 
-        // 이미 복구된 커플인지 확인
         if (couple.getDeletedAt() == null) {
             throw new BusinessException(CoupleErrorCode.COUPLE_ALREADY_CONNECTED);
         }
 
-        // 커플 복구
-        couple.setDeletedAt(null);
-
-        // restore이 false인 경우 커플 정보 초기화
-        if (!restore) {
-            couple.setFirstMetDate(null);
+        if (Boolean.FALSE.equals(restore)) {
+            // 복구하지 않고 커플 정보 완전 삭제
+            coupleRepository.delete(couple);
+        } else {
+            // 복구: deletedAt 초기화
+            couple.setDeletedAt(null);
+            coupleRepository.save(couple);
         }
-
-        coupleRepository.save(couple);
-        log.info("커플이 복구되었습니다. 커플 ID: {}", couple.getId());
 
         return couple.getId();
     }
