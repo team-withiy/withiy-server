@@ -283,7 +283,8 @@ public class CoupleServiceTest {
         // Verify
         assertEquals(1L, result);
         assertNull(couple.getDeletedAt());
-        assertNotNull(couple.getFirstMetDate());
+        assertEquals(couple.getFirstMetDate(), LocalDate.of(2025, 1, 1));
+        verify(coupleRepository, never()).delete(couple);
         verify(coupleRepository).save(couple);
     }
 
@@ -296,13 +297,13 @@ public class CoupleServiceTest {
         couple.setDeletedAt(LocalDateTime.now().minusDays(1));
         when(coupleRepository.findByUser1OrUser2(user1, user1)).thenReturn(Optional.of(couple));
 
-        // Call the method
+        // Verify
+        // When
         Long result = coupleService.restoreCouple(user1, requestDto.isRestore());
 
-        // Verify
-        assertEquals(1L, result);
-        assertNull(couple.getDeletedAt());
-        assertNull(couple.getFirstMetDate());
-        verify(coupleRepository).save(couple);
+        // Then
+        assertEquals(1L, result); // 반환은 여전히 couple ID
+        verify(coupleRepository).delete(couple);
+        verify(coupleRepository, never()).save(any());
     }
 }
