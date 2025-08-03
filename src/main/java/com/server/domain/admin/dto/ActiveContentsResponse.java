@@ -9,9 +9,9 @@ import java.util.List;
 @Getter
 public class ActiveContentsResponse {
     @Schema(description = "운영 중인 장소 목록")
-    List<ActivePlaceDto> places;
+    private final List<ActivePlaceDto> places;
     @Schema(description = "운영 중인 코스 목록")
-    List<ActiveCourseDto> courses;
+    private final List<ActiveCourseDto> courses;
 
     @Builder
     public ActiveContentsResponse(List<ActivePlaceDto> places, List<ActiveCourseDto> courses) {

@@ -23,9 +23,8 @@ public class AdminController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/contents/active")
     @Operation(summary = "운영 중 콘텐츠 조회", description = "현재 운영 중인 장소와 코스를 조회합니다.")
-    public ApiResponseDto<ActiveContentsResponse> getActiveContents(@AuthenticationPrincipal User user,
-                                                          @RequestParam  String category,
-                                                          @RequestParam String keyword) {
+    public ApiResponseDto<ActiveContentsResponse> getActiveContents(@RequestParam  String category,
+                                                                    @RequestParam String keyword) {
         ActiveContentsResponse response = adminFacadeService.getActiveContents(category, keyword);
         return ApiResponseDto.success(HttpStatus.OK.value(), response);
     }

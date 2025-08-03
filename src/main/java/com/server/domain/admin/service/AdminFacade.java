@@ -41,7 +41,7 @@ public class AdminFacade {
         List<Place> places = placeService.getActivePlacesByCategoryAndKeyword(category, keyword);
 
         // ActivePlaceDto 리스트 생성
-        List<ActivePlaceDto> activePlaces = getActivePlaces(places, category, keyword);
+        List<ActivePlaceDto> activePlaces = getActivePlaces(places, category);
 
         // ActiveCourseDto 리스트 생성
         List<ActiveCourseDto> activeCourses = getActiveCourses(keyword);
@@ -82,7 +82,7 @@ public class AdminFacade {
             .build();
     }
 
-    List<ActivePlaceDto> getActivePlaces(List<Place> places, Category category, String keyword) {
+    List<ActivePlaceDto> getActivePlaces(List<Place> places, Category category) {
         // 각 Place에 대해 북마크 수, 좋아요 수, 이미지 URL 목록을 조회하여 ActivePlaceDto 생성
         List<ActivePlaceDto> activePlaces = new ArrayList<>();
         for( Place place : places) {
