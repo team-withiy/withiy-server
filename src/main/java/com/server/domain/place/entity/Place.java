@@ -12,20 +12,20 @@ import com.server.domain.review.entity.Review;
 import com.server.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Getter
 @Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
 @Table(name = "place")
 public class Place {
     @Id
@@ -35,9 +35,6 @@ public class Place {
 
     @Column(name = "name")
     private String name;
-
-    @Column(name = "thumbnail")
-    private String thumbnail;
 
     @Column(name = "region_1depth")
     private String region1depth;
@@ -61,8 +58,8 @@ public class Place {
     private Long likeCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by")
-    private User createdBy;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
@@ -73,8 +70,21 @@ public class Place {
     @Column(name = "status")
     private PlaceStatus status;
 
-    public Place(String name, String region1depth, String region2depth, String region3depth, String address,
-                 String latitude, String longitude, Category category){
+    @Column(name = "deleted_at", nullable = true)
+    private LocalDateTime deletedAt;
+
+    @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
+    @Builder
+    public Place(String name, String region1depth, String region2depth, String region3depth,
+                 String address, String latitude, String longitude, Long likeCount,
+                 User user, Category category, PlaceStatus status) {
         this.name = name;
         this.region1depth = region1depth;
         this.region2depth = region2depth;
@@ -82,20 +92,14 @@ public class Place {
         this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.likeCount = likeCount;
+        this.user = user;
         this.category = category;
+        this.status = status;
     }
 
-    public Place(String name, String address,
-                 String latitude, String longitude, Category category, Long likeCount){
-        this.name = name;
-        this.address = address;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.category = category;
-        this.likeCount = likeCount;
-    }
 
     public boolean isCreatedByAdmin() {
-        return createdBy != null && createdBy.isAdmin();
+        return user != null && user.isAdmin();
     }
 }

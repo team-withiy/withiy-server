@@ -99,12 +99,23 @@ public class PlaceService {
         }
 
         @Transactional
-        public PlaceDto createPlace(CreatePlaceDto createPlaceDto) {
+        public PlaceDto createPlace(User user, CreatePlaceDto createPlaceDto) {
                 Category category = categoryRepository.findByName(createPlaceDto.getCategory())
                     .orElseThrow(() -> new BusinessException(CategoryErrorCode.NOT_FOUND));
-                Place place = new Place(createPlaceDto.getName(), createPlaceDto.getRegion1depth(),
-                        createPlaceDto.getRegion2depth(), createPlaceDto.getRegion3depth(), createPlaceDto.getAddress(),
-                        createPlaceDto.getLatitude(), createPlaceDto.getLongitude(), category);
+                Place place = Place.builder()
+                    .name(createPlaceDto.getName())
+                    .region1depth(createPlaceDto.getRegion1depth())
+                    .region2depth(createPlaceDto.getRegion2depth())
+                    .region3depth(createPlaceDto.getRegion3depth())
+                    .address(createPlaceDto.getAddress())
+                    .latitude(createPlaceDto.getLatitude())
+                    .longitude(createPlaceDto.getLongitude())
+                    .likeCount(0L) // 초기값
+                    .user(user) // 로그인 유저 등 적절한 User 객체
+                    .category(category)
+                    .status(PlaceStatus.ACTIVE) // 기본 상태
+                    .build();
+
                 placeRepository.save(place);
 
                 return PlaceDto.from(place, false);
@@ -118,14 +129,19 @@ public class PlaceService {
                     .orElseThrow(() -> new BusinessException(CategoryErrorCode.NOT_FOUND));
 
                 // 2. 장소 생성
-                Place place = new Place(
-                    createPlaceByUserDto.getPlaceName(),
-                    createPlaceByUserDto.getAddress(),
-                    createPlaceByUserDto.getLatitude(),
-                    createPlaceByUserDto.getLongitude(),
-                    category,
-                    createPlaceByUserDto.getScore()
-                );
+                Place place = Place.builder()
+                    .name(createPlaceByUserDto.getPlaceName())
+                    .region1depth(createPlaceByUserDto.getRegion1depth())
+                    .region2depth(createPlaceByUserDto.getRegion2depth())
+                    .region3depth(createPlaceByUserDto.getRegion3depth())
+                    .address(createPlaceByUserDto.getAddress())
+                    .latitude(createPlaceByUserDto.getLatitude())
+                    .longitude(createPlaceByUserDto.getLongitude())
+                    .likeCount(0L) // 초기값
+                    .user(user) // 로그인 유저 등 적절한 User 객체
+                    .category(category)
+                    .status(PlaceStatus.ACTIVE) // 기본 상태
+                    .build();
 
                 placeRepository.save(place);
 
@@ -133,7 +149,10 @@ public class PlaceService {
                 Review savedReview = reviewService.save(place, user, createPlaceByUserDto.getReview(), createPlaceByUserDto.getScore());
 
                 // 4. 앨범 생성 및 저장
-                Album album = new Album(createPlaceByUserDto.getPlaceName(), createPlaceByUserDto.getPlaceName(), user);
+                Album album = Album.builder()
+                    .title(createPlaceByUserDto.getPlaceName())
+                    .user(user)
+                    .build();
                 Album savedAlbum = albumService.save(place, album); // 내부적으로 PlaceAlbum 생성 포함 가정
 
                 // 5. 사진 생성 및 저장

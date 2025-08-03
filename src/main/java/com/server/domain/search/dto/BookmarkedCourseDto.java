@@ -12,17 +12,11 @@ public class BookmarkedCourseDto {
     private Long id;
     @Schema(description = "코스 이름", example = "홍대 데이트 코스")
     private String name;
-    @Schema(description = "코스 온도", example = "81")
-    private Long score;
-    @Schema(description = "코스 썸네일 URL", example = "https://example.com/thumbnail.jpg")
-    private String thumbnailUrl;
 
     public static BookmarkedCourseDto from(Course course) {
         return BookmarkedCourseDto.builder()
                 .id(course.getId())
                 .name(course.getName())
-                .score(course.getScore())
-                .thumbnailUrl(course.getThumbnail())
                 .build();
     }
 }

@@ -1,23 +1,18 @@
 package com.server.domain.course.entity;
 
-import com.server.domain.album.entity.Album;
 import com.server.domain.course.dto.CourseStatus;
+import com.server.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "course")
 public class Course {
     @Id
@@ -28,10 +23,32 @@ public class Course {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "thumbnail")
-    private String thumbnail;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private CourseStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    private User createdBy;
+
+    @Column(name = "like_count")
+    private Long likeCount;
+
+    @Column(name = "deleted_at", nullable = true)
+    private LocalDateTime deletedAt;
+
+    @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
+    @Builder
+    public Course(String name, CourseStatus status, User createdBy) {
+        this.name = name;
+        this.status = status;
+        this.createdBy = createdBy;
+    }
 }
