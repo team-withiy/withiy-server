@@ -1,28 +1,32 @@
 package com.server.domain.place.entity;
 
 import com.server.domain.album.entity.Album;
+import com.server.domain.album.entity.PlaceAlbum;
 import com.server.domain.category.entity.Category;
 import com.server.domain.course.entity.CoursePlace;
 import com.server.domain.folder.entity.FolderPlace;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.place.dto.PlaceDto;
+import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.review.entity.Review;
+import com.server.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
 @Table(name = "place")
 public class Place {
     @Id
@@ -32,9 +36,6 @@ public class Place {
 
     @Column(name = "name")
     private String name;
-
-    @Column(name = "thumbnail")
-    private String thumbnail;
 
     @Column(name = "region_1depth")
     private String region1depth;
@@ -54,70 +55,37 @@ public class Place {
     @Column(name = "longitude")
     private String longitude;
 
-    @Column(name = "score")
-    private Long score;
+    @Column(name = "like_count")
+    private Long likeCount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private Category category;
 
-    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<PlaceBookmark> placeBookmarks = new ArrayList<>();
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private PlaceStatus status;
 
-    @OneToMany(mappedBy = "place")
-    @Builder.Default
-    private List<Album> albums = new ArrayList<>();
+    @Column(name = "deleted_at", nullable = true)
+    private LocalDateTime deletedAt;
 
-    @OneToMany(mappedBy = "place")
-    @Builder.Default
-    private List<Photo> photos = new ArrayList<>();
+    @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<CoursePlace> coursePlaces = new ArrayList<>();
+    @Column(name = "updated_at", nullable = false)
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<Review> reviews = new ArrayList<>();
-
-    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<FolderPlace> folderPlaces = new ArrayList<>();
-
-
-    public void addPhoto(Photo photo) {
-        this.photos.add(photo);
-        photo.setPlace(this);
-    }
-
-    public void addReview(Review review) {
-        this.reviews.add(review);
-        review.setPlace(this);
-        updateAverageScore();
-    }
-    private void updateAverageScore() {
-        if (reviews.isEmpty()) {
-            this.score = 0L;
-            return;
-        }
-
-        double average = reviews.stream()
-                .mapToLong(Review::getScore)
-                .average()
-                .orElse(0.0);
-
-        this.score = Math.round(average); // 반올림하여 Long으로 저장
-    }
-
-    public void addAlbum(Album album) {
-        this.albums.add(album);
-        album.setPlace(this);
-    }
-
-    public Place(String name, String region1depth, String region2depth, String region3depth, String address,
-                 String latitude, String longitude, Category category){
+    @Builder
+    public Place(String name, String region1depth, String region2depth, String region3depth,
+                 String address, String latitude, String longitude, Long likeCount,
+                 User user, Category category, PlaceStatus status) {
         this.name = name;
         this.region1depth = region1depth;
         this.region2depth = region2depth;
@@ -125,16 +93,14 @@ public class Place {
         this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.likeCount = likeCount;
+        this.user = user;
         this.category = category;
+        this.status = status;
     }
 
-    public Place(String name, String address,
-                 String latitude, String longitude, Category category, Long score){
-        this.name = name;
-        this.address = address;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.category = category;
-        this.score = score;
+
+    public boolean isCreatedByAdmin() {
+        return user != null && user.isAdmin();
     }
 }

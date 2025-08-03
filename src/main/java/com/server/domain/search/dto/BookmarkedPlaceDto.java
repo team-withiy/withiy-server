@@ -15,17 +15,14 @@ public class BookmarkedPlaceDto {
     @Schema(description = "장소 주소", example = "서울특별시 마포구 양화로 123")
     private String address;
     @Schema(description = "장소 온도", example = "75")
-    private Long score;
-    @Schema(description = "장소 썸네일 URL", example = "https://example.com/thumbnail.jpg")
-    private String thumbnail;
+    private Long likeCount;
 
     public static BookmarkedPlaceDto from(Place place) {
         return BookmarkedPlaceDto.builder()
                 .id(place.getId())
                 .name(place.getName())
                 .address(place.getAddress())
-                .score(place.getScore())
-                .thumbnail(place.getThumbnail())
+                .likeCount(place.getLikeCount())
                 .build();
     }
 }

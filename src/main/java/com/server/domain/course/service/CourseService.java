@@ -1,20 +1,20 @@
 package com.server.domain.course.service;
 
-import com.server.domain.course.dto.CourseDetailDto;
 import com.server.domain.course.dto.CourseDto;
 import com.server.domain.course.dto.CourseImageDto;
+import com.server.domain.course.dto.CourseStatus;
 import com.server.domain.course.entity.Course;
 import com.server.domain.course.entity.CourseBookmark;
 import com.server.domain.course.entity.CourseImage;
 import com.server.domain.course.repository.CourseBookmarkRepository;
+import com.server.domain.course.repository.CoursePlaceRepository;
 import com.server.domain.course.repository.CourseRepository;
 
-import com.server.domain.place.repository.PlaceRepository;
+import com.server.domain.place.entity.Place;
 import com.server.domain.search.dto.BookmarkedCourseDto;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ImageResponseDto;
 import com.server.global.error.code.CourseErrorCode;
-import com.server.global.error.code.PlaceErrorCode;
 import com.server.global.error.exception.BusinessException;
 import com.server.global.service.ImageService;
 import jakarta.transaction.Transactional;
@@ -34,7 +34,7 @@ public class CourseService {
 
         private final CourseRepository courseRepository;
         private final CourseBookmarkRepository courseBookmarkRepository;
-        private final PlaceRepository placeRepository;
+        private final CoursePlaceRepository coursePlaceRepository;
         private final ImageService imageService;
 
 /*        @Transactional
@@ -90,7 +90,7 @@ public class CourseService {
                 courseImage.setImageUrl(imageResponseDto.getImageUrl());
                 courseImage.setCourse(course);
 
-                course.getCourseImages().add(courseImage);
+//                course.getCourseImages().add(courseImage);
                 courseRepository.save(course);
 
                 log.info("Course image uploaded for course ID {}: {}", courseId,
@@ -120,6 +120,23 @@ public class CourseService {
                 return courses.stream()
                     .map(CourseDto::from)
                     .collect(Collectors.toList());
+        }
+
+        public List<Course> getActiveCoursesByKeyword(String keyword) {
+                if (keyword == null || keyword.isEmpty()) {
+                        return courseRepository.findCoursesByStatus(CourseStatus.ACTIVE);
+                } else {
+                        return courseRepository.findCoursesByStatusAndKeyword(CourseStatus.ACTIVE, keyword);
+                }
+        }
+
+        @Transactional
+        public long getBookmarkCount(Course course) {
+                return courseBookmarkRepository.countByCourseAndNotDeleted(course);
+        }
+
+        public List<Place> getPlacesInCourse(Course course) {
+                return coursePlaceRepository.findPlacesByCourse(course);
         }
 
         /**

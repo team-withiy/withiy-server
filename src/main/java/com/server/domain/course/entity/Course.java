@@ -1,22 +1,19 @@
 package com.server.domain.course.entity;
 
-import com.server.domain.album.entity.Album;
+import com.server.domain.course.dto.CourseStatus;
+import com.server.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "course")
 public class Course {
     @Id
@@ -27,25 +24,32 @@ public class Course {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "thumbnail")
-    private String thumbnail;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private CourseStatus status;
 
-    @Column(name = "score")
-    private Long score;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    private User createdBy;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CourseImage> courseImages = new ArrayList<>();
+    @Column(name = "like_count")
+    private Long likeCount;
 
+    @Column(name = "deleted_at", nullable = true)
+    private LocalDateTime deletedAt;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CoursePlace> coursePlaces = new ArrayList<>();
+    @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Album> albums = new ArrayList<>();
+    @Column(name = "updated_at", nullable = false)
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
-
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CourseBookmark> courseBookmarks = new ArrayList<>();
-
-
+    @Builder
+    public Course(String name, CourseStatus status, User createdBy) {
+        this.name = name;
+        this.status = status;
+        this.createdBy = createdBy;
+    }
 }

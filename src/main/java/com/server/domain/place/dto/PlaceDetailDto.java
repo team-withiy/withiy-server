@@ -25,8 +25,6 @@ public class PlaceDetailDto {
     private CategoryDto category;
     private boolean isBookmarked;
     private Long score;
-    private List<PhotoDto> photos;
-    private List<ReviewDto> reviews;
 
     public static PlaceDetailDto from(Place place, boolean isBookmarked) {
 
@@ -41,9 +39,7 @@ public class PlaceDetailDto {
                 .region3depth(place.getRegion3depth())
                 .category(CategoryDto.from(place.getCategory()))
                 .isBookmarked(isBookmarked)
-                .score(place.getScore())
-                .photos(place.getPhotos().stream().map(PhotoDto::from).toList())
-                .reviews(place.getReviews().stream().map(review -> ReviewDto.from(review, isBookmarked)).toList())
+                .score(place.getLikeCount())
                 .build();
     }
 }

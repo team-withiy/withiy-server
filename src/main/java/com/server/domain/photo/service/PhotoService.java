@@ -1,5 +1,6 @@
 package com.server.domain.photo.service;
 
+import com.server.domain.album.entity.Album;
 import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.photo.entity.Photo;
 import com.server.global.dto.ImageResponseDto;
@@ -43,5 +44,10 @@ public class PhotoService {
 
     public void saveAll(List<Photo> photos) {
         photoRepository.saveAll(photos);
+    }
+
+    public List<String> getPhotoUrls(Album album) {
+
+        return photoRepository.findImageUrlsByAlbum(album);
     }
 }

@@ -32,7 +32,4 @@ public class CoursePlace {
     @JoinColumn(name = "place_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Place place;
-
-    @Column(name = "sequence_order")
-    private int order;
 }

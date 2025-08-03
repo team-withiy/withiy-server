@@ -4,6 +4,8 @@ import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.dto.CreateCategoryDto;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.repository.CategoryRepository;
+import com.server.global.error.code.CategoryErrorCode;
+import com.server.global.error.exception.BusinessException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,5 +37,11 @@ public class CategoryService {
             categoryDtos.add(CategoryDto.from(c));
         }
         return categoryDtos;
+    }
+
+
+    public Category  getCategoryByName(String name) {
+        return categoryRepository.findByName(name)
+            .orElseThrow(() -> new BusinessException(CategoryErrorCode.NOT_FOUND));
     }
 }

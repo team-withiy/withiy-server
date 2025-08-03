@@ -28,8 +28,8 @@ public class PlaceController {
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/admin")
     @Operation(summary = "장소 생성 api", description = "관리자가 장소 등록할 수 있는 api, 하위카테고리 선택")
-    public ApiResponseDto<PlaceDto> createPlace(@RequestBody CreatePlaceDto createPlaceDto) {
-        PlaceDto placeDto = placeService.createPlace(createPlaceDto);
+    public ApiResponseDto<PlaceDto> createPlace(@AuthenticationPrincipal User user, @RequestBody CreatePlaceDto createPlaceDto) {
+        PlaceDto placeDto = placeService.createPlace(user, createPlaceDto);
         return ApiResponseDto.success(HttpStatus.OK.value(), placeDto);
     }
 
