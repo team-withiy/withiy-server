@@ -15,6 +15,6 @@ public class UpdatePlaceDto {
     private String region3depth;
     private String latitude;
     private String longitude;
-    private Long score;
+    private Long likeCount;
     private String category;
 }

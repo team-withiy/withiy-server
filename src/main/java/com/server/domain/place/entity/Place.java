@@ -1,12 +1,15 @@
 package com.server.domain.place.entity;
 
 import com.server.domain.album.entity.Album;
+import com.server.domain.album.entity.PlaceAlbum;
 import com.server.domain.category.entity.Category;
 import com.server.domain.course.entity.CoursePlace;
 import com.server.domain.folder.entity.FolderPlace;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.place.dto.PlaceDto;
+import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.review.entity.Review;
+import com.server.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
@@ -54,67 +57,21 @@ public class Place {
     @Column(name = "longitude")
     private String longitude;
 
-    @Column(name = "score")
-    private Long score;
+    @Column(name = "like_count")
+    private Long likeCount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    private User createdBy;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private Category category;
 
-    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<PlaceBookmark> placeBookmarks = new ArrayList<>();
-
-    @OneToMany(mappedBy = "place")
-    @Builder.Default
-    private List<Album> albums = new ArrayList<>();
-
-    @OneToMany(mappedBy = "place")
-    @Builder.Default
-    private List<Photo> photos = new ArrayList<>();
-
-    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<CoursePlace> coursePlaces = new ArrayList<>();
-
-    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<Review> reviews = new ArrayList<>();
-
-    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<FolderPlace> folderPlaces = new ArrayList<>();
-
-
-    public void addPhoto(Photo photo) {
-        this.photos.add(photo);
-        photo.setPlace(this);
-    }
-
-    public void addReview(Review review) {
-        this.reviews.add(review);
-        review.setPlace(this);
-        updateAverageScore();
-    }
-    private void updateAverageScore() {
-        if (reviews.isEmpty()) {
-            this.score = 0L;
-            return;
-        }
-
-        double average = reviews.stream()
-                .mapToLong(Review::getScore)
-                .average()
-                .orElse(0.0);
-
-        this.score = Math.round(average); // 반올림하여 Long으로 저장
-    }
-
-    public void addAlbum(Album album) {
-        this.albums.add(album);
-        album.setPlace(this);
-    }
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private PlaceStatus status;
 
     public Place(String name, String region1depth, String region2depth, String region3depth, String address,
                  String latitude, String longitude, Category category){
@@ -129,12 +86,16 @@ public class Place {
     }
 
     public Place(String name, String address,
-                 String latitude, String longitude, Category category, Long score){
+                 String latitude, String longitude, Category category, Long likeCount){
         this.name = name;
         this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
         this.category = category;
-        this.score = score;
+        this.likeCount = likeCount;
+    }
+
+    public boolean isCreatedByAdmin() {
+        return createdBy != null && createdBy.isAdmin();
     }
 }

@@ -19,6 +19,7 @@ import com.server.domain.search.dto.BookmarkedPlaceDto;
 import com.server.domain.search.dto.SearchSource;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.repository.UserRepository;
+import com.server.global.error.code.CategoryErrorCode;
 import com.server.global.error.code.PlaceErrorCode;
 import com.server.global.error.code.UserErrorCode;
 import com.server.global.error.exception.BusinessException;
@@ -99,7 +100,8 @@ public class PlaceService {
 
         @Transactional
         public PlaceDto createPlace(CreatePlaceDto createPlaceDto) {
-                Category category = categoryRepository.findByName(createPlaceDto.getCategory());
+                Category category = categoryRepository.findByName(createPlaceDto.getCategory())
+                    .orElseThrow(() -> new BusinessException(CategoryErrorCode.NOT_FOUND));
                 Place place = new Place(createPlaceDto.getName(), createPlaceDto.getRegion1depth(),
                         createPlaceDto.getRegion2depth(), createPlaceDto.getRegion3depth(), createPlaceDto.getAddress(),
                         createPlaceDto.getLatitude(), createPlaceDto.getLongitude(), category);
@@ -111,37 +113,46 @@ public class PlaceService {
         @Transactional
         public PlaceDto createPlaceFirst(User user, CreatePlaceByUserDto createPlaceByUserDto) {
 
-                Category category = categoryRepository.findByName(createPlaceByUserDto.getCategory());
-                Place place = new Place(createPlaceByUserDto.getPlaceName(), createPlaceByUserDto.getAddress(),
-                        createPlaceByUserDto.getLatitude(), createPlaceByUserDto.getLongitude(), category, createPlaceByUserDto.getScore());
-                Place savedPlace = placeRepository.save(place);
+                // 1. 카테고리 조회
+                Category category = categoryRepository.findByName(createPlaceByUserDto.getCategory())
+                    .orElseThrow(() -> new BusinessException(CategoryErrorCode.NOT_FOUND));
 
-                Review savedreview = reviewService.save(savedPlace, user, createPlaceByUserDto.getReview(),
-                                createPlaceByUserDto.getScore());
-                savedPlace.addReview(savedreview);
+                // 2. 장소 생성
+                Place place = new Place(
+                    createPlaceByUserDto.getPlaceName(),
+                    createPlaceByUserDto.getAddress(),
+                    createPlaceByUserDto.getLatitude(),
+                    createPlaceByUserDto.getLongitude(),
+                    category,
+                    createPlaceByUserDto.getScore()
+                );
 
-                Album album = new Album(createPlaceByUserDto.getPlaceName(), savedPlace,
-                        createPlaceByUserDto.getPlaceName(), user);
-                Album savedAlbum = albumService.save(album);
-                savedPlace.addAlbum(savedAlbum);
-
-                List<Photo> photos = createPlaceByUserDto.getPhotos().stream()
-                        .map(photoDto -> Photo.builder()
-                                .imgUrl(photoDto.getImgUrl())
-                                .sequence(photoDto.getSequence())
-                                .isPrivate(photoDto.isPrivate())
-                                .place(savedPlace)
-                                .album(savedAlbum)
-                                .review(savedreview)
-                                .build())
-                        .toList();
-                photoService.saveAll(photos);
-
-                photos.forEach(place::addPhoto);
                 placeRepository.save(place);
 
+                // 3. 리뷰 저장
+                Review savedReview = reviewService.save(place, user, createPlaceByUserDto.getReview(), createPlaceByUserDto.getScore());
+
+                // 4. 앨범 생성 및 저장
+                Album album = new Album(createPlaceByUserDto.getPlaceName(), createPlaceByUserDto.getPlaceName(), user);
+                Album savedAlbum = albumService.save(place, album); // 내부적으로 PlaceAlbum 생성 포함 가정
+
+                // 5. 사진 생성 및 저장
+                List<Photo> photos = createPlaceByUserDto.getPhotos().stream()
+                    .map(photoDto -> Photo.builder()
+                        .imgUrl(photoDto.getImgUrl())
+                        .sequence(photoDto.getSequence())
+                        .isPrivate(photoDto.isPrivate())
+                        .place(place)
+                        .album(savedAlbum)
+                        .review(savedReview)
+                        .build())
+                    .toList();
+
+                photoService.saveAll(photos);
+
+                // 8. 북마크 여부 확인 및 DTO 반환
                 boolean isBookmarked = placeBookmarkRepository.existsByPlaceIdAndUserId(place.getId(), user.getId());
-                return PlaceDto.from(savedPlace, isBookmarked);
+                return PlaceDto.from(place, isBookmarked);
         }
 
         @Transactional
@@ -150,26 +161,20 @@ public class PlaceService {
                         .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
                 Review savedreview = reviewService.save(place, user, registerPlaceDto.getReview(),
                         registerPlaceDto.getScore());
-                place.addReview(savedreview);
+                Album album = albumService.getAlbum(place);
 
-                Album album = new Album(place.getName(), place,
-                        place.getName(), user);
-                Album savedAlbum = albumService.save(album);
-                place.addAlbum(savedAlbum);
                 List<Photo> photos = registerPlaceDto.getPhotos().stream()
                         .map(photoDto -> Photo.builder()
                                 .imgUrl(photoDto.getImgUrl())
                                 .sequence(photoDto.getSequence())
                                 .isPrivate(photoDto.isPrivate())
                                 .place(place)
-                                .album(savedAlbum)
+                                .album(album)
                                 .review(savedreview)
                                 .build())
                         .toList();
 
                 photoService.saveAll(photos);
-
-                photos.forEach(place::addPhoto);
                 placeRepository.save(place);
 
                 boolean isBookmarked = placeBookmarkRepository.existsByPlaceIdAndUserId(place.getId(), user.getId());
@@ -188,9 +193,10 @@ public class PlaceService {
                 if (updatePlaceDto.getRegion3depth()!=null) place.setRegion3depth(updatePlaceDto.getRegion3depth());
                 if (updatePlaceDto.getLatitude()!=null) place.setLatitude(updatePlaceDto.getLatitude());
                 if (updatePlaceDto.getLongitude()!=null) place.setLongitude(updatePlaceDto.getLongitude());
-                if (updatePlaceDto.getScore()!=null) place.setScore(updatePlaceDto.getScore());
+                if (updatePlaceDto.getLikeCount()!=null) place.setLikeCount(updatePlaceDto.getLikeCount());
                 if(updatePlaceDto.getCategory()!=null){
-                        Category category = categoryRepository.findByName(updatePlaceDto.getName());
+                        Category category = categoryRepository.findByName(updatePlaceDto.getName())
+                            .orElseThrow(() -> new BusinessException(CategoryErrorCode.NOT_FOUND));
                         place.setCategory(category);
                 }
 
@@ -204,14 +210,8 @@ public class PlaceService {
                 Place place = placeRepository.findById(placeId)
                         .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
                 String result = place.getName();
-                place.getAlbums().forEach(album -> {
-                        album.setPlaceNameSnapshot(result);
-                        albumRepository.save(album);
-                }); // 장소가 삭제되어도 앨범에 장소 이름이 남음.
                 placeRepository.delete(place);
-
                 return result+" delete.";
-
         }
 
         /**
@@ -248,5 +248,16 @@ public class PlaceService {
                 return places.stream()
                     .map(PlaceDto::from)
                     .collect(Collectors.toList());
+        }
+
+        public List<Place> getActivePlacesByCategoryAndKeyword(Category category, String keyword) {
+                if (keyword == null || keyword.isBlank()) {
+                        return placeRepository.findPlacesByStatusAndCategory(PlaceStatus.ACTIVE, category);
+                }
+                return placeRepository.findPlacesByStatusAndCategoryAndKeyword(PlaceStatus.ACTIVE, category, keyword);
+        }
+
+        public long getBookmarkCount(Place place) {
+                return placeBookmarkRepository.countByPlaceAndNotDeleted(place);
         }
 }

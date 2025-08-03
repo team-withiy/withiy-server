@@ -32,20 +32,4 @@ public class Course {
 
     @Column(name = "score")
     private Long score;
-
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CourseImage> courseImages = new ArrayList<>();
-
-
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CoursePlace> coursePlaces = new ArrayList<>();
-
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Album> albums = new ArrayList<>();
-
-
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CourseBookmark> courseBookmarks = new ArrayList<>();
-
-
 }

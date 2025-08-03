@@ -24,7 +24,7 @@ public class BookmarkedPlaceDto {
                 .id(place.getId())
                 .name(place.getName())
                 .address(place.getAddress())
-                .score(place.getScore())
+                .score(place.getLikeCount())
                 .thumbnail(place.getThumbnail())
                 .build();
     }

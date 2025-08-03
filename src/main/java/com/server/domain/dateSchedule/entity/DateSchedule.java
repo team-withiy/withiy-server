@@ -31,15 +31,11 @@ public class DateSchedule {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "scheduleAt")
+    @Column(name = "schedule_at")
     private LocalDate scheduleAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
-
-
-    @OneToMany(mappedBy = "dateSchedule", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Album> albums = new ArrayList<>();
 }

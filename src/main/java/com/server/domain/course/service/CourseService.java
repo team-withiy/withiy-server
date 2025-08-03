@@ -90,7 +90,7 @@ public class CourseService {
                 courseImage.setImageUrl(imageResponseDto.getImageUrl());
                 courseImage.setCourse(course);
 
-                course.getCourseImages().add(courseImage);
+//                course.getCourseImages().add(courseImage);
                 courseRepository.save(course);
 
                 log.info("Course image uploaded for course ID {}: {}", courseId,
