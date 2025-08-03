@@ -49,6 +49,7 @@ public class AdminFacade {
         // ActiveContentsResponse
         return ActiveContentsResponse.builder()
                 .places(activePlaces)
+                .courses(activeCourses)
                 .build();
     }
 
