@@ -1,6 +1,7 @@
 package com.server.domain.course.entity;
 
 import com.server.domain.album.entity.Album;
+import com.server.domain.course.dto.CourseStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,6 +31,7 @@ public class Course {
     @Column(name = "thumbnail")
     private String thumbnail;
 
-    @Column(name = "score")
-    private Long score;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private CourseStatus status;
 }
