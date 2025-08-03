@@ -1,5 +1,6 @@
 package com.server.domain.admin.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -7,7 +8,9 @@ import java.util.List;
 
 @Getter
 public class ActiveContentsResponse {
+    @Schema(description = "운영 중인 장소 목록")
     List<ActivePlaceDto> places;
+    @Schema(description = "운영 중인 코스 목록")
     List<ActiveCourseDto> courses;
 
     @Builder
