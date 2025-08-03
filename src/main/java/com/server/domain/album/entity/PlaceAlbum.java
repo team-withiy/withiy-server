@@ -2,11 +2,13 @@ package com.server.domain.album.entity;
 
 import com.server.domain.place.entity.Place;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "place_album",
     uniqueConstraints = {

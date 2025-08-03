@@ -68,7 +68,9 @@ public class AdminFacade {
         for (Place place : places) {
             placeNames.add(place.getName());
             Album album = albumService.getAlbum(place);
-            photoUrls.addAll(photoService.getPhotoUrls(album));
+            if (album != null) {
+                photoUrls.addAll(photoService.getPhotoUrls(album));
+            }
         }
 
         return ActiveCourseDto.builder()
@@ -89,7 +91,7 @@ public class AdminFacade {
 
             // 사진 URL 목록 조회
             Album album = albumService.getAlbum(place);
-            List<String> photoUrls = photoService.getPhotoUrls(album);
+            List<String> photoUrls = (album != null) ? photoService.getPhotoUrls(album) : new ArrayList<>();
 
             activePlaces.add(ActivePlaceDto.builder()
                 .placeId(place.getId())

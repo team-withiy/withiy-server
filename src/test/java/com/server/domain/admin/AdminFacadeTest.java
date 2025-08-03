@@ -86,7 +86,7 @@ public class AdminFacadeTest {
 
         ReflectionTestUtils.setField(place, "id", 101L);
 
-        album1 = new Album("홍대", user);
+        album1 = new Album("피자헛 강남점", user);
         ReflectionTestUtils.setField(album1, "id", 201L);
 
         course = Course.builder()
@@ -101,7 +101,7 @@ public class AdminFacadeTest {
     @Test
     @DisplayName("getActiveContents: 정상 조회 시 place, course 목록이 포함된 응답을 반환한다")
     void getActiveContents_success() {
-        String categoryName= "맛집";
+        String categoryName = "맛집";
         String keyword = "피자";
 
         // Mock 설정

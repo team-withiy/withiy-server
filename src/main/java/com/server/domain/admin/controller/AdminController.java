@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
     private final AdminFacade adminFacadeService;
 
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/contents/active")
     @Operation(summary = "운영 중 콘텐츠 조회", description = "현재 운영 중인 장소와 코스를 조회합니다.")

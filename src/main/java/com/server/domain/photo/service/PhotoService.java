@@ -47,6 +47,7 @@ public class PhotoService {
     }
 
     public List<String> getPhotoUrls(Album album) {
+
         return photoRepository.findImageUrlsByAlbum(album);
     }
 }
