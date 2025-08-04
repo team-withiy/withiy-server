@@ -55,8 +55,8 @@ public class Place {
     @Column(name = "longitude")
     private String longitude;
 
-    @Column(name = "like_count")
-    private Long likeCount;
+    @Column(name = "score")
+    private Long score;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -84,7 +84,7 @@ public class Place {
 
     @Builder
     public Place(String name, String region1depth, String region2depth, String region3depth,
-                 String address, String latitude, String longitude, Long likeCount,
+                 String address, String latitude, String longitude, Long score,
                  User user, Category category, PlaceStatus status) {
         this.name = name;
         this.region1depth = region1depth;
@@ -93,7 +93,7 @@ public class Place {
         this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.likeCount = likeCount;
+        this.score = score;
         this.user = user;
         this.category = category;
         this.status = status;

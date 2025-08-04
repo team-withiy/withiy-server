@@ -19,8 +19,8 @@ public class ActivePlaceDto {
     private boolean createdByAdmin;
     @Schema(description = "북마크 수", example = "100")
     private long bookmarkCount;
-    @Schema(description = "좋아요 수", example = "250")
-    private long likeCount;
+    @Schema(description = "장소 온도", example = "250")
+    private long score;
     @Schema(description = "장소 사진 URL 목록", example = "[\"https://example.com/photo1.jpg\", \"https://example.com/photo2.jpg\"]")
     private List<String> photoUrls;
     @Schema(description = "장소 카테고리 정보")
@@ -33,7 +33,7 @@ public class ActivePlaceDto {
             String placeAddress,
             boolean createdByAdmin,
             long bookmarkCount,
-            long likeCount,
+            long score,
             List<String> photoUrls,
             CategoryDto placeCategory) {
         this.placeId = placeId;
@@ -41,7 +41,7 @@ public class ActivePlaceDto {
         this.placeAddress = placeAddress;
         this.createdByAdmin = createdByAdmin;
         this.bookmarkCount = bookmarkCount;
-        this.likeCount = likeCount;
+        this.score = score;
         this.photoUrls = photoUrls;
         this.placeCategory = placeCategory;
     }

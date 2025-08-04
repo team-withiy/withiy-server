@@ -99,7 +99,7 @@ public class PlaceService {
         }
 
         @Transactional
-        public PlaceDto createPlace(User user, CreatePlaceDto createPlaceDto) {
+        public CreatePlaceResponse createPlace(User user, CreatePlaceDto createPlaceDto) {
                 Category category = categoryRepository.findByName(createPlaceDto.getCategory())
                     .orElseThrow(() -> new BusinessException(CategoryErrorCode.NOT_FOUND));
                 Place place = Place.builder()
@@ -110,10 +110,10 @@ public class PlaceService {
                     .address(createPlaceDto.getAddress())
                     .latitude(createPlaceDto.getLatitude())
                     .longitude(createPlaceDto.getLongitude())
-                    .likeCount(0L) // 초기값
-                    .user(user) // 로그인 유저 등 적절한 User 객체
+                    .score(0L)
+                    .user(user)
                     .category(category)
-                    .status(PlaceStatus.ACTIVE) // 기본 상태
+                    .status(PlaceStatus.ACTIVE)
                     .build();
 
                 placeRepository.save(place);
@@ -137,7 +137,7 @@ public class PlaceService {
                     .address(createPlaceByUserDto.getAddress())
                     .latitude(createPlaceByUserDto.getLatitude())
                     .longitude(createPlaceByUserDto.getLongitude())
-                    .likeCount(0L) // 초기값
+                    .score(0L) // 초기값
                     .user(user) // 로그인 유저 등 적절한 User 객체
                     .category(category)
                     .status(PlaceStatus.ACTIVE) // 기본 상태
@@ -212,7 +212,7 @@ public class PlaceService {
                 if (updatePlaceDto.getRegion3depth()!=null) place.setRegion3depth(updatePlaceDto.getRegion3depth());
                 if (updatePlaceDto.getLatitude()!=null) place.setLatitude(updatePlaceDto.getLatitude());
                 if (updatePlaceDto.getLongitude()!=null) place.setLongitude(updatePlaceDto.getLongitude());
-                if (updatePlaceDto.getLikeCount()!=null) place.setLikeCount(updatePlaceDto.getLikeCount());
+                if (updatePlaceDto.getScore()!=null) place.setScore(updatePlaceDto.getScore());
                 if(updatePlaceDto.getCategory()!=null){
                         Category category = categoryRepository.findByName(updatePlaceDto.getName())
                             .orElseThrow(() -> new BusinessException(CategoryErrorCode.NOT_FOUND));

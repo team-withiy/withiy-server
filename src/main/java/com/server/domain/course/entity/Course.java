@@ -32,8 +32,8 @@ public class Course {
     @JoinColumn(name = "created_by")
     private User createdBy;
 
-    @Column(name = "like_count")
-    private Long likeCount;
+    @Column(name = "score")
+    private Long score;
 
     @Column(name = "deleted_at", nullable = true)
     private LocalDateTime deletedAt;

@@ -87,7 +87,7 @@ public class AdminFacade {
         List<ActivePlaceDto> activePlaces = new ArrayList<>();
         for( Place place : places) {
             long bookmarkCount  = placeService.getBookmarkCount(place);
-            long likeCount = place.getLikeCount();
+            long score = place.getScore();
 
             // 사진 URL 목록 조회
             Album album = albumService.getAlbum(place);
@@ -99,7 +99,7 @@ public class AdminFacade {
                 .placeAddress(place.getAddress())
                 .createdByAdmin(place.isCreatedByAdmin())
                 .bookmarkCount(bookmarkCount)
-                .likeCount(likeCount)
+                .score(score)
                 .photoUrls(photoUrls)
                 .placeCategory(CategoryDto.from(category))
                 .build());
