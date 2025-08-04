@@ -23,8 +23,8 @@ public class PlaceController {
     private final PlaceService placeService;
     private final PlaceFacade placeFacade;
 
-
-    @PreAuthorize("hasRole('ADMIN')")
+    // TODO: 임시로 USER와 ADMIN 권한을 모두 허용, 추후 ADMIN 권한으로 변경 필요
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/admin")
     @Operation(summary = "장소 생성 api", description = "관리자가 장소 등록할 수 있는 api, 하위카테고리 선택")
