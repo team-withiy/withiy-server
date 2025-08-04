@@ -28,8 +28,6 @@ public class PhotoService {
 
             PhotoDto photoDto = PhotoDto.builder()
                     .imgUrl(imgDto.getImageUrl())
-                    .isPrivate(isPrivate)
-                    .sequence(sequence)
                     .build();
 
             photoDtos.add(photoDto);

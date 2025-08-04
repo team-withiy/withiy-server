@@ -39,7 +39,7 @@ public class PlaceDetailDto {
                 .region3depth(place.getRegion3depth())
                 .category(CategoryDto.from(place.getCategory()))
                 .isBookmarked(isBookmarked)
-                .score(place.getLikeCount())
+                .score(place.getScore())
                 .build();
     }
 }
