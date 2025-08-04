@@ -1,6 +1,7 @@
 package com.server.domain.place.controller;
 
 import com.server.domain.place.dto.*;
+import com.server.domain.place.service.PlaceFacade;
 import com.server.domain.place.service.PlaceService;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
@@ -22,15 +23,16 @@ import java.util.List;
 @RequestMapping("/api/places")
 public class PlaceController {
     private final PlaceService placeService;
+    private final PlaceFacade placeFacade;
 
 
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/admin")
     @Operation(summary = "장소 생성 api", description = "관리자가 장소 등록할 수 있는 api, 하위카테고리 선택")
-    public ApiResponseDto<PlaceDto> createPlace(@AuthenticationPrincipal User user, @RequestBody CreatePlaceDto createPlaceDto) {
-        PlaceDto placeDto = placeService.createPlace(user, createPlaceDto);
-        return ApiResponseDto.success(HttpStatus.OK.value(), placeDto);
+    public ApiResponseDto<CreatePlaceResponse> createPlace(@AuthenticationPrincipal User user, @RequestBody CreatePlaceDto createPlaceDto) {
+        CreatePlaceResponse response = placeFacade.createPlace(user, createPlaceDto);
+        return ApiResponseDto.success(HttpStatus.OK.value(), response);
     }
 
     @PreAuthorize("hasRole('USER')")

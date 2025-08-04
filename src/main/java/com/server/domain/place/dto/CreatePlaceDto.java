@@ -1,7 +1,8 @@
 package com.server.domain.place.dto;
 
-import com.server.domain.category.dto.CategoryDto;
 import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,6 +17,6 @@ public class CreatePlaceDto {
     private String region3depth;
     private String latitude;
     private String longitude;
-    private String category;
-
+    private String categoryName;
+    private List<String> imageUrls;
 }

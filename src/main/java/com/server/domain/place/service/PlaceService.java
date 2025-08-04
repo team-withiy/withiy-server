@@ -1,7 +1,6 @@
 package com.server.domain.place.service;
 
 import com.server.domain.album.entity.Album;
-import com.server.domain.album.repository.AlbumRepository;
 import com.server.domain.album.service.AlbumService;
 import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
@@ -39,26 +38,28 @@ public class PlaceService {
         private final PlaceBookmarkRepository placeBookmarkRepository;
         private final UserRepository userRepository;
         private final CategoryRepository categoryRepository;
-        private final AlbumRepository albumRepository;
         private final ReviewService reviewService;
         private final AlbumService albumService;
         private final PhotoService photoService;
+
+        public Place save(Place place) {
+                return placeRepository.save(place);
+        }
 
         @Transactional
         public List<PlaceFocusDto> getMapFocusPlaces(String swLat, String swLng, String neLat, String neLng) {
 
                 List<Place> places = placeRepository.findByLatitudeBetweenAndLongitudeBetween(swLat, neLat, swLng, neLng);
 
-                if(places!=null){
+                if (places != null) {
                         return places.stream().map(place ->
-                                PlaceFocusDto.builder()
-                                        .id(place.getId())
-                                        .name(place.getName())
-                                        .category(CategoryDto.from(place.getCategory()))
-                                        .build()
+                            PlaceFocusDto.builder()
+                                .id(place.getId())
+                                .name(place.getName())
+                                .category(CategoryDto.from(place.getCategory()))
+                                .build()
                         ).collect(Collectors.toList());
-                }
-                else
+                } else
                         return null;
         }
 
@@ -96,29 +97,6 @@ public class PlaceService {
                         .orElseThrow(()-> new BusinessException(UserErrorCode.NOT_FOUND));
                 boolean isBookmarked = placeBookmarkRepository.existsByPlaceIdAndUserId(place.getId(), user.getId());
                 return PlaceDetailDto.from(place, isBookmarked);
-        }
-
-        @Transactional
-        public CreatePlaceResponse createPlace(User user, CreatePlaceDto createPlaceDto) {
-                Category category = categoryRepository.findByName(createPlaceDto.getCategory())
-                    .orElseThrow(() -> new BusinessException(CategoryErrorCode.NOT_FOUND));
-                Place place = Place.builder()
-                    .name(createPlaceDto.getName())
-                    .region1depth(createPlaceDto.getRegion1depth())
-                    .region2depth(createPlaceDto.getRegion2depth())
-                    .region3depth(createPlaceDto.getRegion3depth())
-                    .address(createPlaceDto.getAddress())
-                    .latitude(createPlaceDto.getLatitude())
-                    .longitude(createPlaceDto.getLongitude())
-                    .score(0L)
-                    .user(user)
-                    .category(category)
-                    .status(PlaceStatus.ACTIVE)
-                    .build();
-
-                placeRepository.save(place);
-
-                return PlaceDto.from(place, false);
         }
 
         @Transactional

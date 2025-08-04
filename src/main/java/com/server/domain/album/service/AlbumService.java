@@ -5,8 +5,11 @@ import com.server.domain.album.entity.PlaceAlbum;
 import com.server.domain.album.repository.AlbumRepository;
 import com.server.domain.place.entity.Place;
 import com.server.domain.place.repository.PlaceAlbumRepository;
+import com.server.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,5 +26,13 @@ public class AlbumService {
         return placeAlbumRepository.findByPlace(place)
             .map(PlaceAlbum::getAlbum)
             .orElse(null);
+    }
+
+    public Album setDefaultAlbum(Place savedPlace, User user) {
+        Album album = Album.builder()
+            .title(savedPlace.getName())
+            .user(user)
+            .build();
+        return save(savedPlace, album);
     }
 }

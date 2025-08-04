@@ -50,4 +50,14 @@ public class PhotoService {
 
         return photoRepository.findImageUrlsByAlbum(album);
     }
+
+    public void savePhotos(Album album, List<String> imageUrls) {
+        List<Photo> photos = imageUrls.stream()
+            .map(imageUrl -> Photo.builder()
+                .imgUrl(imageUrl)
+                .album(album)
+                .build())
+            .toList();
+        saveAll(photos);
+    }
 }

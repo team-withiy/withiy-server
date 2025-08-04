@@ -6,9 +6,13 @@ import com.server.domain.place.entity.Place;
 import com.server.domain.review.entity.Review;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.LocalDateTime;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -27,17 +31,6 @@ public class Photo {
     @Column(name = "img_url")
     private String imgUrl;
 
-    @Column(name = "sequence_order")
-    private int sequence;
-
-    @Column(name = "is_private")
-    private boolean isPrivate;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "place_id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
-    private Place place;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "album_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -47,4 +40,12 @@ public class Photo {
     @JoinColumn(name = "review_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private Review review;
+
+    @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 }
