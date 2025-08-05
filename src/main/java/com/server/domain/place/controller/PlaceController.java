@@ -23,7 +23,7 @@ public class PlaceController {
     private final PlaceService placeService;
     private final PlaceFacade placeFacade;
 
-    // TODO: 임시로 USER와 ADMIN 권한을 모두 허용, 추후 ADMIN 권한으로 변경 필요
+    // TODO: 현재는 USER와 ADMIN 권한을 모두 허용 중이며, 운영 환경에서는 ADMIN 권한만 허용하도록 변경 예정
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/admin")

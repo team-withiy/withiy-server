@@ -15,29 +15,19 @@ import java.util.List;
 public class PhotoService {
     private final PhotoRepository photoRepository;
 
-    public List<PhotoDto> convertToPhotoDtos(List<ImageResponseDto> imageDtos, boolean isPrivate, List<Integer> sequences) {
-        if (imageDtos.size() != sequences.size()) {
-            throw new IllegalArgumentException("이미지 개수와 순서 개수가 일치하지 않습니다.");
-        }
+    public List<PhotoDto> convertToPhotoDtos(List<ImageResponseDto> imageDtos) {
 
         List<PhotoDto> photoDtos = new ArrayList<>();
 
-        for (int i = 0; i < imageDtos.size(); i++) {
-            ImageResponseDto imgDto = imageDtos.get(i);
-            int sequence = sequences.get(i);
-
+        for (ImageResponseDto imgDto : imageDtos) {
             PhotoDto photoDto = PhotoDto.builder()
-                    .imgUrl(imgDto.getImageUrl())
-                    .build();
+                .imgUrl(imgDto.getImageUrl())
+                .build();
 
             photoDtos.add(photoDto);
         }
 
         return photoDtos;
-    }
-
-    public Photo save(Photo photo) {
-        return photoRepository.save(photo);
     }
 
     public void saveAll(List<Photo> photos) {
@@ -50,6 +40,9 @@ public class PhotoService {
     }
 
     public void savePhotos(Album album, List<String> imageUrls) {
+        if (imageUrls == null || imageUrls.isEmpty()) {
+            return;
+        }
         List<Photo> photos = imageUrls.stream()
             .map(imageUrl -> Photo.builder()
                 .imgUrl(imageUrl)

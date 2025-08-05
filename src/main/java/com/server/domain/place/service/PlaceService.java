@@ -51,16 +51,13 @@ public class PlaceService {
 
                 List<Place> places = placeRepository.findByLatitudeBetweenAndLongitudeBetween(swLat, neLat, swLng, neLng);
 
-                if (places != null) {
-                        return places.stream().map(place ->
-                            PlaceFocusDto.builder()
-                                .id(place.getId())
-                                .name(place.getName())
-                                .category(CategoryDto.from(place.getCategory()))
-                                .build()
-                        ).collect(Collectors.toList());
-                } else
-                        return null;
+                return places.stream().map(place ->
+                    PlaceFocusDto.builder()
+                        .id(place.getId())
+                        .name(place.getName())
+                        .category(CategoryDto.from(place.getCategory()))
+                        .build()
+                ).collect(Collectors.toList());
         }
 
         @Transactional

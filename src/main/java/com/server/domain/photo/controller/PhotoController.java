@@ -34,7 +34,6 @@ public class PhotoController {
     @Operation(summary = "사진 저장 api", description = "앨범을 위한 사진 등록 api, 공개 여부 필요")
     public ApiResponseDto<List<PhotoDto>> uploadMultipleImages(
             @AuthenticationPrincipal User user,
-            @PathVariable boolean isPrivate,
             @RequestPart("files") List<MultipartFile> files,
             @RequestParam("entityType") String entityType,
             @RequestParam(value = "entityId", required = false) Long entityId) {
@@ -44,12 +43,8 @@ public class PhotoController {
 
         try {
             List<ImageResponseDto> results = imageService.uploadImages(files, entityType, entityId);
-            List<Integer> sequences = new ArrayList<>();
-            for (int i = 0; i < results.size(); i++) {
-                sequences.add(i); // 0부터 시작하는 순서
-            }
 
-            List<PhotoDto> photoDtos = photoService.convertToPhotoDtos(results, isPrivate, sequences);
+            List<PhotoDto> photoDtos = photoService.convertToPhotoDtos(results);
             return ApiResponseDto.success(HttpStatus.OK.value(), photoDtos);
 
         } catch (IllegalArgumentException e) {
