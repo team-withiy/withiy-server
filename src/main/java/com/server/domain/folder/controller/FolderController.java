@@ -4,8 +4,6 @@ import com.server.domain.folder.dto.CreateFolderDto;
 import com.server.domain.folder.dto.FolderDto;
 import com.server.domain.folder.dto.UpdateFolderDto;
 import com.server.domain.folder.service.FolderService;
-import com.server.domain.place.dto.CreatePlaceDto;
-import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
 import io.swagger.v3.oas.annotations.Operation;

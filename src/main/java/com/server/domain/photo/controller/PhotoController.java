@@ -2,8 +2,6 @@ package com.server.domain.photo.controller;
 
 import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.photo.service.PhotoService;
-import com.server.domain.place.dto.CreatePlaceDto;
-import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
 import com.server.global.dto.ImageResponseDto;

@@ -1,6 +1,7 @@
 package com.server.domain.place.controller;
 
 import com.server.domain.place.dto.*;
+import com.server.domain.place.service.PlaceFacade;
 import com.server.domain.place.service.PlaceService;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
@@ -8,11 +9,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -22,15 +21,16 @@ import java.util.List;
 @RequestMapping("/api/places")
 public class PlaceController {
     private final PlaceService placeService;
+    private final PlaceFacade placeFacade;
 
-
-    @PreAuthorize("hasRole('ADMIN')")
+    // TODO: 임시로 USER와 ADMIN 권한을 모두 허용, 추후 ADMIN 권한으로 변경 필요
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/admin")
     @Operation(summary = "장소 생성 api", description = "관리자가 장소 등록할 수 있는 api, 하위카테고리 선택")
-    public ApiResponseDto<PlaceDto> createPlace(@AuthenticationPrincipal User user, @RequestBody CreatePlaceDto createPlaceDto) {
-        PlaceDto placeDto = placeService.createPlace(user, createPlaceDto);
-        return ApiResponseDto.success(HttpStatus.OK.value(), placeDto);
+    public ApiResponseDto<CreatePlaceResponse> createPlace(@AuthenticationPrincipal User user, @RequestBody CreatePlaceDto createPlaceDto) {
+        CreatePlaceResponse response = placeFacade.createPlace(user, createPlaceDto);
+        return ApiResponseDto.success(HttpStatus.OK.value(), response);
     }
 
     @PreAuthorize("hasRole('USER')")

@@ -78,7 +78,7 @@ public class AdminFacadeTest {
             .address("서울특별시 강남구 테헤란로 123")
             .latitude("37.501274")
             .longitude("127.039585")
-            .likeCount(12L)
+            .score(12L)
             .user(user)
             .category(category)
             .status(PlaceStatus.ACTIVE)

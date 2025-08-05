@@ -28,8 +28,6 @@ public class PhotoService {
 
             PhotoDto photoDto = PhotoDto.builder()
                     .imgUrl(imgDto.getImageUrl())
-                    .isPrivate(isPrivate)
-                    .sequence(sequence)
                     .build();
 
             photoDtos.add(photoDto);
@@ -49,5 +47,15 @@ public class PhotoService {
     public List<String> getPhotoUrls(Album album) {
 
         return photoRepository.findImageUrlsByAlbum(album);
+    }
+
+    public void savePhotos(Album album, List<String> imageUrls) {
+        List<Photo> photos = imageUrls.stream()
+            .map(imageUrl -> Photo.builder()
+                .imgUrl(imageUrl)
+                .album(album)
+                .build())
+            .toList();
+        saveAll(photos);
     }
 }

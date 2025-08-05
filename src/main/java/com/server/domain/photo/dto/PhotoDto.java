@@ -11,16 +11,12 @@ import lombok.*;
 @Builder
 public class PhotoDto {
     private String imgUrl;
-    private boolean isPrivate;
-    private int sequence;
 
 
 
     public static PhotoDto from(Photo photo){
         return PhotoDto.builder()
                 .imgUrl(photo.getImgUrl())
-                .isPrivate(photo.isPrivate())
-                .sequence(photo.getSequence())
                 .build();
     }
 }

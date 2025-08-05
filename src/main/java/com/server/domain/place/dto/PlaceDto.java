@@ -25,7 +25,7 @@ public class PlaceDto {
     private String region3depth;
     private CategoryDto category;
     private boolean isBookmarked;
-    private Long likeCount;
+    private Long score;
 
 
     public static PlaceDto from(Place place, boolean isBookmarked) {
@@ -41,7 +41,7 @@ public class PlaceDto {
                 .region3depth(place.getRegion3depth())
                 .category(CategoryDto.from(place.getCategory()))
                 .isBookmarked(isBookmarked)
-                .likeCount(place.getLikeCount())
+                .score(place.getScore())
                 .build();
     }
 
@@ -57,7 +57,7 @@ public class PlaceDto {
             .region2depth(place.getRegion2depth())
             .region3depth(place.getRegion3depth())
             .category(CategoryDto.from(place.getCategory()))
-            .likeCount(place.getLikeCount())
+            .score(place.getScore())
             .build();
     }
 
