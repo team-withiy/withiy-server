@@ -5,24 +5,30 @@ import com.server.domain.review.entity.Review;
 import com.server.domain.user.dto.SimpleUserDto;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
-@Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class ReviewDto {
-    private Long id;
-    private SimpleUserDto user;
-    private PlaceDto place;
+    private Long reviewId;
+    private SimpleUserDto reviewer;
     private String contents;
+    private List<String> imageUrls;
     private Long score;
 
-    public static ReviewDto from(Review review, boolean isBookmarked) {
+    @Builder
+    private ReviewDto(Long reviewId, SimpleUserDto reviewer, String contents, List<String> imageUrls, Long score) {
+        this.reviewId = reviewId;
+        this.reviewer = reviewer;
+        this.contents = contents;
+        this.imageUrls = imageUrls;
+        this.score = score;
+    }
 
+    public static ReviewDto from(Review review, boolean isBookmarked) {
         return ReviewDto.builder()
-                .id(review.getId())
-                .user(SimpleUserDto.from(review.getUser()))
-                .place(PlaceDto.from(review.getPlace(), isBookmarked))
+                .reviewId(review.getId())
+                .reviewer(SimpleUserDto.from(review.getUser()))
                 .contents(review.getContents())
                 .score(review.getScore())
                 .build();
