@@ -5,10 +5,7 @@ import com.server.domain.photo.entity.Photo;
 import com.server.domain.place.entity.Place;
 import com.server.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -21,16 +18,13 @@ import java.util.List;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Getter
-@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "review")
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id")
@@ -48,18 +42,17 @@ public class Review {
     @Column(name = "score")
     private Long score;
 
-    @OneToMany(mappedBy = "review")
-    private List<Photo> photos = new ArrayList<>();
-
     @Column(name = "created_at", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    public Review(Place place, User user, String contents,
-                  Long score){
+    @Builder
+    public Review(Place place, User user, String contents, Long score) {
         this.place = place;
         this.user = user;
         this.contents = contents;
         this.score = score;
     }
+
+
 }

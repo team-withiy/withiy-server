@@ -3,6 +3,7 @@ package com.server.domain.photo.service;
 import com.server.domain.album.entity.Album;
 import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.photo.entity.Photo;
+import com.server.domain.user.entity.User;
 import com.server.global.dto.ImageResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class PhotoService {
 
         for (ImageResponseDto imgDto : imageDtos) {
             PhotoDto photoDto = PhotoDto.builder()
-                .imgUrl(imgDto.getImageUrl())
+                .imageUrl(imgDto.getImageUrl())
                 .build();
 
             photoDtos.add(photoDto);
@@ -39,7 +40,7 @@ public class PhotoService {
         return photoRepository.findImageUrlsByAlbum(album);
     }
 
-    public void savePhotos(Album album, List<String> imageUrls) {
+    public void uploadPhotos(Album album, User uploader, List<String> imageUrls) {
         if (imageUrls == null || imageUrls.isEmpty()) {
             return;
         }
@@ -47,6 +48,7 @@ public class PhotoService {
             .map(imageUrl -> Photo.builder()
                 .imgUrl(imageUrl)
                 .album(album)
+                .user(uploader)
                 .build())
             .toList();
         saveAll(photos);

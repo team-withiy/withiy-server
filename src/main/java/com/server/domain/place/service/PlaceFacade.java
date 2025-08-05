@@ -42,7 +42,7 @@ public class PlaceFacade {
 
         Place savedPlace = placeService.save(place);
         Album album = albumService.setDefaultAlbum(savedPlace, user);
-        photoService.savePhotos(album, createPlaceDto.getImageUrls());
+        photoService.uploadPhotos(album, user, createPlaceDto.getImageUrls());
 
         return CreatePlaceResponse.from(savedPlace);
     }

@@ -133,9 +133,9 @@ public class PlaceService {
                 // 5. 사진 생성 및 저장
                 List<Photo> photos = createPlaceByUserDto.getPhotos().stream()
                     .map(photoDto -> Photo.builder()
-                        .imgUrl(photoDto.getImgUrl())
+                        .imgUrl(photoDto.getImageUrl())
+                        .user(user)
                         .album(savedAlbum)
-                        .review(savedReview)
                         .build())
                     .toList();
 
@@ -156,9 +156,8 @@ public class PlaceService {
 
                 List<Photo> photos = registerPlaceDto.getPhotos().stream()
                         .map(photoDto -> Photo.builder()
-                                .imgUrl(photoDto.getImgUrl())
+                                .imgUrl(photoDto.getImageUrl())
                                 .album(album)
-                                .review(savedreview)
                                 .build())
                         .toList();
 
