@@ -53,4 +53,12 @@ public class PhotoService {
             .toList();
         saveAll(photos);
     }
+
+    public List<Photo> getPhotosByAlbum(Album album) {
+        return photoRepository.findAllByAlbum(album);
+    }
+
+    public List<Photo> getPhotosByAlbumAndUser(Album album, User reviewer) {
+        return photoRepository.findAllByAlbumAndUser(album, reviewer);
+    }
 }

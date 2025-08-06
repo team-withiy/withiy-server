@@ -2,12 +2,15 @@ package com.server.domain.photo.dto;
 
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.user.dto.SimpleUserDto;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 @Getter
 @NoArgsConstructor
 public class PhotoDto {
+    @Schema(description = "이미지 URL", example = "https://cdn.example.com/photo/12345.jpg")
     private String imageUrl;
+    @Schema(description = "업로더 정보")
     private SimpleUserDto uploader;
 
     @Builder

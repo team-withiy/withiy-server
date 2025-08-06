@@ -22,7 +22,7 @@ public class AlbumService {
         return albumRepository.save(album);
     }
 
-    public Album getAlbum(Place place) {
+    public Album getAlbumByPlace(Place place) {
         return placeAlbumRepository.findByPlace(place)
             .map(PlaceAlbum::getAlbum)
             .orElse(null);

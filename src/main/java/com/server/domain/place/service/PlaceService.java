@@ -46,6 +46,11 @@ public class PlaceService {
                 return placeRepository.save(place);
         }
 
+        public Place findById(Long placeId) {
+                return placeRepository.findById(placeId)
+                        .orElseThrow(() -> new BusinessException(PlaceErrorCode.NOT_FOUND));
+        }
+
         @Transactional
         public List<PlaceFocusDto> getMapFocusPlaces(String swLat, String swLng, String neLat, String neLng) {
 
@@ -76,24 +81,6 @@ public class PlaceService {
                         .orElseThrow(()-> new BusinessException(UserErrorCode.NOT_FOUND));
                 boolean isBookmarked = placeBookmarkRepository.existsByPlaceIdAndUserId(place.getId(), user.getId());
                 return PlaceDto.from(place, isBookmarked);
-        }
-
-        @Transactional
-        public PlaceDetailDto getPlaceDetail(Long placeId) {
-                Place place = placeRepository.findById(placeId)
-                        .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
-                return PlaceDetailDto.from(place, false);
-
-        }
-
-        @Transactional
-        public PlaceDetailDto getPlaceDetailAfterLogin(Long placeId, Long userId) {
-                Place place = placeRepository.findById(placeId)
-                        .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
-                User user = userRepository.findById(userId)
-                        .orElseThrow(()-> new BusinessException(UserErrorCode.NOT_FOUND));
-                boolean isBookmarked = placeBookmarkRepository.existsByPlaceIdAndUserId(place.getId(), user.getId());
-                return PlaceDetailDto.from(place, isBookmarked);
         }
 
         @Transactional
@@ -152,7 +139,7 @@ public class PlaceService {
                         .orElseThrow(()-> new BusinessException(PlaceErrorCode.NOT_FOUND));
                 Review savedreview = reviewService.save(place, user, registerPlaceDto.getReview(),
                         registerPlaceDto.getScore());
-                Album album = albumService.getAlbum(place);
+                Album album = albumService.getAlbumByPlace(place);
 
                 List<Photo> photos = registerPlaceDto.getPhotos().stream()
                         .map(photoDto -> Photo.builder()
@@ -246,5 +233,9 @@ public class PlaceService {
 
         public long getBookmarkCount(Place place) {
                 return placeBookmarkRepository.countByPlaceAndNotDeleted(place);
+        }
+
+        public boolean isBookmarked(Place place, User user) {
+                return user != null && placeBookmarkRepository.existsByPlaceAndUser(place, user);
         }
 }

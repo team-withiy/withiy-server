@@ -20,4 +20,5 @@ public interface PlaceBookmarkRepository extends JpaRepository<PlaceBookmark,Lon
         "WHERE pb.place = :place AND pb.deletedAt IS NULL")
     long countByPlaceAndNotDeleted(@Param("place") Place place);
 
+    boolean existsByPlaceAndUser(Place place, User user);
 }
