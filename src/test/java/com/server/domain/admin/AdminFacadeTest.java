@@ -108,7 +108,7 @@ public class AdminFacadeTest {
         when(categoryService.getCategoryByName(categoryName)).thenReturn(category);
         when(placeService.getActivePlacesByCategoryAndKeyword(category, keyword)).thenReturn(List.of(place));
         when(placeService.getBookmarkCount(place)).thenReturn(10L);
-        when(albumService.getAlbum(place)).thenReturn(album1);
+        when(albumService.getAlbumByPlace(place)).thenReturn(album1);
         when(photoService.getPhotoUrls(album1)).thenReturn(List.of("https://image.com/photo1.jpg"));
         when(courseService.getActiveCoursesByKeyword(keyword)).thenReturn(List.of(course));
         when(courseService.getBookmarkCount(course)).thenReturn(3L);

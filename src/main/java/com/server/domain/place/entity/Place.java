@@ -1,14 +1,7 @@
 package com.server.domain.place.entity;
 
-import com.server.domain.album.entity.Album;
-import com.server.domain.album.entity.PlaceAlbum;
 import com.server.domain.category.entity.Category;
-import com.server.domain.course.entity.CoursePlace;
-import com.server.domain.folder.entity.FolderPlace;
-import com.server.domain.photo.entity.Photo;
-import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.dto.PlaceStatus;
-import com.server.domain.review.entity.Review;
 import com.server.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;

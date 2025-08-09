@@ -22,5 +22,7 @@ public class ReviewService {
         return reviewRepository.save(review);
     }
 
-
+    public List<Review> getReviewsByPlace(Place place) {
+        return reviewRepository.findAllByPlace(place);
+    }
 }

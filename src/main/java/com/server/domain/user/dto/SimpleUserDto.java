@@ -9,8 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
 public class SimpleUserDto {
     @Schema(description = "사용자 ID", example = "6")
@@ -19,6 +17,13 @@ public class SimpleUserDto {
     private String nickname;
     @Schema(description = "프로필 이미지 URL", example = "https://cdn.example.com/user/6/uuid.jpg")
     private String thumbnail;
+
+    @Builder
+    public SimpleUserDto(Long id, String nickname, String thumbnail) {
+        this.id = id;
+        this.nickname = nickname;
+        this.thumbnail = thumbnail;
+    }
 
     public static SimpleUserDto from(User user) {
         return SimpleUserDto.builder()

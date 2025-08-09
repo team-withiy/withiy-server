@@ -1,9 +1,7 @@
 package com.server.domain.photo.entity;
 
 import com.server.domain.album.entity.Album;
-import com.server.domain.category.entity.Category;
-import com.server.domain.place.entity.Place;
-import com.server.domain.review.entity.Review;
+import com.server.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -17,10 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Getter
-@Setter
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "photo")
 public class Photo {
     @Id
@@ -37,9 +32,9 @@ public class Photo {
     private Album album;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "review_id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
-    private Review review;
+    @JoinColumn(name = "user_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private User user;
 
     @Column(name = "created_at", nullable = false)
     @CreationTimestamp
@@ -48,4 +43,11 @@ public class Photo {
     @Column(name = "updated_at", nullable = false)
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @Builder
+    public Photo(Album album, User user, String imgUrl) {
+        this.album = album;
+        this.user = user;
+        this.imgUrl = imgUrl;
+    }
 }
