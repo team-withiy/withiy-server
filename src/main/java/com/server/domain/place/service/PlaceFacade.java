@@ -57,8 +57,6 @@ public class PlaceFacade {
 
         Place place = placeService.findById(placeId);
 
-        boolean isBookmarked = placeService.isBookmarked(place, user);
-
         LocationDto location = LocationDto.builder()
             .latitude(place.getLatitude())
             .longitude(place.getLongitude())
@@ -91,7 +89,6 @@ public class PlaceFacade {
             .placeName(place.getName())
             .categoryName(place.getCategory().getName())
             .address(place.getAddress())
-            .isBookmarked(isBookmarked)
             .location(location)
             .score(place.getScore())
             .photos(photos)

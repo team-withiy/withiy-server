@@ -20,8 +20,6 @@ public class GetPlaceDetailResponse {
     private String categoryName;
     @Schema(description = "장소 주소", example = "서울특별시 강남구 테헤란로 123")
     private String address;
-    @Schema(description = "장소 북마크 여부", example = "true")
-    private boolean isBookmarked;
     @Schema(description = "장소 위치 정보")
     private LocationDto location;
     @Schema(description = "장소 온도 점수", example = "81")
@@ -32,14 +30,14 @@ public class GetPlaceDetailResponse {
     private List<ReviewDto> reviews;
 
     @Builder
-    public GetPlaceDetailResponse(Long placeId, String placeName, String categoryName, String address,
-                                  boolean isBookmarked, LocationDto location, Long score,
-                                  List<PhotoDto> photos, List<ReviewDto> reviews) {
+    public GetPlaceDetailResponse(Long placeId, String placeName, String categoryName,
+        String address,
+        LocationDto location, Long score,
+        List<PhotoDto> photos, List<ReviewDto> reviews) {
         this.placeId = placeId;
         this.placeName = placeName;
         this.categoryName = categoryName;
         this.address = address;
-        this.isBookmarked = isBookmarked;
         this.location = location;
         this.score = score;
         this.photos = photos;
