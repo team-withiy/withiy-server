@@ -16,6 +16,7 @@ import com.server.domain.user.repository.UserRepository;
 import com.server.global.error.code.FolderErrorCode;
 import com.server.global.error.code.PlaceErrorCode;
 import com.server.global.error.exception.BusinessException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -110,5 +111,13 @@ public class FolderService {
 		folderRepository.delete(folder);
 
 		return folder.getName() + " deleted.";
+	}
+
+	@Transactional(readOnly = true)
+	public List<FolderDto> getFolders(User user) {
+		List<Folder> folders = folderRepository.findAllByUser(user);
+		return folders.stream()
+			.map(FolderDto::from)
+			.toList();
 	}
 }
