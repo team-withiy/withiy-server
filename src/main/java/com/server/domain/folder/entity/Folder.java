@@ -10,16 +10,11 @@ import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Getter
-@Setter
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "folder")
 public class Folder {
     @Id
@@ -39,14 +34,21 @@ public class Folder {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
-    @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<FolderPlace> folderPlaces = new ArrayList<>();
-
     @Column(name = "created_at", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    @Builder
+    public Folder(String name, FolderColor color, User user) {
+        this.name = name;
+        this.color = color;
+        this.user = user;
+    }
 
-
+    public void updateName(String name) {
+        this.name = name;
+    }
+    public void updateColor(FolderColor color) {
+        this.color = color;
+    }
 }

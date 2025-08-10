@@ -43,7 +43,7 @@ public class FolderService {
 
 
         Folder folder = Folder.builder()
-                .name(createFolderDto.getName())
+                .name(folderName)
                 .color(createFolderDto.getColor())
                 .user(user)
                 .build();
@@ -97,8 +97,8 @@ public class FolderService {
     public FolderDto updateFolder(Long folderId, User user, UpdateFolderDto updateFolderDto) {
         Folder folder = folderRepository.findByIdAndUser(folderId, user)
                 .orElseThrow(()-> new BusinessException(FolderErrorCode.NOT_FOUND));
-        folder.setName(updateFolderDto.getName());
-        folder.setColor(updateFolderDto.getColor());
+        folder.updateName(updateFolderDto.getName());
+        folder.updateColor(updateFolderDto.getColor());
         folderRepository.save(folder);
         return FolderDto.from(folder);
     }
