@@ -15,4 +15,8 @@ import java.util.List;
 public class CreateFolderDto {
     private String name;
     private FolderColor color;
+
+    public String getNormalizedName() {
+        return name.trim().toLowerCase();
+    }
 }

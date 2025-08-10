@@ -36,7 +36,9 @@ public class FolderService {
 
     @Transactional
     public FolderDto createFolderAndBookmarkPlace(User user, CreateFolderDto createFolderDto, Long placeId) {
-        if(folderRepository.findByNameAndUserId(createFolderDto.getName(), user.getId())!=null)
+
+        String folderName = createFolderDto.getNormalizedName();
+        if(folderRepository.existsByUserAndName(user, folderName))
             throw new BusinessException(FolderErrorCode.DUPLICATE_FOLDER_NAME);
 
 
@@ -76,25 +78,25 @@ public class FolderService {
 
     @Transactional
     public FolderDto createFolder(User user, CreateFolderDto createFolderDto) {
-        if(folderRepository.findByNameAndUserId(createFolderDto.getName(), user.getId())!=null)
-            throw new BusinessException(FolderErrorCode.DUPLICATE_FOLDER_NAME);
 
+        String folderName = createFolderDto.getNormalizedName();
+        if (folderRepository.existsByUserAndName(user, folderName)) {
+            throw new BusinessException(FolderErrorCode.DUPLICATE_FOLDER_NAME);
+        }
 
         Folder folder = Folder.builder()
-                .name(createFolderDto.getName())
-                .color(createFolderDto.getColor())
-                .user(user)
-                .build();
+            .name(folderName)
+            .color(createFolderDto.getColor())
+            .user(user)
+            .build();
 
-        folderRepository.save(folder);
-        userRepository.save(user);
-
-        return FolderDto.from(folder);
+        return FolderDto.from(folderRepository.save(folder));
     }
 
     @Transactional
     public FolderDto updateFolder(Long folderId, User user, UpdateFolderDto updateFolderDto) {
-        Folder folder = folderRepository.findByIdAndUserId(folderId, user.getId());
+        Folder folder = folderRepository.findByIdAndUser(folderId, user)
+                .orElseThrow(()-> new BusinessException(FolderErrorCode.NOT_FOUND));
         folder.setName(updateFolderDto.getName());
         folder.setColor(updateFolderDto.getColor());
         folderRepository.save(folder);
@@ -103,7 +105,8 @@ public class FolderService {
 
     @Transactional
     public String deleteFolder(Long folderId, User user) {
-        Folder folder = folderRepository.findByIdAndUserId(folderId, user.getId());
+        Folder folder = folderRepository.findByIdAndUser(folderId, user)
+            .orElseThrow(()-> new BusinessException(FolderErrorCode.NOT_FOUND));
         log.info("name: "+folder.getName());
         List<FolderPlace> folderPlaces = folder.getFolderPlaces();
         String folderName = folder.getName();

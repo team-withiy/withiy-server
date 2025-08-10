@@ -8,15 +8,20 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class FolderDto {
     private String name;
     private FolderColor color;
     private SimpleUserDto user;
     private LocalDateTime createdAt;
+
+    @Builder
+    public FolderDto(String name, FolderColor color, SimpleUserDto user, LocalDateTime createdAt) {
+        this.name = name;
+        this.color = color;
+        this.user = user;
+        this.createdAt = createdAt;
+    }
 
     public static FolderDto from(Folder folder){
         return FolderDto.builder()
