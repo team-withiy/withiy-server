@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CoordinateDto {
-    private String longitude; // x 좌표
-    private String latitude; // y 좌표
+
+	private String longitude; // x 좌표
+	private String latitude; // y 좌표
 }

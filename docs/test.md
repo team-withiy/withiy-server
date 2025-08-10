@@ -1,20 +1,21 @@
 ## Spring test 규약
 
 - `JUnit`: Java 단위 test framework
-  - 목적: Code 검증
-  - 사용법: `@Test`, `@BeforeEach` 등 annotation으로 test 구성
+    - 목적: Code 검증
+    - 사용법: `@Test`, `@BeforeEach` 등 annotation으로 test 구성
 - `Mockito`: Mocking library
-  - 목적: 의존성 격리
-  - 사용법: 가짜 객체 생성으로 독립적 test 수행
+    - 목적: 의존성 격리
+    - 사용법: 가짜 객체 생성으로 독립적 test 수행
 - `JaCoCo`: Code coverage 측정 도구
-  - 목적: Test coverage 분석
-  - 사용법: Test 후 coverage report 제공
+    - 목적: Test coverage 분석
+    - 사용법: Test 후 coverage report 제공
 
 ## Spring test 시 debugging
 
 1. `@Slf4j` annotation을 추가한다.
 
 ```java
+
 @Slf4j
 class UserServiceTest {
 ```

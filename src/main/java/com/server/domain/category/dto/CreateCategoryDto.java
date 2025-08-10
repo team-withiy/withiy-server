@@ -1,10 +1,10 @@
 package com.server.domain.category.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 
 @Getter
 @Setter
@@ -12,6 +12,7 @@ import lombok.Builder;
 @AllArgsConstructor
 @Builder
 public class CreateCategoryDto {
-    private String name;
-    private String icon;
+
+	private String name;
+	private String icon;
 }

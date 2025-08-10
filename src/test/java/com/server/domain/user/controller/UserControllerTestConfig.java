@@ -15,16 +15,16 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 @EnableMethodSecurity
 public class UserControllerTestConfig {
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-            HandlerMappingIntrospector introspector) throws Exception {
-        MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http,
+		HandlerMappingIntrospector introspector) throws Exception {
+		MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
 
-        http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(mvcMatcherBuilder.pattern("/api/users/**")).permitAll()
-                        .anyRequest().permitAll());
+		http.csrf(AbstractHttpConfigurer::disable)
+			.authorizeHttpRequests(authorize -> authorize
+				.requestMatchers(mvcMatcherBuilder.pattern("/api/users/**")).permitAll()
+				.anyRequest().permitAll());
 
-        return http.build();
-    }
+		return http.build();
+	}
 }

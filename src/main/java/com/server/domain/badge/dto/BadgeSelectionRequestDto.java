@@ -7,8 +7,9 @@ import lombok.Getter;
 
 @Getter
 public class BadgeSelectionRequestDto {
-    @NotNull
-    private BadgeType badgeType;
 
-    private CharacterType characterType;
+	@NotNull
+	private BadgeType badgeType;
+
+	private CharacterType characterType;
 }

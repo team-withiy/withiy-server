@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @Schema(description = "계정 복구/초기화 요청 DTO")
 public class RestoreAccountDto {
 
-    @Schema(description = "복구 여부 (true: 복구, false: 초기화)", example = "true")
-    private boolean restore;
+	@Schema(description = "복구 여부 (true: 복구, false: 초기화)", example = "true")
+	private boolean restore;
 }

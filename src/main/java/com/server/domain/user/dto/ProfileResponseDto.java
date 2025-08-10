@@ -10,6 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProfileResponseDto {
-    private String nickname;
-    private String thumbnail;
+
+	private String nickname;
+	private String thumbnail;
 }

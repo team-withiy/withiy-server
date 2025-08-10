@@ -1,30 +1,32 @@
 package com.server.domain.event.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
-
-import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class CrawlingEventDto {
-    @JsonProperty("ranking")
-    private int ranking;
 
-    @JsonProperty("genre")
-    private String genre;
+	@JsonProperty("ranking")
+	private int ranking;
 
-    @JsonProperty("title")
-    private String title;
+	@JsonProperty("genre")
+	private String genre;
 
-    @JsonProperty("place")
-    private String place;
+	@JsonProperty("title")
+	private String title;
 
-    @JsonProperty("date")
-    private String date;
+	@JsonProperty("place")
+	private String place;
 
-    @JsonProperty("image")
-    private String image;
+	@JsonProperty("date")
+	private String date;
+
+	@JsonProperty("image")
+	private String image;
 }

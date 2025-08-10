@@ -6,7 +6,8 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FolderRepository extends JpaRepository<Folder, Long> {
-    boolean existsByUserAndName(User user, String folderName);
 
-    Optional<Folder> findByIdAndUser(Long id, User user);
+	boolean existsByUserAndName(User user, String folderName);
+
+	Optional<Folder> findByIdAndUser(Long id, User user);
 }

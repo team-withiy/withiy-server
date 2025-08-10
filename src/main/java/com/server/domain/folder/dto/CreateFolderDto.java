@@ -1,11 +1,11 @@
 package com.server.domain.folder.dto;
 
 import com.server.domain.folder.entity.FolderColor;
-import com.server.domain.user.dto.UserDto;
-import lombok.*;
-import org.joda.time.LocalDateTime;
-
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -13,10 +13,11 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class CreateFolderDto {
-    private String name;
-    private FolderColor color;
 
-    public String getNormalizedName() {
-        return name.trim().toLowerCase();
-    }
+	private String name;
+	private FolderColor color;
+
+	public String getNormalizedName() {
+		return name.trim().toLowerCase();
+	}
 }

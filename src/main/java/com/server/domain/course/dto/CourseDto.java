@@ -1,9 +1,11 @@
 package com.server.domain.course.dto;
 
 import com.server.domain.course.entity.Course;
-import com.server.domain.place.dto.PlaceDto;
-import com.server.domain.place.entity.Place;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -11,11 +13,12 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class CourseDto {
-    private String name;
 
-    public static CourseDto from(Course course){
-        return CourseDto.builder()
-                .name(course.getName())
-                .build();
-    }
+	private String name;
+
+	public static CourseDto from(Course course) {
+		return CourseDto.builder()
+			.name(course.getName())
+			.build();
+	}
 }
