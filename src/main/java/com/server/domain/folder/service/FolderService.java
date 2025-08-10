@@ -107,24 +107,9 @@ public class FolderService {
     public String deleteFolder(Long folderId, User user) {
         Folder folder = folderRepository.findByIdAndUser(folderId, user)
             .orElseThrow(()-> new BusinessException(FolderErrorCode.NOT_FOUND));
-        log.info("name: "+folder.getName());
-        List<FolderPlace> folderPlaces = folder.getFolderPlaces();
-        String folderName = folder.getName();
+        folderPlaceRepository.deleteByFolder(folder);
         folderRepository.delete(folder);
 
-
-        // 삭제된 FolderPlace에 있던 장소들
-        for (FolderPlace fp : folderPlaces) {
-            Long placeId = fp.getPlace().getId();
-
-            // 이 유저가 이 장소를 다른 폴더에도 저장했는지 확인
-            boolean stillSaved = folderPlaceRepository.existsByUserIdAndPlaceId(user.getId(), placeId);
-            log.info("정보: "+stillSaved);
-            if (!stillSaved) {
-                // 다른 폴더에도 저장 안 되어 있으면 bookmark도 삭제
-                placeBookmarkRepository.deleteByUserIdAndPlaceId(user.getId(), placeId);
-            }
-        }
-        return folderName + " deleted.";
+        return folder.getName() + " deleted.";
     }
 }
