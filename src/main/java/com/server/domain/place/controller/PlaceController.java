@@ -96,9 +96,8 @@ public class PlaceController {
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/detail/{placeId}")
 	@Operation(summary = "특정 장소 상세 정보 가져오기", description = "장소 id를 받아 특정 장소 자세한 정보 조회")
-	public ApiResponseDto<GetPlaceDetailResponse> getPlaceDetail(@PathVariable Long placeId,
-		@AuthenticationPrincipal User user) {
-		GetPlaceDetailResponse response = placeFacade.getPlaceDetail(placeId, user);
+	public ApiResponseDto<GetPlaceDetailResponse> getPlaceDetail(@PathVariable Long placeId) {
+		GetPlaceDetailResponse response = placeFacade.getPlaceDetail(placeId);
 
 		return ApiResponseDto.success(HttpStatus.OK.value(), response);
 	}

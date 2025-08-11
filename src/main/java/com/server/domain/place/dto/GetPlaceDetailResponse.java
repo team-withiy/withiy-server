@@ -1,5 +1,6 @@
 package com.server.domain.place.dto;
 
+import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.review.dto.ReviewDto;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,8 +17,8 @@ public class GetPlaceDetailResponse {
 	private Long placeId;
 	@Schema(description = "장소 이름", example = "맥도날드 강남점")
 	private String placeName;
-	@Schema(description = "장소 카테고리", example = "패스트푸드")
-	private String categoryName;
+	@Schema(description = "장소 카테고리 이름")
+	private CategoryDto category;
 	@Schema(description = "장소 주소", example = "서울특별시 강남구 테헤란로 123")
 	private String address;
 	@Schema(description = "장소 위치 정보")
@@ -30,13 +31,13 @@ public class GetPlaceDetailResponse {
 	private List<ReviewDto> reviews;
 
 	@Builder
-	public GetPlaceDetailResponse(Long placeId, String placeName, String categoryName,
+	public GetPlaceDetailResponse(Long placeId, String placeName, CategoryDto category,
 		String address,
 		LocationDto location, Long score,
 		List<PhotoDto> photos, List<ReviewDto> reviews) {
 		this.placeId = placeId;
 		this.placeName = placeName;
-		this.categoryName = categoryName;
+		this.category = category;
 		this.address = address;
 		this.location = location;
 		this.score = score;
