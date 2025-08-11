@@ -88,13 +88,9 @@ public class PlaceController {
 	@Operation(summary = "특정 장소 정보 가져오기", description = "장소 id를 받아 특정 장소 간단한 정보 조회")
 	public ApiResponseDto<PlaceDto> getMapFocusPlaces(@PathVariable Long placeId,
 		@AuthenticationPrincipal User user) {
-		PlaceDto placeDto;
-		if (user == null) {
-			placeDto = placeService.getPlaceSimpleDetail(placeId);
-		} else {
-			placeDto = placeService.getPlaceSimpleDetailAfterLogin(placeId, user.getId());
-		}
-		return ApiResponseDto.success(HttpStatus.OK.value(), placeDto);
+
+		return ApiResponseDto.success(HttpStatus.OK.value(),
+			placeService.getPlaceSimpleDetail(placeId));
 	}
 
 	@ResponseStatus(HttpStatus.OK)

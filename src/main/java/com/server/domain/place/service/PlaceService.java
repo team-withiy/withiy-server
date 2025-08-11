@@ -26,7 +26,6 @@ import com.server.domain.user.entity.User;
 import com.server.domain.user.repository.UserRepository;
 import com.server.global.error.code.CategoryErrorCode;
 import com.server.global.error.code.PlaceErrorCode;
-import com.server.global.error.code.UserErrorCode;
 import com.server.global.error.exception.BusinessException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -78,18 +77,7 @@ public class PlaceService {
 		Place place = placeRepository.findById(placeId)
 			.orElseThrow(() -> new BusinessException(PlaceErrorCode.NOT_FOUND));
 
-		return PlaceDto.from(place, false);
-	}
-
-	@Transactional
-	public PlaceDto getPlaceSimpleDetailAfterLogin(Long placeId, Long userId) {
-		Place place = placeRepository.findById(placeId)
-			.orElseThrow(() -> new BusinessException(PlaceErrorCode.NOT_FOUND));
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new BusinessException(UserErrorCode.NOT_FOUND));
-		boolean isBookmarked = placeBookmarkRepository.existsByPlaceIdAndUserId(place.getId(),
-			user.getId());
-		return PlaceDto.from(place, isBookmarked);
+		return PlaceDto.from(place);
 	}
 
 	@Transactional
@@ -138,10 +126,7 @@ public class PlaceService {
 
 		photoService.saveAll(photos);
 
-		// 8. 북마크 여부 확인 및 DTO 반환
-		boolean isBookmarked = placeBookmarkRepository.existsByPlaceIdAndUserId(place.getId(),
-			user.getId());
-		return PlaceDto.from(place, isBookmarked);
+		return PlaceDto.from(place);
 	}
 
 	@Transactional
@@ -161,10 +146,8 @@ public class PlaceService {
 
 		photoService.saveAll(photos);
 		placeRepository.save(place);
-
-		boolean isBookmarked = placeBookmarkRepository.existsByPlaceIdAndUserId(place.getId(),
-			user.getId());
-		return PlaceDto.from(place, isBookmarked);
+		
+		return PlaceDto.from(place);
 	}
 
 	@Transactional
