@@ -7,9 +7,9 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum CourseErrorCode implements ErrorCode {
-    NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Course not found.");
+	NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Course not found.");
 
 
-    private final int status;
-    private final String message;
+	private final int status;
+	private final String message;
 }

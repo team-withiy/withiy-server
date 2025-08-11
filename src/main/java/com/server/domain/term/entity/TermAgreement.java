@@ -1,11 +1,6 @@
 package com.server.domain.term.entity;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 import com.server.domain.user.entity.User;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -19,6 +14,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -28,29 +26,30 @@ import lombok.NoArgsConstructor;
 @Table(name = "term_agreement")
 @IdClass(TermAgreementId.class)
 public class TermAgreement {
-    @Id
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private User user;
 
-    @Id
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "term_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Term term;
+	@Id
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	private User user;
 
-    @Column(name = "agreed")
-    private boolean agreed;
+	@Id
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "term_id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	private Term term;
 
-    @Builder
-    public TermAgreement(User user, Term term) {
-        this.user = user;
-        this.term = term;
-        this.agreed = false;
-    }
+	@Column(name = "agreed")
+	private boolean agreed;
 
-    public void setAgreed(boolean agreed) {
-        this.agreed = agreed;
-    }
+	@Builder
+	public TermAgreement(User user, Term term) {
+		this.user = user;
+		this.term = term;
+		this.agreed = false;
+	}
+
+	public void setAgreed(boolean agreed) {
+		this.agreed = agreed;
+	}
 }

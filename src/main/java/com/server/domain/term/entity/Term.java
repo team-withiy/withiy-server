@@ -1,7 +1,5 @@
 package com.server.domain.term.entity;
 
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -12,6 +10,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -21,17 +20,14 @@ import lombok.NoArgsConstructor;
 @Table(name = "term")
 public class Term {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
-
-    @Column(name = "title")
-    String title;
-
-    @Column(name = "content")
-    String content;
-
-    @Column(name = "required")
-    boolean required;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id")
+	private Long id;
+	@Column(name = "title")
+	String title;
+	@Column(name = "content")
+	String content;
+	@Column(name = "required")
+	boolean required;
 }

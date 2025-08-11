@@ -1,11 +1,9 @@
 package com.server.domain.map.dto.response;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.server.domain.map.dto.AddressDto;
 import com.server.domain.map.dto.RoadAddressDto;
-
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,147 +14,152 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddressToCoordResponse {
-    private Meta meta;
-    private List<Document> documents;
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Meta {
-        @JsonProperty("total_count")
-        private Integer totalCount;
+	private Meta meta;
+	private List<Document> documents;
 
-        @JsonProperty("pageable_count")
-        private Integer pageableCount;
+	public static AddressDto toAddressDto(Document document) {
+		return AddressDto.builder().addressName(document.getAddressName())
+			.region1DepthName(document.getAddress().getRegion1DepthName())
+			.region2DepthName(document.getAddress().getRegion2DepthName())
+			.region3DepthName(document.getAddress().getRegion3DepthName())
+			.mainAddressNo(document.getAddress().getMainAddressNo())
+			.subAddressNo(document.getAddress().getSubAddressNo())
+			.mountainYn("Y".equals(document.getAddress().getMountainYn()))
+			.coordinates(com.server.domain.map.dto.CoordinateDto.builder()
+				.longitude(document.getX()).latitude(document.getY()).build())
+			.build();
+	}
 
-        @JsonProperty("is_end")
-        private Boolean isEnd;
-    }
+	public static RoadAddressDto toRoadAddressDto(Document document) {
+		if (document.getRoadAddress() == null) {
+			return null;
+		}
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Document {
-        @JsonProperty("address_name")
-        private String addressName;
+		return RoadAddressDto.builder().addressName(document.getRoadAddress().getAddressName())
+			.region1DepthName(document.getRoadAddress().getRegion1DepthName())
+			.region2DepthName(document.getRoadAddress().getRegion2DepthName())
+			.region3DepthName(document.getRoadAddress().getRegion3DepthName())
+			.roadName(document.getRoadAddress().getRoadName())
+			.mainBuildingNo(document.getRoadAddress().getMainBuildingNo())
+			.subBuildingNo(document.getRoadAddress().getSubBuildingNo())
+			.buildingName(document.getRoadAddress().getBuildingName())
+			.zoneNo(document.getRoadAddress().getZoneNo()).build();
+	}
 
-        @JsonProperty("address_type")
-        private String addressType;
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class Meta {
 
-        private String x;
-        private String y;
-        private Address address;
+		@JsonProperty("total_count")
+		private Integer totalCount;
 
-        @JsonProperty("road_address")
-        private RoadAddress roadAddress;
+		@JsonProperty("pageable_count")
+		private Integer pageableCount;
 
-        @Data
-        @Builder
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class Address {
-            @JsonProperty("address_name")
-            private String addressName;
+		@JsonProperty("is_end")
+		private Boolean isEnd;
+	}
 
-            @JsonProperty("region_1depth_name")
-            private String region1DepthName;
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class Document {
 
-            @JsonProperty("region_2depth_name")
-            private String region2DepthName;
+		@JsonProperty("address_name")
+		private String addressName;
 
-            @JsonProperty("region_3depth_name")
-            private String region3DepthName;
+		@JsonProperty("address_type")
+		private String addressType;
 
-            @JsonProperty("region_3depth_h_name")
-            private String region3DepthHName;
+		private String x;
+		private String y;
+		private Address address;
 
-            @JsonProperty("h_code")
-            private String hCode;
+		@JsonProperty("road_address")
+		private RoadAddress roadAddress;
 
-            @JsonProperty("b_code")
-            private String bCode;
+		@Data
+		@Builder
+		@NoArgsConstructor
+		@AllArgsConstructor
+		public static class Address {
 
-            @JsonProperty("mountain_yn")
-            private String mountainYn;
+			@JsonProperty("address_name")
+			private String addressName;
 
-            @JsonProperty("main_address_no")
-            private String mainAddressNo;
+			@JsonProperty("region_1depth_name")
+			private String region1DepthName;
 
-            @JsonProperty("sub_address_no")
-            private String subAddressNo;
+			@JsonProperty("region_2depth_name")
+			private String region2DepthName;
 
-            private String x;
-            private String y;
-        }
+			@JsonProperty("region_3depth_name")
+			private String region3DepthName;
 
-        @Data
-        @Builder
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class RoadAddress {
-            @JsonProperty("address_name")
-            private String addressName;
+			@JsonProperty("region_3depth_h_name")
+			private String region3DepthHName;
 
-            @JsonProperty("region_1depth_name")
-            private String region1DepthName;
+			@JsonProperty("h_code")
+			private String hCode;
 
-            @JsonProperty("region_2depth_name")
-            private String region2DepthName;
+			@JsonProperty("b_code")
+			private String bCode;
 
-            @JsonProperty("region_3depth_name")
-            private String region3DepthName;
+			@JsonProperty("mountain_yn")
+			private String mountainYn;
 
-            @JsonProperty("road_name")
-            private String roadName;
+			@JsonProperty("main_address_no")
+			private String mainAddressNo;
 
-            @JsonProperty("underground_yn")
-            private String undergroundYn;
+			@JsonProperty("sub_address_no")
+			private String subAddressNo;
 
-            @JsonProperty("main_building_no")
-            private String mainBuildingNo;
+			private String x;
+			private String y;
+		}
 
-            @JsonProperty("sub_building_no")
-            private String subBuildingNo;
+		@Data
+		@Builder
+		@NoArgsConstructor
+		@AllArgsConstructor
+		public static class RoadAddress {
 
-            @JsonProperty("building_name")
-            private String buildingName;
+			@JsonProperty("address_name")
+			private String addressName;
 
-            @JsonProperty("zone_no")
-            private String zoneNo;
+			@JsonProperty("region_1depth_name")
+			private String region1DepthName;
 
-            private String x;
-            private String y;
-        }
-    }
+			@JsonProperty("region_2depth_name")
+			private String region2DepthName;
 
-    public static AddressDto toAddressDto(Document document) {
-        return AddressDto.builder().addressName(document.getAddressName())
-                .region1DepthName(document.getAddress().getRegion1DepthName())
-                .region2DepthName(document.getAddress().getRegion2DepthName())
-                .region3DepthName(document.getAddress().getRegion3DepthName())
-                .mainAddressNo(document.getAddress().getMainAddressNo())
-                .subAddressNo(document.getAddress().getSubAddressNo())
-                .mountainYn("Y".equals(document.getAddress().getMountainYn()))
-                .coordinates(com.server.domain.map.dto.CoordinateDto.builder()
-                        .longitude(document.getX()).latitude(document.getY()).build())
-                .build();
-    }
+			@JsonProperty("region_3depth_name")
+			private String region3DepthName;
 
-    public static RoadAddressDto toRoadAddressDto(Document document) {
-        if (document.getRoadAddress() == null) {
-            return null;
-        }
+			@JsonProperty("road_name")
+			private String roadName;
 
-        return RoadAddressDto.builder().addressName(document.getRoadAddress().getAddressName())
-                .region1DepthName(document.getRoadAddress().getRegion1DepthName())
-                .region2DepthName(document.getRoadAddress().getRegion2DepthName())
-                .region3DepthName(document.getRoadAddress().getRegion3DepthName())
-                .roadName(document.getRoadAddress().getRoadName())
-                .mainBuildingNo(document.getRoadAddress().getMainBuildingNo())
-                .subBuildingNo(document.getRoadAddress().getSubBuildingNo())
-                .buildingName(document.getRoadAddress().getBuildingName())
-                .zoneNo(document.getRoadAddress().getZoneNo()).build();
-    }
+			@JsonProperty("underground_yn")
+			private String undergroundYn;
+
+			@JsonProperty("main_building_no")
+			private String mainBuildingNo;
+
+			@JsonProperty("sub_building_no")
+			private String subBuildingNo;
+
+			@JsonProperty("building_name")
+			private String buildingName;
+
+			@JsonProperty("zone_no")
+			private String zoneNo;
+
+			private String x;
+			private String y;
+		}
+	}
 }

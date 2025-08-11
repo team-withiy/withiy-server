@@ -7,9 +7,9 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum PlaceErrorCode implements ErrorCode {
-    NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Place not found.");
+	NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Place not found.");
 
 
-    private final int status;
-    private final String message;
+	private final int status;
+	private final String message;
 }

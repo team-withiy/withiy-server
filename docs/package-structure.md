@@ -38,11 +38,16 @@ src/main/java/com/server/domain/user
     └── UserService.java     # User service class
 ```
 
-- `controller`: `controller` 디렉토리에는 REST API 요청을 처리하는 클래스들이 위치합니다. 예를 들어, `UserController.java`는 사용자 관련 요청을 처리하고, 비즈니스 로직은 서비스 레이어로 위임합니다.
-- `service`: `service` 디렉토리에는 애플리케이션의 핵심 비즈니스 로직을 담은 서비스 클래스가 있습니다. 예를 들어, `UserService.java`는 사용자 관련 비즈니스 로직을 처리하며, 데이터베이스와의 상호작용은 리포지토리를 통해 수행합니다.
-- `repository`: `repository` 디렉토리에는 데이터베이스와 상호작용하는 클래스들이 위치합니다. Spring Data JPA 리포지토리를 사용하여 데이터베이스 CRUD 작업을 수행합니다. 예를 들어, `UserRepository.java`는 JPA를 이용해 사용자 데이터를 관리합니다.
-- `entity`: `entity` 디렉토리에는 JPA 엔티티 클래스가 있으며, 데이터베이스 테이블과 매핑되는 객체들이 포함됩니다. 예를 들어, `User.java`는 사용자 테이블과 매핑된 JPA 엔티티 클래스입니다.
-- `dto`: `dto` 디렉토리에는 데이터 전송 객체(DTO) 클래스들이 위치합니다. DTO는 컨트롤러와 서비스 간, 또는 클라이언트와 서버 간 데이터 전송에 사용됩니다. 예를 들어, `UserDto.java`는 사용자 데이터의 전송을 위한 객체입니다.
+- `controller`: `controller` 디렉토리에는 REST API 요청을 처리하는 클래스들이 위치합니다. 예를 들어, `UserController.java`는 사용자
+  관련 요청을 처리하고, 비즈니스 로직은 서비스 레이어로 위임합니다.
+- `service`: `service` 디렉토리에는 애플리케이션의 핵심 비즈니스 로직을 담은 서비스 클래스가 있습니다. 예를 들어, `UserService.java`는 사용자
+  관련 비즈니스 로직을 처리하며, 데이터베이스와의 상호작용은 리포지토리를 통해 수행합니다.
+- `repository`: `repository` 디렉토리에는 데이터베이스와 상호작용하는 클래스들이 위치합니다. Spring Data JPA 리포지토리를 사용하여 데이터베이스
+  CRUD 작업을 수행합니다. 예를 들어, `UserRepository.java`는 JPA를 이용해 사용자 데이터를 관리합니다.
+- `entity`: `entity` 디렉토리에는 JPA 엔티티 클래스가 있으며, 데이터베이스 테이블과 매핑되는 객체들이 포함됩니다. 예를 들어, `User.java`는 사용자
+  테이블과 매핑된 JPA 엔티티 클래스입니다.
+- `dto`: `dto` 디렉토리에는 데이터 전송 객체(DTO) 클래스들이 위치합니다. DTO는 컨트롤러와 서비스 간, 또는 클라이언트와 서버 간 데이터 전송에 사용됩니다. 예를
+  들어, `UserDto.java`는 사용자 데이터의 전송을 위한 객체입니다.
 
 #### `UserController.java`
 

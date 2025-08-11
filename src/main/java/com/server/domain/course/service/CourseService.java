@@ -9,7 +9,6 @@ import com.server.domain.course.entity.CourseImage;
 import com.server.domain.course.repository.CourseBookmarkRepository;
 import com.server.domain.course.repository.CoursePlaceRepository;
 import com.server.domain.course.repository.CourseRepository;
-
 import com.server.domain.place.entity.Place;
 import com.server.domain.search.dto.BookmarkedCourseDto;
 import com.server.domain.user.entity.User;
@@ -18,13 +17,12 @@ import com.server.global.error.code.CourseErrorCode;
 import com.server.global.error.exception.BusinessException;
 import com.server.global.service.ImageService;
 import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -32,10 +30,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CourseService {
 
-        private final CourseRepository courseRepository;
-        private final CourseBookmarkRepository courseBookmarkRepository;
-        private final CoursePlaceRepository coursePlaceRepository;
-        private final ImageService imageService;
+	private final CourseRepository courseRepository;
+	private final CourseBookmarkRepository courseBookmarkRepository;
+	private final CoursePlaceRepository coursePlaceRepository;
+	private final ImageService imageService;
 
 /*        @Transactional
         public CourseDetailDto getCourseDetail(Long courseId) {
@@ -69,83 +67,83 @@ public class CourseService {
                                 .placeDetailDtos(placeDetails).build();
         }*/
 
-        /**
-         * 코스 이미지 업로드
-         * 
-         * @param courseId 코스 ID
-         * @param file 업로드할 이미지 파일
-         * @return 업로드된 이미지 정보
-         */
-        @Transactional
-        public CourseImageDto uploadCourseImage(Long courseId, MultipartFile file) {
-                Course course = courseRepository.findById(courseId).orElseThrow(
-                                () -> new BusinessException(CourseErrorCode.NOT_FOUND));
+	/**
+	 * 코스 이미지 업로드
+	 *
+	 * @param courseId 코스 ID
+	 * @param file     업로드할 이미지 파일
+	 * @return 업로드된 이미지 정보
+	 */
+	@Transactional
+	public CourseImageDto uploadCourseImage(Long courseId, MultipartFile file) {
+		Course course = courseRepository.findById(courseId).orElseThrow(
+			() -> new BusinessException(CourseErrorCode.NOT_FOUND));
 
-                // 공통 이미지 서비스를 사용하여 이미지 업로드
-                ImageResponseDto imageResponseDto =
-                                imageService.uploadImage(file, "course", courseId);
+		// 공통 이미지 서비스를 사용하여 이미지 업로드
+		ImageResponseDto imageResponseDto =
+			imageService.uploadImage(file, "course", courseId);
 
-                // 코스 이미지 엔티티 생성 및 저장
-                CourseImage courseImage = new CourseImage();
-                courseImage.setImageUrl(imageResponseDto.getImageUrl());
-                courseImage.setCourse(course);
+		// 코스 이미지 엔티티 생성 및 저장
+		CourseImage courseImage = new CourseImage();
+		courseImage.setImageUrl(imageResponseDto.getImageUrl());
+		courseImage.setCourse(course);
 
 //                course.getCourseImages().add(courseImage);
-                courseRepository.save(course);
+		courseRepository.save(course);
 
-                log.info("Course image uploaded for course ID {}: {}", courseId,
-                                imageResponseDto.getImageUrl());
+		log.info("Course image uploaded for course ID {}: {}", courseId,
+			imageResponseDto.getImageUrl());
 
-                return CourseImageDto.builder().imageUrl(courseImage.getImageUrl()).build();
-        }
+		return CourseImageDto.builder().imageUrl(courseImage.getImageUrl()).build();
+	}
 
-        @Transactional
-        public List<BookmarkedCourseDto> getBookmarkedCourses(User user) {
-                return courseBookmarkRepository.findByUserWithCourse(user).stream()
-                        .map(CourseBookmark::getCourse)
-                        .map(BookmarkedCourseDto::from)
-                        .collect(Collectors.toList());
-        }
+	@Transactional
+	public List<BookmarkedCourseDto> getBookmarkedCourses(User user) {
+		return courseBookmarkRepository.findByUserWithCourse(user).stream()
+			.map(CourseBookmark::getCourse)
+			.map(BookmarkedCourseDto::from)
+			.collect(Collectors.toList());
+	}
 
-        /**
-         * 코스 검색
-         *
-         * @param keyword 검색 키워드
-         * @param user 사용자 정보
-         * @return 검색된 코스 목록
-         */
-        @Transactional
-        public List<CourseDto> searchCoursesByKeyword(String keyword, User user) {
-                List<Course> courses = courseRepository.findByNameContainingIgnoreCase(keyword);
-                return courses.stream()
-                    .map(CourseDto::from)
-                    .collect(Collectors.toList());
-        }
+	/**
+	 * 코스 검색
+	 *
+	 * @param keyword 검색 키워드
+	 * @param user    사용자 정보
+	 * @return 검색된 코스 목록
+	 */
+	@Transactional
+	public List<CourseDto> searchCoursesByKeyword(String keyword, User user) {
+		List<Course> courses = courseRepository.findByNameContainingIgnoreCase(keyword);
+		return courses.stream()
+			.map(CourseDto::from)
+			.collect(Collectors.toList());
+	}
 
-        public List<Course> getActiveCoursesByKeyword(String keyword) {
-                if (keyword == null || keyword.isEmpty()) {
-                        return courseRepository.findCoursesByStatus(CourseStatus.ACTIVE);
-                } else {
-                        return courseRepository.findCoursesByStatusAndKeyword(CourseStatus.ACTIVE, keyword);
-                }
-        }
+	public List<Course> getActiveCoursesByKeyword(String keyword) {
+		if (keyword == null || keyword.isEmpty()) {
+			return courseRepository.findCoursesByStatus(CourseStatus.ACTIVE);
+		} else {
+			return courseRepository.findCoursesByStatusAndKeyword(CourseStatus.ACTIVE, keyword);
+		}
+	}
 
-        @Transactional
-        public long getBookmarkCount(Course course) {
-                return courseBookmarkRepository.countByCourseAndNotDeleted(course);
-        }
+	@Transactional
+	public long getBookmarkCount(Course course) {
+		return courseBookmarkRepository.countByCourseAndNotDeleted(course);
+	}
 
-        public List<Place> getPlacesInCourse(Course course) {
-                return coursePlaceRepository.findPlacesByCourse(course);
-        }
+	public List<Place> getPlacesInCourse(Course course) {
+		return coursePlaceRepository.findPlacesByCourse(course);
+	}
 
-        /**
-         * 코스 대표 이미지(썸네일) 업데이트
-         * 
-         * @param courseId 코스 ID
-         * @param file 업로드할 이미지 파일
-         * @return 업데이트된 코스 정보
-         */
+	/**
+	 * 코스 대표 이미지(썸네일) 업데이트
+	 *
+	 * @param courseId 코스 ID
+	 * @param file 업로드할 이미지 파일
+	 * @return 업데이트된 코스 정보
+	 */
         /*@Transactional
         public CourseDetailDto updateCourseThumbnail(Long courseId, MultipartFile file) {
                 Course course = courseRepository.findById(courseId).orElseThrow(

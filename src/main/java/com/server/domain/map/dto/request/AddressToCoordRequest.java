@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddressToCoordRequest {
-    private String query; // 검색할 주소
-    private String analyzeType; // 검색 결과 제공 방식 (similar, exact)
+
+	private String query; // 검색할 주소
+	private String analyzeType; // 검색 결과 제공 방식 (similar, exact)
 }

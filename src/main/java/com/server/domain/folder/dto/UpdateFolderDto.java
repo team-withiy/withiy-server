@@ -1,7 +1,11 @@
 package com.server.domain.folder.dto;
 
 import com.server.domain.folder.entity.FolderColor;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -9,6 +13,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class UpdateFolderDto {
-    private String name;
-    private FolderColor color;
+
+	private String name;
+	private FolderColor color;
 }

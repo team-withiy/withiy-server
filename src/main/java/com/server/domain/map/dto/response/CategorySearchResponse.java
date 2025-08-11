@@ -1,11 +1,9 @@
 package com.server.domain.map.dto.response;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.server.domain.map.dto.PlaceDto;
 import com.server.domain.map.dto.CoordinateDto;
-
+import com.server.domain.map.dto.PlaceDto;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,75 +16,78 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Slf4j
 public class CategorySearchResponse {
-    private Meta meta;
-    private List<Document> documents;
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Meta {
-        @JsonProperty("pageable_count")
-        private Integer pageableCount;
+	private Meta meta;
+	private List<Document> documents;
 
-        @JsonProperty("total_count")
-        private Integer totalCount;
+	public static PlaceDto toPlaceDto(Document document) {
+		return PlaceDto.builder().id(document.getId()).placeName(document.getPlaceName())
+			.categoryName(document.getCategoryName())
+			.categoryGroupCode(document.getCategoryGroupCode())
+			.categoryGroupName(document.getCategoryGroupName()).phone(document.getPhone())
+			.addressName(document.getAddressName())
+			.roadAddressName(document.getRoadAddressName()).placeUrl(document.getPlaceUrl())
+			.distance(document.getDistance()).coordinates(CoordinateDto.builder()
+				.longitude(document.getX()).latitude(document.getY()).build())
+			.build();
+	}
 
-        @JsonProperty("is_end")
-        private Boolean isEnd;
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class Meta {
 
-        @JsonProperty("same_name")
-        private Object sameName; // null이 올 수 있음
-    }
+		@JsonProperty("pageable_count")
+		private Integer pageableCount;
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Document {
-        private String id; // 장소 ID
+		@JsonProperty("total_count")
+		private Integer totalCount;
 
-        @JsonProperty("place_name")
-        private String placeName; // 장소명, 업체명
+		@JsonProperty("is_end")
+		private Boolean isEnd;
 
-        @JsonProperty("category_name")
-        private String categoryName; // 카테고리 이름
+		@JsonProperty("same_name")
+		private Object sameName; // null이 올 수 있음
+	}
 
-        @JsonProperty("category_group_code")
-        private String categoryGroupCode; // 중요 카테고리 그룹 코드
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class Document {
 
-        @JsonProperty("category_group_name")
-        private String categoryGroupName; // 중요 카테고리 그룹명
+		private String id; // 장소 ID
 
-        private String phone; // 전화번호
+		@JsonProperty("place_name")
+		private String placeName; // 장소명, 업체명
 
-        @JsonProperty("address_name")
-        private String addressName; // 전체 지번 주소
+		@JsonProperty("category_name")
+		private String categoryName; // 카테고리 이름
 
-        @JsonProperty("road_address_name")
-        private String roadAddressName; // 전체 도로명 주소
+		@JsonProperty("category_group_code")
+		private String categoryGroupCode; // 중요 카테고리 그룹 코드
 
-        @JsonProperty("x")
-        private String x; // X 좌표, 경위도인 경우 경도(longitude)
+		@JsonProperty("category_group_name")
+		private String categoryGroupName; // 중요 카테고리 그룹명
 
-        @JsonProperty("y")
-        private String y; // Y 좌표, 경위도인 경우 위도(latitude)
+		private String phone; // 전화번호
 
-        @JsonProperty("place_url")
-        private String placeUrl; // 장소 상세페이지 URL
+		@JsonProperty("address_name")
+		private String addressName; // 전체 지번 주소
 
-        private String distance; // 중심좌표까지의 거리
-    }
+		@JsonProperty("road_address_name")
+		private String roadAddressName; // 전체 도로명 주소
 
-    public static PlaceDto toPlaceDto(Document document) {
-        return PlaceDto.builder().id(document.getId()).placeName(document.getPlaceName())
-                .categoryName(document.getCategoryName())
-                .categoryGroupCode(document.getCategoryGroupCode())
-                .categoryGroupName(document.getCategoryGroupName()).phone(document.getPhone())
-                .addressName(document.getAddressName())
-                .roadAddressName(document.getRoadAddressName()).placeUrl(document.getPlaceUrl())
-                .distance(document.getDistance()).coordinates(CoordinateDto.builder()
-                        .longitude(document.getX()).latitude(document.getY()).build())
-                .build();
-    }
+		@JsonProperty("x")
+		private String x; // X 좌표, 경위도인 경우 경도(longitude)
+
+		@JsonProperty("y")
+		private String y; // Y 좌표, 경위도인 경우 위도(latitude)
+
+		@JsonProperty("place_url")
+		private String placeUrl; // 장소 상세페이지 URL
+
+		private String distance; // 중심좌표까지의 거리
+	}
 }

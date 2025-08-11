@@ -6,5 +6,5 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Configuration
 @EnableScheduling
 public class SchedulerConfig {
-    // This configuration enables Spring's scheduling capabilities
+	// This configuration enables Spring's scheduling capabilities
 }

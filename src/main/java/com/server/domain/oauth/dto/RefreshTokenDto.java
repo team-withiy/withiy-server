@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Refresh token request DTO")
 public class RefreshTokenDto {
 
-    @Schema(description = "Refresh token", example = "dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4...")
-    private String refreshToken;
+	@Schema(description = "Refresh token", example = "dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4...")
+	private String refreshToken;
 }

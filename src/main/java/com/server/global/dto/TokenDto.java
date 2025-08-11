@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Token data transfer object")
 public class TokenDto {
 
-    @Schema(description = "Access token", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
-    private String accessToken;
+	@Schema(description = "Access token", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+	private String accessToken;
 
-    @Schema(description = "Refresh token", example = "dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4...")
-    private String refreshToken;
+	@Schema(description = "Refresh token", example = "dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4...")
+	private String refreshToken;
 
 }

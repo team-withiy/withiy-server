@@ -9,30 +9,29 @@ import com.server.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class AlbumService {
-    private final PlaceAlbumRepository placeAlbumRepository;
-    private final AlbumRepository albumRepository;
 
-    public Album save(Place place, Album album) {
-        placeAlbumRepository.save(new PlaceAlbum(album, place));
-        return albumRepository.save(album);
-    }
+	private final PlaceAlbumRepository placeAlbumRepository;
+	private final AlbumRepository albumRepository;
 
-    public Album getAlbumByPlace(Place place) {
-        return placeAlbumRepository.findByPlace(place)
-            .map(PlaceAlbum::getAlbum)
-            .orElse(null);
-    }
+	public Album save(Place place, Album album) {
+		placeAlbumRepository.save(new PlaceAlbum(album, place));
+		return albumRepository.save(album);
+	}
 
-    public Album setDefaultAlbum(Place savedPlace, User user) {
-        Album album = Album.builder()
-            .title(savedPlace.getName())
-            .user(user)
-            .build();
-        return save(savedPlace, album);
-    }
+	public Album getAlbumByPlace(Place place) {
+		return placeAlbumRepository.findByPlace(place)
+			.map(PlaceAlbum::getAlbum)
+			.orElse(null);
+	}
+
+	public Album setDefaultAlbum(Place savedPlace, User user) {
+		Album album = Album.builder()
+			.title(savedPlace.getName())
+			.user(user)
+			.build();
+		return save(savedPlace, album);
+	}
 }

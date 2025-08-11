@@ -13,97 +13,98 @@ import com.server.domain.course.service.CourseService;
 import com.server.domain.photo.service.PhotoService;
 import com.server.domain.place.entity.Place;
 import com.server.domain.place.service.PlaceService;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AdminFacade {
-    private final PlaceService placeService;
-    private final CategoryService categoryService;
-    private final AlbumService albumService;
-    private final PhotoService photoService;
-    private final CourseService courseService;
 
-    @Transactional(readOnly = true)
-    public ActiveContentsResponse getActiveContents(String categoryName, String keyword) {
+	private final PlaceService placeService;
+	private final CategoryService categoryService;
+	private final AlbumService albumService;
+	private final PhotoService photoService;
+	private final CourseService courseService;
 
-        // 카테고리 이름으로 카테고리 조회
-        Category category = categoryService.getCategoryByName(categoryName);
+	@Transactional(readOnly = true)
+	public ActiveContentsResponse getActiveContents(String categoryName, String keyword) {
 
-        // 카테고리와 키워드로 활성화된 장소 조회
-        List<Place> places = placeService.getActivePlacesByCategoryAndKeyword(category, keyword);
+		// 카테고리 이름으로 카테고리 조회
+		Category category = categoryService.getCategoryByName(categoryName);
 
-        // ActivePlaceDto 리스트 생성
-        List<ActivePlaceDto> activePlaces = getActivePlaces(places, category);
+		// 카테고리와 키워드로 활성화된 장소 조회
+		List<Place> places = placeService.getActivePlacesByCategoryAndKeyword(category, keyword);
 
-        // ActiveCourseDto 리스트 생성
-        List<ActiveCourseDto> activeCourses = getActiveCourses(keyword);
+		// ActivePlaceDto 리스트 생성
+		List<ActivePlaceDto> activePlaces = getActivePlaces(places, category);
 
-        // ActiveContentsResponse
-        return ActiveContentsResponse.builder()
-                .places(activePlaces)
-                .courses(activeCourses)
-                .build();
-    }
+		// ActiveCourseDto 리스트 생성
+		List<ActiveCourseDto> activeCourses = getActiveCourses(keyword);
 
-    private List<ActiveCourseDto> getActiveCourses(String keyword) {
-        return courseService.getActiveCoursesByKeyword(keyword)
-            .stream()
-            .map(this::convertToActiveCourseDto)
-            .toList();
-    }
+		// ActiveContentsResponse
+		return ActiveContentsResponse.builder()
+			.places(activePlaces)
+			.courses(activeCourses)
+			.build();
+	}
 
-    private ActiveCourseDto convertToActiveCourseDto(Course course) {
-        List<String> placeNames = new ArrayList<>();
-        List<String> photoUrls = new ArrayList<>();
-        List<Place> places = courseService.getPlacesInCourse(course);
+	private List<ActiveCourseDto> getActiveCourses(String keyword) {
+		return courseService.getActiveCoursesByKeyword(keyword)
+			.stream()
+			.map(this::convertToActiveCourseDto)
+			.toList();
+	}
 
-        for (Place place : places) {
-            placeNames.add(place.getName());
-            Album album = albumService.getAlbumByPlace(place);
-            if (album != null) {
-                photoUrls.addAll(photoService.getPhotoUrls(album));
-            }
-        }
+	private ActiveCourseDto convertToActiveCourseDto(Course course) {
+		List<String> placeNames = new ArrayList<>();
+		List<String> photoUrls = new ArrayList<>();
+		List<Place> places = courseService.getPlacesInCourse(course);
 
-        return ActiveCourseDto.builder()
-            .courseId(course.getId())
-            .courseName(course.getName())
-            .placeNames(placeNames)
-            .bookmarkCount(courseService.getBookmarkCount(course))
-            .photoUrls(photoUrls)
-            .build();
-    }
+		for (Place place : places) {
+			placeNames.add(place.getName());
+			Album album = albumService.getAlbumByPlace(place);
+			if (album != null) {
+				photoUrls.addAll(photoService.getPhotoUrls(album));
+			}
+		}
 
-    List<ActivePlaceDto> getActivePlaces(List<Place> places, Category category) {
-        // 각 Place에 대해 북마크 수, 좋아요 수, 이미지 URL 목록을 조회하여 ActivePlaceDto 생성
-        List<ActivePlaceDto> activePlaces = new ArrayList<>();
-        for( Place place : places) {
-            long bookmarkCount  = placeService.getBookmarkCount(place);
-            long score = place.getScore();
+		return ActiveCourseDto.builder()
+			.courseId(course.getId())
+			.courseName(course.getName())
+			.placeNames(placeNames)
+			.bookmarkCount(courseService.getBookmarkCount(course))
+			.photoUrls(photoUrls)
+			.build();
+	}
 
-            // 사진 URL 목록 조회
-            Album album = albumService.getAlbumByPlace(place);
-            List<String> photoUrls = (album != null) ? photoService.getPhotoUrls(album) : new ArrayList<>();
+	List<ActivePlaceDto> getActivePlaces(List<Place> places, Category category) {
+		// 각 Place에 대해 북마크 수, 좋아요 수, 이미지 URL 목록을 조회하여 ActivePlaceDto 생성
+		List<ActivePlaceDto> activePlaces = new ArrayList<>();
+		for (Place place : places) {
+			long bookmarkCount = placeService.getBookmarkCount(place);
+			long score = place.getScore();
 
-            activePlaces.add(ActivePlaceDto.builder()
-                .placeId(place.getId())
-                .placeName(place.getName())
-                .placeAddress(place.getAddress())
-                .createdByAdmin(place.isCreatedByAdmin())
-                .bookmarkCount(bookmarkCount)
-                .score(score)
-                .photoUrls(photoUrls)
-                .placeCategory(CategoryDto.from(category))
-                .build());
-        }
-        return activePlaces;
-    }
+			// 사진 URL 목록 조회
+			Album album = albumService.getAlbumByPlace(place);
+			List<String> photoUrls =
+				(album != null) ? photoService.getPhotoUrls(album) : new ArrayList<>();
+
+			activePlaces.add(ActivePlaceDto.builder()
+				.placeId(place.getId())
+				.placeName(place.getName())
+				.placeAddress(place.getAddress())
+				.createdByAdmin(place.isCreatedByAdmin())
+				.bookmarkCount(bookmarkCount)
+				.score(score)
+				.photoUrls(photoUrls)
+				.placeCategory(CategoryDto.from(category))
+				.build());
+		}
+		return activePlaces;
+	}
 }

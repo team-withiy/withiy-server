@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CoordToAddressRequest {
-    private String x; // 경도(longitude)
-    private String y; // 위도(latitude)
-    private String inputCoord; // 입력 좌표계
+
+	private String x; // 경도(longitude)
+	private String y; // 위도(latitude)
+	private String inputCoord; // 입력 좌표계
 }

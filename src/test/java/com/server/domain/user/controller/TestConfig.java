@@ -6,5 +6,5 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EntityScan("com.server")
 public class TestConfig {
-    // This class enables JPA entity scanning for our tests
+	// This class enables JPA entity scanning for our tests
 }

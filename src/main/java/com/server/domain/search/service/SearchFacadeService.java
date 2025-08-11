@@ -4,53 +4,59 @@ import com.server.domain.course.dto.CourseDto;
 import com.server.domain.course.service.CourseService;
 import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.service.PlaceService;
-import com.server.domain.search.dto.*;
+import com.server.domain.search.dto.BookmarkedCourseDto;
+import com.server.domain.search.dto.BookmarkedPlaceDto;
+import com.server.domain.search.dto.SearchHistoryDto;
+import com.server.domain.search.dto.SearchRequestDto;
+import com.server.domain.search.dto.SearchResponseDto;
+import com.server.domain.search.dto.SearchSource;
 import com.server.domain.user.entity.User;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class SearchFacadeService {
-    private final SearchService searchService;
-    private final PlaceService placeService;
-    private final CourseService courseService;
 
-    public SearchResponseDto search(User user, SearchRequestDto searchRequestDto) {
+	private final SearchService searchService;
+	private final PlaceService placeService;
+	private final CourseService courseService;
 
-        String keyword = searchRequestDto.getKeyword();
+	public SearchResponseDto search(User user, SearchRequestDto searchRequestDto) {
 
-        if(keyword == null || keyword.isBlank()){ // 검색어가 비어있을 경우 최근 검색어, 저장된 장소, 저장된 코스 반환
-            return searchIfKeywordIsBlank(user);
-        } else { // 검색어가 비어있지 않을 경우,
-            return searchIfKeywordIsNotBlank(user, searchRequestDto);
-        }
-    }
+		String keyword = searchRequestDto.getKeyword();
 
-    private SearchResponseDto searchIfKeywordIsNotBlank(User user, SearchRequestDto searchRequestDto) {
-        String keyword = searchRequestDto.getKeyword();
-        SearchSource source = searchRequestDto.getSource();
+		if (keyword == null || keyword.isBlank()) { // 검색어가 비어있을 경우 최근 검색어, 저장된 장소, 저장된 코스 반환
+			return searchIfKeywordIsBlank(user);
+		} else { // 검색어가 비어있지 않을 경우,
+			return searchIfKeywordIsNotBlank(user, searchRequestDto);
+		}
+	}
 
-        List<PlaceDto> searchPlaces = placeService.searchPlacesByKeyword(source, keyword, user);
-        List<CourseDto> searchCourses  = courseService.searchCoursesByKeyword(keyword, user);
-        return SearchResponseDto.builder()
-            .searchPlaces(searchPlaces)
-            .searchCourses(searchCourses)
-            .build();
-    }
+	private SearchResponseDto searchIfKeywordIsNotBlank(User user,
+		SearchRequestDto searchRequestDto) {
+		String keyword = searchRequestDto.getKeyword();
+		SearchSource source = searchRequestDto.getSource();
 
-    private SearchResponseDto searchIfKeywordIsBlank(User user) {
-        // 최근 검색어 조회
-        List<SearchHistoryDto> recentKeywords = searchService.getRecentSearchHistory(user);
-        List<BookmarkedPlaceDto> bookmarkedPlaces = placeService.getBookmarkedPlaces(user);
-        List<BookmarkedCourseDto> bookmarkedCourses = courseService.getBookmarkedCourses(user);
+		List<PlaceDto> searchPlaces = placeService.searchPlacesByKeyword(source, keyword, user);
+		List<CourseDto> searchCourses = courseService.searchCoursesByKeyword(keyword, user);
+		return SearchResponseDto.builder()
+			.searchPlaces(searchPlaces)
+			.searchCourses(searchCourses)
+			.build();
+	}
 
-        return SearchResponseDto.builder()
-                .recentKeywords(recentKeywords)
-                .bookmarkedPlaces(bookmarkedPlaces)
-                .bookmarkedCourses(bookmarkedCourses)
-                .build();
-    }
+	private SearchResponseDto searchIfKeywordIsBlank(User user) {
+		// 최근 검색어 조회
+		List<SearchHistoryDto> recentKeywords = searchService.getRecentSearchHistory(user);
+		List<BookmarkedPlaceDto> bookmarkedPlaces = placeService.getBookmarkedPlaces(user);
+		List<BookmarkedCourseDto> bookmarkedCourses = courseService.getBookmarkedCourses(user);
+
+		return SearchResponseDto.builder()
+			.recentKeywords(recentKeywords)
+			.bookmarkedPlaces(bookmarkedPlaces)
+			.bookmarkedCourses(bookmarkedCourses)
+			.build();
+	}
 }
