@@ -24,26 +24,7 @@ public class PlaceDto {
 	private String region2depth;
 	private String region3depth;
 	private CategoryDto category;
-	private boolean isBookmarked;
 	private Long score;
-
-
-	public static PlaceDto from(Place place, boolean isBookmarked) {
-
-		return PlaceDto.builder()
-			.id(place.getId())
-			.name(place.getName())
-			.address(place.getAddress())
-			.latitude(place.getLatitude())
-			.longitude(place.getLongitude())
-			.region1depth(place.getRegion1depth())
-			.region2depth(place.getRegion2depth())
-			.region3depth(place.getRegion3depth())
-			.category(CategoryDto.from(place.getCategory()))
-			.isBookmarked(isBookmarked)
-			.score(place.getScore())
-			.build();
-	}
 
 	public static PlaceDto from(Place place) {
 
@@ -60,5 +41,4 @@ public class PlaceDto {
 			.score(place.getScore())
 			.build();
 	}
-
 }
