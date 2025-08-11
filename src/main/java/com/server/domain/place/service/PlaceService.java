@@ -146,7 +146,7 @@ public class PlaceService {
 
 		photoService.saveAll(photos);
 		placeRepository.save(place);
-		
+
 		return PlaceDto.from(place);
 	}
 
@@ -249,7 +249,9 @@ public class PlaceService {
 		return placeBookmarkRepository.countByPlaceAndNotDeleted(place);
 	}
 
-	public boolean isBookmarked(Place place, User user) {
-		return user != null && placeBookmarkRepository.existsByPlaceAndUser(place, user);
+	public boolean isBookmarked(Long placeId, User user) {
+		Place place = placeRepository.findById(placeId)
+			.orElseThrow(() -> new BusinessException(PlaceErrorCode.NOT_FOUND));
+		return placeBookmarkRepository.existsByPlaceAndUser(place, user);
 	}
 }
