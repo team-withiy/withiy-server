@@ -2,6 +2,7 @@ package com.server.domain.place.service;
 
 import com.server.domain.album.entity.Album;
 import com.server.domain.album.service.AlbumService;
+import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.service.CategoryService;
 import com.server.domain.photo.dto.PhotoDto;
@@ -57,7 +58,7 @@ public class PlaceFacade {
 	}
 
 	@Transactional(readOnly = true)
-	public GetPlaceDetailResponse getPlaceDetail(Long placeId, User user) {
+	public GetPlaceDetailResponse getPlaceDetail(Long placeId) {
 
 		Place place = placeService.findById(placeId);
 
@@ -91,7 +92,7 @@ public class PlaceFacade {
 		return GetPlaceDetailResponse.builder()
 			.placeId(place.getId())
 			.placeName(place.getName())
-			.categoryName(place.getCategory().getName())
+			.category(CategoryDto.from(place.getCategory()))
 			.address(place.getAddress())
 			.location(location)
 			.score(place.getScore())

@@ -88,21 +88,16 @@ public class PlaceController {
 	@Operation(summary = "특정 장소 정보 가져오기", description = "장소 id를 받아 특정 장소 간단한 정보 조회")
 	public ApiResponseDto<PlaceDto> getMapFocusPlaces(@PathVariable Long placeId,
 		@AuthenticationPrincipal User user) {
-		PlaceDto placeDto;
-		if (user == null) {
-			placeDto = placeService.getPlaceSimpleDetail(placeId);
-		} else {
-			placeDto = placeService.getPlaceSimpleDetailAfterLogin(placeId, user.getId());
-		}
-		return ApiResponseDto.success(HttpStatus.OK.value(), placeDto);
+
+		return ApiResponseDto.success(HttpStatus.OK.value(),
+			placeService.getPlaceSimpleDetail(placeId));
 	}
 
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/detail/{placeId}")
 	@Operation(summary = "특정 장소 상세 정보 가져오기", description = "장소 id를 받아 특정 장소 자세한 정보 조회")
-	public ApiResponseDto<GetPlaceDetailResponse> getPlaceDetail(@PathVariable Long placeId,
-		@AuthenticationPrincipal User user) {
-		GetPlaceDetailResponse response = placeFacade.getPlaceDetail(placeId, user);
+	public ApiResponseDto<GetPlaceDetailResponse> getPlaceDetail(@PathVariable Long placeId) {
+		GetPlaceDetailResponse response = placeFacade.getPlaceDetail(placeId);
 
 		return ApiResponseDto.success(HttpStatus.OK.value(), response);
 	}
@@ -126,7 +121,15 @@ public class PlaceController {
 	public ApiResponseDto<String> deletePlace(@PathVariable Long placeId) {
 		String result = placeService.deletePlace(placeId);
 		return ApiResponseDto.success(HttpStatus.OK.value(), result);
-
 	}
 
+	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+	@ResponseStatus(HttpStatus.OK)
+	@GetMapping("/{placeId}/bookmark")
+	@Operation(summary = "장소 북마크 여부 조회", description = "장소 id를 받아 사용자가 해당 장소를 북마크했는지 여부 조회")
+	public ApiResponseDto<Boolean> isBookmarked(@PathVariable Long placeId,
+		@AuthenticationPrincipal User user) {
+		Boolean isBookmarked = placeService.isBookmarked(placeId, user);
+		return ApiResponseDto.success(HttpStatus.OK.value(), isBookmarked);
+	}
 }
