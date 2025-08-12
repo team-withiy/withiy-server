@@ -5,6 +5,7 @@ import com.server.domain.album.service.AlbumService;
 import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.service.CategoryService;
+import com.server.domain.folder.dto.PlaceSummaryDto;
 import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.service.PhotoService;
@@ -99,5 +100,20 @@ public class PlaceFacade {
 			.photos(photos)
 			.reviews(reviews)
 			.build();
+	}
+
+	@Transactional(readOnly = true)
+	public List<PlaceSummaryDto> getPlaceSummariesByFolderId(Long folderId) {
+		List<Place> places = placeService.getPlacesByFolderId(folderId);
+		return places.stream()
+			.map(place -> {
+				Album album = albumService.getAlbumByPlace(place);
+				List<String> imageUrls = photoService.getPhotosByAlbum(album)
+					.stream()
+					.map(photo -> photo.getImgUrl())
+					.toList();
+				return PlaceSummaryDto.from(place, imageUrls);
+			})
+			.toList();
 	}
 }

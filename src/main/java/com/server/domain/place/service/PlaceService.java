@@ -5,6 +5,7 @@ import com.server.domain.album.service.AlbumService;
 import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.repository.CategoryRepository;
+import com.server.domain.folder.repository.FolderPlaceRepository;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.service.PhotoService;
 import com.server.domain.place.dto.CreatePlaceByUserDto;
@@ -23,7 +24,6 @@ import com.server.domain.review.service.ReviewService;
 import com.server.domain.search.dto.BookmarkedPlaceDto;
 import com.server.domain.search.dto.SearchSource;
 import com.server.domain.user.entity.User;
-import com.server.domain.user.repository.UserRepository;
 import com.server.global.error.code.CategoryErrorCode;
 import com.server.global.error.code.PlaceErrorCode;
 import com.server.global.error.exception.BusinessException;
@@ -41,7 +41,7 @@ public class PlaceService {
 
 	private final PlaceRepository placeRepository;
 	private final PlaceBookmarkRepository placeBookmarkRepository;
-	private final UserRepository userRepository;
+	private final FolderPlaceRepository folderPlaceRepository;
 	private final CategoryRepository categoryRepository;
 	private final ReviewService reviewService;
 	private final AlbumService albumService;
@@ -253,5 +253,9 @@ public class PlaceService {
 		Place place = placeRepository.findById(placeId)
 			.orElseThrow(() -> new BusinessException(PlaceErrorCode.NOT_FOUND));
 		return placeBookmarkRepository.existsByPlaceAndUser(place, user);
+	}
+
+	public List<Place> getPlacesByFolderId(Long folderId) {
+		return folderPlaceRepository.findPlacesByFolderId(folderId);
 	}
 }
