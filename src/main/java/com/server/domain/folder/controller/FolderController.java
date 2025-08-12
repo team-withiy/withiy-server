@@ -9,6 +9,7 @@ import com.server.domain.folder.service.FolderService;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -66,7 +67,7 @@ public class FolderController {
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping
 	@Operation(summary = "폴더 목록 조회 api", description = "사용자 폴더 목록 조회")
-	public ApiResponseDto<?> getFolders(@AuthenticationPrincipal User user) {
+	public ApiResponseDto<List<FolderDto>> getFolders(@AuthenticationPrincipal User user) {
 		return ApiResponseDto.success(HttpStatus.OK.value(), folderService.getFolders(user));
 	}
 
