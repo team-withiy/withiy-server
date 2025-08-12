@@ -2,6 +2,7 @@ package com.server.domain.place.entity;
 
 import com.server.domain.category.entity.Category;
 import com.server.domain.place.dto.PlaceStatus;
+import com.server.domain.place.dto.UpdatePlaceDto;
 import com.server.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,7 +21,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -30,7 +30,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Setter
 @Getter
 @Table(name = "place")
 public class Place {
@@ -105,8 +104,37 @@ public class Place {
 		this.status = status;
 	}
 
-
 	public boolean isCreatedByAdmin() {
 		return user != null && user.isAdmin();
+	}
+	
+	public void update(UpdatePlaceDto dto, Category category) {
+		if (dto.getName() != null) {
+			this.name = dto.getName();
+		}
+		if (dto.getAddress() != null) {
+			this.address = dto.getAddress();
+		}
+		if (dto.getRegion1depth() != null) {
+			this.region1depth = dto.getRegion1depth();
+		}
+		if (dto.getRegion2depth() != null) {
+			this.region2depth = dto.getRegion2depth();
+		}
+		if (dto.getRegion3depth() != null) {
+			this.region3depth = dto.getRegion3depth();
+		}
+		if (dto.getLatitude() != null) {
+			this.latitude = dto.getLatitude();
+		}
+		if (dto.getLongitude() != null) {
+			this.longitude = dto.getLongitude();
+		}
+		if (dto.getScore() != null) {
+			this.score = dto.getScore();
+		}
+		if (category != null) {
+			this.category = category;
+		}
 	}
 }

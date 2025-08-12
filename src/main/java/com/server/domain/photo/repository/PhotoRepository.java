@@ -1,4 +1,4 @@
-package com.server.domain.photo.service;
+package com.server.domain.photo.repository;
 
 import com.server.domain.album.entity.Album;
 import com.server.domain.photo.entity.Photo;

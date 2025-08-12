@@ -3,6 +3,7 @@ package com.server.domain.photo.service;
 import com.server.domain.album.entity.Album;
 import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.photo.entity.Photo;
+import com.server.domain.photo.repository.PhotoRepository;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ImageResponseDto;
 import java.util.ArrayList;

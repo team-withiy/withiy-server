@@ -7,7 +7,6 @@ import com.server.domain.category.entity.Category;
 import com.server.domain.category.service.CategoryService;
 import com.server.domain.folder.dto.PlaceSummaryDto;
 import com.server.domain.photo.dto.PhotoDto;
-import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.service.PhotoService;
 import com.server.domain.place.dto.CreatePlaceDto;
 import com.server.domain.place.dto.CreatePlaceResponse;
@@ -35,7 +34,7 @@ public class PlaceFacade {
 
 
 	@Transactional
-	public CreatePlaceResponse createPlace(User user, CreatePlaceDto createPlaceDto) {
+	public CreatePlaceResponse registerPlace(User user, CreatePlaceDto createPlaceDto) {
 		Category category = categoryService.getCategoryByName(createPlaceDto.getCategoryName());
 		Place place = Place.builder()
 			.name(createPlaceDto.getName())
@@ -72,7 +71,6 @@ public class PlaceFacade {
 			.build();
 
 		Album album = albumService.getAlbumByPlace(place);
-
 		List<PhotoDto> photos = photoService.getPhotosByAlbum(album)
 			.stream()
 			.map(PhotoDto::from)
@@ -82,11 +80,12 @@ public class PlaceFacade {
 			.stream()
 			.map(review -> {
 				User reviewer = review.getUser();
-				List<String> imageUrls = photoService.getPhotosByAlbumAndUser(album, reviewer)
+				List<String> reviewerImageUrls = photoService.getPhotosByAlbumAndUser(album,
+						reviewer)
 					.stream()
-					.map(Photo::getImgUrl)
+					.map(photo -> photo.getImgUrl())
 					.toList();
-				return ReviewDto.of(review, reviewer, imageUrls);
+				return ReviewDto.of(review, reviewer, reviewerImageUrls);
 			})
 			.toList();
 

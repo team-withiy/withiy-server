@@ -47,8 +47,8 @@ public class PhotoController {
 		try {
 			List<ImageResponseDto> results = imageService.uploadImages(files, entityType, entityId);
 
-			List<PhotoDto> photoDtos = photoService.convertToPhotoDtos(results);
-			return ApiResponseDto.success(HttpStatus.OK.value(), photoDtos);
+			List<PhotoDto> photos = photoService.convertToPhotoDtos(results);
+			return ApiResponseDto.success(HttpStatus.OK.value(), photos);
 
 		} catch (IllegalArgumentException e) {
 			return ApiResponseDto.error(HttpStatus.BAD_REQUEST.value(), e.getMessage());
