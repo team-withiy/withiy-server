@@ -47,7 +47,7 @@ public class PlaceController {
 	@Operation(summary = "장소 생성 api", description = "관리자가 장소 등록할 수 있는 api, 하위카테고리 선택")
 	public ApiResponseDto<CreatePlaceResponse> createPlace(@AuthenticationPrincipal User user,
 		@RequestBody CreatePlaceDto createPlaceDto) {
-		CreatePlaceResponse response = placeFacade.createPlace(user, createPlaceDto);
+		CreatePlaceResponse response = placeFacade.registerPlace(user, createPlaceDto);
 		return ApiResponseDto.success(HttpStatus.OK.value(), response);
 	}
 

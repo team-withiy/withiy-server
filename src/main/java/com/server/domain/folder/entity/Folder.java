@@ -47,15 +47,19 @@ public class Folder {
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private User user;
 
+	@Column(name = "thumbnail")
+	private String thumbnail;
+
 	@Column(name = "created_at", nullable = false)
 	@CreationTimestamp
 	private LocalDateTime createdAt;
 
 	@Builder
-	public Folder(String name, FolderColor color, User user) {
+	public Folder(String name, FolderColor color, User user, String thumbnail) {
 		this.name = name;
 		this.color = color;
 		this.user = user;
+		this.thumbnail = thumbnail;
 	}
 
 	public void updateName(String name) {
@@ -64,5 +68,9 @@ public class Folder {
 
 	public void updateColor(FolderColor color) {
 		this.color = color;
+	}
+
+	public void updateThumbnail(String thumbnail) {
+		this.thumbnail = thumbnail;
 	}
 }

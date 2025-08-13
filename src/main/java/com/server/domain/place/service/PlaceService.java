@@ -4,7 +4,8 @@ import com.server.domain.album.entity.Album;
 import com.server.domain.album.service.AlbumService;
 import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
-import com.server.domain.category.repository.CategoryRepository;
+import com.server.domain.category.service.CategoryService;
+import com.server.domain.folder.repository.FolderPlaceRepository;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.service.PhotoService;
 import com.server.domain.place.dto.CreatePlaceByUserDto;
@@ -23,8 +24,6 @@ import com.server.domain.review.service.ReviewService;
 import com.server.domain.search.dto.BookmarkedPlaceDto;
 import com.server.domain.search.dto.SearchSource;
 import com.server.domain.user.entity.User;
-import com.server.domain.user.repository.UserRepository;
-import com.server.global.error.code.CategoryErrorCode;
 import com.server.global.error.code.PlaceErrorCode;
 import com.server.global.error.exception.BusinessException;
 import java.util.List;
@@ -41,11 +40,11 @@ public class PlaceService {
 
 	private final PlaceRepository placeRepository;
 	private final PlaceBookmarkRepository placeBookmarkRepository;
-	private final UserRepository userRepository;
-	private final CategoryRepository categoryRepository;
+	private final FolderPlaceRepository folderPlaceRepository;
 	private final ReviewService reviewService;
 	private final AlbumService albumService;
 	private final PhotoService photoService;
+	private final CategoryService categoryService;
 
 	public Place save(Place place) {
 		return placeRepository.save(place);
@@ -84,8 +83,7 @@ public class PlaceService {
 	public PlaceDto createPlaceFirst(User user, CreatePlaceByUserDto createPlaceByUserDto) {
 
 		// 1. 카테고리 조회
-		Category category = categoryRepository.findByName(createPlaceByUserDto.getCategory())
-			.orElseThrow(() -> new BusinessException(CategoryErrorCode.NOT_FOUND));
+		Category category = categoryService.getCategoryByName(createPlaceByUserDto.getCategory());
 
 		// 2. 장소 생성
 		Place place = Place.builder()
@@ -155,38 +153,8 @@ public class PlaceService {
 		Place place = placeRepository.findById(placeId)
 			.orElseThrow(() -> new BusinessException(PlaceErrorCode.NOT_FOUND));
 
-		if (updatePlaceDto.getName() != null) {
-			place.setName(updatePlaceDto.getName());
-		}
-		if (updatePlaceDto.getAddress() != null) {
-			place.setAddress(updatePlaceDto.getAddress());
-		}
-		if (updatePlaceDto.getRegion1depth() != null) {
-			place.setRegion1depth(updatePlaceDto.getRegion1depth());
-		}
-		if (updatePlaceDto.getRegion2depth() != null) {
-			place.setRegion2depth(updatePlaceDto.getRegion2depth());
-		}
-		if (updatePlaceDto.getRegion3depth() != null) {
-			place.setRegion3depth(updatePlaceDto.getRegion3depth());
-		}
-		if (updatePlaceDto.getLatitude() != null) {
-			place.setLatitude(updatePlaceDto.getLatitude());
-		}
-		if (updatePlaceDto.getLongitude() != null) {
-			place.setLongitude(updatePlaceDto.getLongitude());
-		}
-		if (updatePlaceDto.getScore() != null) {
-			place.setScore(updatePlaceDto.getScore());
-		}
-		if (updatePlaceDto.getCategory() != null) {
-			Category category = categoryRepository.findByName(updatePlaceDto.getName())
-				.orElseThrow(() -> new BusinessException(CategoryErrorCode.NOT_FOUND));
-			place.setCategory(category);
-		}
-
-		placeRepository.save(place);
-
+		Category category = categoryService.getCategoryByName(updatePlaceDto.getCategory());
+		place.update(updatePlaceDto, category);
 		return PlaceDetailDto.from(place, false);
 	}
 
@@ -253,5 +221,9 @@ public class PlaceService {
 		Place place = placeRepository.findById(placeId)
 			.orElseThrow(() -> new BusinessException(PlaceErrorCode.NOT_FOUND));
 		return placeBookmarkRepository.existsByPlaceAndUser(place, user);
+	}
+
+	public List<Place> getPlacesByFolderId(Long folderId) {
+		return folderPlaceRepository.findPlacesByFolderId(folderId);
 	}
 }

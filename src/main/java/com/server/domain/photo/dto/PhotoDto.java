@@ -11,13 +11,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PhotoDto {
 
+	@Schema(description = "사진 ID", example = "12345")
+	private Long photoId;
 	@Schema(description = "이미지 URL", example = "https://cdn.example.com/photo/12345.jpg")
 	private String imageUrl;
 	@Schema(description = "업로더 정보")
 	private SimpleUserDto uploader;
 
 	@Builder
-	public PhotoDto(String imageUrl, SimpleUserDto uploader) {
+	public PhotoDto(Long photoId, String imageUrl, SimpleUserDto uploader) {
+		this.photoId = photoId;
 		this.imageUrl = imageUrl;
 		this.uploader = uploader;
 	}
@@ -25,6 +28,7 @@ public class PhotoDto {
 	public static PhotoDto from(Photo photo) {
 		return PhotoDto.builder()
 			.uploader(SimpleUserDto.from(photo.getUser()))
+			.photoId(photo.getId())
 			.imageUrl(photo.getImgUrl())
 			.build();
 	}
