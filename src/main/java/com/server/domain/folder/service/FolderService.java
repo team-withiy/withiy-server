@@ -62,8 +62,8 @@ public class FolderService {
 
 	@Transactional(readOnly = true)
 	public List<FolderDto> getFolders(User user) {
-		List<Folder> folders = folderRepository.findAllByUser(user);
-		return folders.stream()
+		return folderRepository.findAllByUser(user)
+			.stream()
 			.map(FolderDto::from)
 			.toList();
 	}

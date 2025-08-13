@@ -19,14 +19,18 @@ public class FolderDto {
 	private String name;
 	@Schema(description = "폴더 색상", example = "RED")
 	private FolderColor color;
+	@Schema(description = "폴더 썸네일 URL", example = "https://example.com/thumbnail.jpg")
+	private String thumbnailUrl;
 	@Schema(description = "폴더 생성 시간", example = "2023-10-01T12:00:00")
 	private LocalDateTime createdAt;
 
 	@Builder
-	public FolderDto(Long id, String name, FolderColor color, LocalDateTime createdAt) {
+	public FolderDto(Long id, String name, FolderColor color, String thumbnailUrl,
+		LocalDateTime createdAt) {
 		this.id = id;
 		this.name = name;
 		this.color = color;
+		this.thumbnailUrl = thumbnailUrl;
 		this.createdAt = createdAt;
 	}
 
@@ -35,8 +39,8 @@ public class FolderDto {
 			.id(folder.getId())
 			.name(folder.getName())
 			.color(folder.getColor())
+			.thumbnailUrl(folder.getThumbnail())
 			.createdAt(folder.getCreatedAt())
 			.build();
 	}
-
 }
