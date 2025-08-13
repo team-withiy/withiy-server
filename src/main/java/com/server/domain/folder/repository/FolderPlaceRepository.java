@@ -16,4 +16,6 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 
 	@Query("SELECT fp.place FROM FolderPlace fp WHERE fp.folder.id = :folderId")
 	List<Place> findPlacesByFolderId(@Param("folderId") Long folderId);
+
+	boolean existsByFolderIdAndPlaceId(Long folderId, Long placeId);
 }

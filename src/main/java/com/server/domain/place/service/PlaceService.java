@@ -50,7 +50,7 @@ public class PlaceService {
 		return placeRepository.save(place);
 	}
 
-	public Place findById(Long placeId) {
+	public Place getPlaceById(Long placeId) {
 		return placeRepository.findById(placeId)
 			.orElseThrow(() -> new BusinessException(PlaceErrorCode.NOT_FOUND));
 	}

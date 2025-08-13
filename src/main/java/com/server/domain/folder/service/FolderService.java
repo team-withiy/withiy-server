@@ -4,6 +4,7 @@ import com.server.domain.folder.dto.CreateFolderDto;
 import com.server.domain.folder.dto.FolderDto;
 import com.server.domain.folder.dto.UpdateFolderDto;
 import com.server.domain.folder.entity.Folder;
+import com.server.domain.folder.entity.FolderPlace;
 import com.server.domain.folder.repository.FolderPlaceRepository;
 import com.server.domain.folder.repository.FolderRepository;
 import com.server.domain.user.entity.User;
@@ -71,5 +72,15 @@ public class FolderService {
 	public Folder getFolderByIdAndUser(Long folderId, User user) {
 		return folderRepository.findByIdAndUser(folderId, user)
 			.orElseThrow(() -> new BusinessException(FolderErrorCode.NOT_FOUND));
+	}
+
+	public void validatePlaceNotInFolder(Long folderId, Long placeId) {
+		if (folderPlaceRepository.existsByFolderIdAndPlaceId(folderId, placeId)) {
+			throw new BusinessException(FolderErrorCode.DUPLICATE_PLACE_IN_FOLDER);
+		}
+	}
+
+	public void savePlaceInFolder(FolderPlace folderPlace) {
+		folderPlaceRepository.save(folderPlace);
 	}
 }
