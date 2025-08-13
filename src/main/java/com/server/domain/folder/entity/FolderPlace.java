@@ -46,4 +46,11 @@ public class FolderPlace {
 		this.folder = folder;
 		this.place = place;
 	}
+
+	public static FolderPlace from(Folder folder, Place place) {
+		return FolderPlace.builder()
+			.folder(folder)
+			.place(place)
+			.build();
+	}
 }
