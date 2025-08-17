@@ -51,4 +51,12 @@ public class FolderFacade {
 		folderService.savePlaceInFolder(FolderPlace.from(folder, place));
 		return "Place saved in folder successfully.";
 	}
+
+	public String deletePlaceInFolder(Long folderId, Long placeId, User user) {
+		Folder folder = folderService.getFolderByIdAndUser(folderId, user);
+		folderService.validatePlaceInFolder(folderId, placeId);
+		Place place = placeService.getPlaceById(placeId);
+		folderService.deletePlaceInFolder(FolderPlace.from(folder, place));
+		return "Place deleted from folder successfully.";
+	}
 }
