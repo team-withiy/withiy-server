@@ -85,7 +85,7 @@ public class PlaceFacade {
 					.stream()
 					.map(photo -> photo.getImgUrl())
 					.toList();
-				return ReviewDto.of(review, reviewer, reviewerImageUrls);
+				return ReviewDto.of(review, reviewer, reviewerImageUrls, place.getName());
 			})
 			.toList();
 
