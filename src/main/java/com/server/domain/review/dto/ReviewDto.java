@@ -23,24 +23,29 @@ public class ReviewDto {
 	private List<String> imageUrls;
 	@Schema(description = "리뷰 온도 점수", example = "80")
 	private Long score;
+	@Schema(description = "장소 이름", example = "강남역 스타벅스")
+	private String placeName;
 
 	@Builder
 	private ReviewDto(Long reviewId, SimpleUserDto reviewer, String contents,
-		List<String> imageUrls, Long score) {
+		List<String> imageUrls, Long score, String placeName) {
 		this.reviewId = reviewId;
 		this.reviewer = reviewer;
 		this.contents = contents;
 		this.imageUrls = imageUrls;
 		this.score = score;
+		this.placeName = placeName;
 	}
 
-	public static ReviewDto of(Review review, User reviewer, List<String> imageUrls) {
+	public static ReviewDto of(Review review, User reviewer, List<String> imageUrls
+		, String placeName) {
 		return ReviewDto.builder()
 			.reviewId(review.getId())
 			.reviewer(SimpleUserDto.from(reviewer))
 			.contents(review.getContents())
 			.imageUrls(imageUrls)
 			.score(review.getScore())
+			.placeName(placeName)
 			.build();
 	}
 }
