@@ -52,11 +52,13 @@ public class FolderFacade {
 		return "Place saved in folder successfully.";
 	}
 
+	@Transactional
 	public String deletePlaceInFolder(Long folderId, Long placeId, User user) {
 		Folder folder = folderService.getFolderByIdAndUser(folderId, user);
-		folderService.validatePlaceInFolder(folderId, placeId);
 		Place place = placeService.getPlaceById(placeId);
-		folderService.deletePlaceInFolder(FolderPlace.from(folder, place));
+		FolderPlace folderPlace = folderService.getFolderPlaceByFolderIdAndPlaceId(folderId,
+			placeId);
+		folderService.deletePlaceInFolder(folderPlace);
 		return "Place deleted from folder successfully.";
 	}
 }
