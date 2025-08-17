@@ -84,7 +84,7 @@ public class FolderController {
 
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.OK)
-	@GetMapping("/{folderId}/places/{placeId}")
+	@PostMapping("/{folderId}/places/{placeId}")
 	@Operation(summary = "폴더에 장소 저장 api", description = "특정 폴더에 장소 저장")
 	public ApiResponseDto<String> savePlaceInFolder(@PathVariable Long folderId,
 		@PathVariable Long placeId, @AuthenticationPrincipal User user) {
