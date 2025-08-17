@@ -5,6 +5,7 @@ import com.server.domain.album.service.AlbumService;
 import com.server.domain.folder.dto.GetFolderPlacesResponse;
 import com.server.domain.folder.dto.PlaceSummaryDto;
 import com.server.domain.folder.entity.Folder;
+import com.server.domain.folder.entity.FolderPlace;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.service.PhotoService;
 import com.server.domain.place.entity.Place;
@@ -40,5 +41,14 @@ public class FolderFacade {
 			})
 			.toList();
 		return GetFolderPlacesResponse.from(folder, placeSummaries);
+	}
+
+	@Transactional
+	public String savePlaceInFolder(Long folderId, Long placeId, User user) {
+		Folder folder = folderService.getFolderByIdAndUser(folderId, user);
+		folderService.validatePlaceNotInFolder(folderId, placeId);
+		Place place = placeService.getPlaceById(placeId);
+		folderService.savePlaceInFolder(FolderPlace.from(folder, place));
+		return "Place saved in folder successfully.";
 	}
 }

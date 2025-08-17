@@ -60,7 +60,7 @@ public class PlaceFacade {
 	@Transactional(readOnly = true)
 	public GetPlaceDetailResponse getPlaceDetail(Long placeId) {
 
-		Place place = placeService.findById(placeId);
+		Place place = placeService.getPlaceById(placeId);
 
 		LocationDto location = LocationDto.builder()
 			.latitude(place.getLatitude())
