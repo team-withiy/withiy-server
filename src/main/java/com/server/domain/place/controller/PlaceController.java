@@ -3,6 +3,7 @@ package com.server.domain.place.controller;
 import com.server.domain.place.dto.CreatePlaceByUserDto;
 import com.server.domain.place.dto.CreatePlaceDto;
 import com.server.domain.place.dto.CreatePlaceResponse;
+import com.server.domain.place.dto.FolderIdsRequest;
 import com.server.domain.place.dto.GetPlaceDetailResponse;
 import com.server.domain.place.dto.PlaceDetailDto;
 import com.server.domain.place.dto.PlaceDto;
@@ -131,5 +132,25 @@ public class PlaceController {
 		@AuthenticationPrincipal User user) {
 		Boolean isBookmarked = placeService.isBookmarked(placeId, user);
 		return ApiResponseDto.success(HttpStatus.OK.value(), isBookmarked);
+	}
+
+	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+	@ResponseStatus(HttpStatus.OK)
+	@PostMapping("/{placeId}/bookmarks")
+	@Operation(summary = "폴더에 장소 저장(북마크) api", description = "폴더는 한 개 이상 선택 가능합니다.")
+	public ApiResponseDto<String> savePlaceInFolders(@RequestBody FolderIdsRequest request,
+		@PathVariable Long placeId, @AuthenticationPrincipal User user) {
+		String result = placeFacade.savePlaceInFolders(request.getFolderIds(), placeId, user);
+		return ApiResponseDto.success(HttpStatus.OK.value(), result);
+	}
+
+	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+	@ResponseStatus(HttpStatus.OK)
+	@DeleteMapping("/{placeId}/bookmarks")
+	@Operation(summary = "폴더에서 장소 삭제(북마크 해제) api", description = "폴더는 한 개 이상 선택 가능합니다.")
+	public ApiResponseDto<String> deletePlaceInFolders(@RequestBody FolderIdsRequest request,
+		@PathVariable Long placeId, @AuthenticationPrincipal User user) {
+		String result = placeFacade.deletePlaceInFolders(request.getFolderIds(), placeId, user);
+		return ApiResponseDto.success(HttpStatus.OK.value(), result);
 	}
 }
