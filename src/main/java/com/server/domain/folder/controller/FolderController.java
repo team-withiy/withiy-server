@@ -91,4 +91,13 @@ public class FolderController {
 		String result = folderFacade.savePlaceInFolder(folderId, placeId, user);
 		return ApiResponseDto.success(HttpStatus.OK.value(), result);
 	}
+
+	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+	@ResponseStatus(HttpStatus.OK)
+	@DeleteMapping("/{folderId}/places/{placeId}")
+	public ApiResponseDto<String> deletePlaceInFolder(@PathVariable Long folderId,
+		@PathVariable Long placeId, @AuthenticationPrincipal User user) {
+		String result = folderFacade.deletePlaceInFolder(folderId, placeId, user);
+		return ApiResponseDto.success(HttpStatus.OK.value(), result);
+	}
 }

@@ -80,7 +80,16 @@ public class FolderService {
 		}
 	}
 
+	public FolderPlace getFolderPlaceByFolderIdAndPlaceId(Long folderId, Long placeId) {
+		return folderPlaceRepository.findByFolderIdAndPlaceId(folderId, placeId)
+			.orElseThrow(() -> new BusinessException(FolderErrorCode.PLACE_NOT_IN_FOLDER));
+	}
+
 	public void savePlaceInFolder(FolderPlace folderPlace) {
 		folderPlaceRepository.save(folderPlace);
+	}
+
+	public void deletePlaceInFolder(FolderPlace folderPlace) {
+		folderPlaceRepository.delete(folderPlace);
 	}
 }
