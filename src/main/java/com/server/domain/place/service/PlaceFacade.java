@@ -6,6 +6,9 @@ import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.service.CategoryService;
 import com.server.domain.folder.dto.PlaceSummaryDto;
+import com.server.domain.folder.entity.Folder;
+import com.server.domain.folder.entity.FolderPlace;
+import com.server.domain.folder.service.FolderService;
 import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.photo.service.PhotoService;
 import com.server.domain.place.dto.CreatePlaceDto;
@@ -17,7 +20,10 @@ import com.server.domain.place.entity.Place;
 import com.server.domain.review.dto.ReviewDto;
 import com.server.domain.review.service.ReviewService;
 import com.server.domain.user.entity.User;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +37,7 @@ public class PlaceFacade {
 	private final CategoryService categoryService;
 	private final PhotoService photoService;
 	private final ReviewService reviewService;
+	private final FolderService folderService;
 
 
 	@Transactional
@@ -114,5 +121,34 @@ public class PlaceFacade {
 				return PlaceSummaryDto.from(place, imageUrls);
 			})
 			.toList();
+	}
+
+	@Transactional
+	public String updatePlaceFolders(Set<Long> targetFolderIds, Long placeId, User user) {
+		Place place = placeService.getPlaceById(placeId);
+
+		// 현재 사용자의 폴더 목록에서 해당 장소가 속한 폴더 ID를 가져옵니다.
+		Set<Long> currentFolderIds = folderService.getFolderIdsByPlaceIdAndUserId(placeId,
+			user.getId());
+
+		// 추가할 폴더 ID와 제거할 폴더 ID를 계산합니다.
+		Set<Long> toAdd = new HashSet<>(targetFolderIds);
+		toAdd.removeAll(currentFolderIds);
+
+		Set<Long> toRemove = new HashSet<>(currentFolderIds);
+		toRemove.removeAll(targetFolderIds);
+
+		// 제거할 폴더에서 장소를 삭제합니다.
+		folderService.deletePlaceInFolders(toRemove, placeId, user.getId());
+
+		// 추가할 폴더에서 장소를 저장합니다.
+		List<FolderPlace> inserts = new ArrayList<>();
+		for (Long folderId : toAdd) {
+			Folder folder = folderService.getFolderByFolderIdAndUserId(folderId, user.getId());
+			inserts.add(FolderPlace.from(folder, place));
+		}
+		folderService.savePlaceInFolders(inserts);
+
+		return "Place updated in folders successfully.";
 	}
 }

@@ -10,7 +10,9 @@ import com.server.domain.folder.repository.FolderRepository;
 import com.server.domain.user.entity.User;
 import com.server.global.error.code.FolderErrorCode;
 import com.server.global.error.exception.BusinessException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -43,7 +45,7 @@ public class FolderService {
 
 	@Transactional
 	public FolderDto updateFolder(Long folderId, User user, UpdateFolderDto updateFolderDto) {
-		Folder folder = folderRepository.findByIdAndUser(folderId, user)
+		Folder folder = folderRepository.findByIdAndUserId(folderId, user.getId())
 			.orElseThrow(() -> new BusinessException(FolderErrorCode.NOT_FOUND));
 		folder.updateName(updateFolderDto.getName());
 		folder.updateColor(updateFolderDto.getColor());
@@ -53,7 +55,7 @@ public class FolderService {
 
 	@Transactional
 	public String deleteFolder(Long folderId, User user) {
-		Folder folder = folderRepository.findByIdAndUser(folderId, user)
+		Folder folder = folderRepository.findByIdAndUserId(folderId, user.getId())
 			.orElseThrow(() -> new BusinessException(FolderErrorCode.NOT_FOUND));
 		folderPlaceRepository.deleteByFolderId(folder.getId());
 		folderRepository.delete(folder);
@@ -69,27 +71,27 @@ public class FolderService {
 			.toList();
 	}
 
-	public Folder getFolderByIdAndUser(Long folderId, User user) {
-		return folderRepository.findByIdAndUser(folderId, user)
+	public Folder getFolderByFolderIdAndUserId(Long folderId, Long userId) {
+		return folderRepository.findByIdAndUserId(folderId, userId)
 			.orElseThrow(() -> new BusinessException(FolderErrorCode.NOT_FOUND));
 	}
 
-	public void validatePlaceNotInFolder(Long folderId, Long placeId) {
-		if (folderPlaceRepository.existsByFolderIdAndPlaceId(folderId, placeId)) {
-			throw new BusinessException(FolderErrorCode.DUPLICATE_PLACE_IN_FOLDER);
-		}
+	public Folder getFolderByIdAndUserId(Long folderId, Long userId) {
+		return folderRepository.findByIdAndUserId(folderId, userId)
+			.orElseThrow(() -> new BusinessException(FolderErrorCode.NOT_FOUND));
 	}
 
-	public FolderPlace getFolderPlaceByFolderIdAndPlaceId(Long folderId, Long placeId) {
-		return folderPlaceRepository.findByFolderIdAndPlaceId(folderId, placeId)
-			.orElseThrow(() -> new BusinessException(FolderErrorCode.PLACE_NOT_IN_FOLDER));
+	public Set<Long> getFolderIdsByPlaceIdAndUserId(Long placeId, Long userId) {
+		return new HashSet<>(
+			folderPlaceRepository.findFolderIdsByPlaceIdAndUserId(placeId, userId)
+		);
 	}
 
-	public void savePlaceInFolder(FolderPlace folderPlace) {
-		folderPlaceRepository.save(folderPlace);
+	public void savePlaceInFolders(List<FolderPlace> folderPlaces) {
+		folderPlaceRepository.saveAll(folderPlaces);
 	}
 
-	public void deletePlaceInFolder(FolderPlace folderPlace) {
-		folderPlaceRepository.delete(folderPlace);
+	public void deletePlaceInFolders(Set<Long> folderIds, Long placeId, Long userId) {
+		folderPlaceRepository.deleteByFolderIdsAndPlaceIdAndOwner(folderIds, placeId, userId);
 	}
 }

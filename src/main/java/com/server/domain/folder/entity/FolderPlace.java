@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @NoArgsConstructor
-@Table(name = "folder_place")
+@Table(
+	name = "folder_place",
+	uniqueConstraints = {
+		@UniqueConstraint(name = "uk_folder_place", columnNames = {"folder_id", "place_id"})
+	})
 public class FolderPlace {
 
 	@Id

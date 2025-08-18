@@ -81,23 +81,4 @@ public class FolderController {
 		return ApiResponseDto.success(HttpStatus.OK.value(),
 			folderFacade.getFolder(folderId, user));
 	}
-
-	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-	@ResponseStatus(HttpStatus.OK)
-	@PostMapping("/{folderId}/places/{placeId}")
-	@Operation(summary = "폴더에 장소 저장 api", description = "특정 폴더에 장소 저장")
-	public ApiResponseDto<String> savePlaceInFolder(@PathVariable Long folderId,
-		@PathVariable Long placeId, @AuthenticationPrincipal User user) {
-		String result = folderFacade.savePlaceInFolder(folderId, placeId, user);
-		return ApiResponseDto.success(HttpStatus.OK.value(), result);
-	}
-
-	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-	@ResponseStatus(HttpStatus.OK)
-	@DeleteMapping("/{folderId}/places/{placeId}")
-	public ApiResponseDto<String> deletePlaceInFolder(@PathVariable Long folderId,
-		@PathVariable Long placeId, @AuthenticationPrincipal User user) {
-		String result = folderFacade.deletePlaceInFolder(folderId, placeId, user);
-		return ApiResponseDto.success(HttpStatus.OK.value(), result);
-	}
 }

@@ -3,6 +3,7 @@ package com.server.domain.place.controller;
 import com.server.domain.place.dto.CreatePlaceByUserDto;
 import com.server.domain.place.dto.CreatePlaceDto;
 import com.server.domain.place.dto.CreatePlaceResponse;
+import com.server.domain.place.dto.FolderIdsRequest;
 import com.server.domain.place.dto.GetPlaceDetailResponse;
 import com.server.domain.place.dto.PlaceDetailDto;
 import com.server.domain.place.dto.PlaceDto;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -131,5 +133,15 @@ public class PlaceController {
 		@AuthenticationPrincipal User user) {
 		Boolean isBookmarked = placeService.isBookmarked(placeId, user);
 		return ApiResponseDto.success(HttpStatus.OK.value(), isBookmarked);
+	}
+
+	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+	@ResponseStatus(HttpStatus.OK)
+	@PutMapping("/{placeId}/bookmarks")
+	@Operation(summary = "장소 북마크 추가/삭제", description = "장소가 북마크에 추가되어 있으면 삭제하고, 추가되어 있지 않으면 추가합니다.")
+	public ApiResponseDto<String> toggleBookmark(@RequestBody FolderIdsRequest request,
+		@PathVariable Long placeId, @AuthenticationPrincipal User user) {
+		String result = placeFacade.updatePlaceFolders(request.getFolderIds(), placeId, user);
+		return ApiResponseDto.success(HttpStatus.OK.value(), result);
 	}
 }
