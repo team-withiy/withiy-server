@@ -55,7 +55,6 @@ public class FolderFacade {
 	@Transactional
 	public String deletePlaceInFolder(Long folderId, Long placeId, User user) {
 		Folder folder = folderService.getFolderByIdAndUser(folderId, user);
-		Place place = placeService.getPlaceById(placeId);
 		FolderPlace folderPlace = folderService.getFolderPlaceByFolderIdAndPlaceId(folderId,
 			placeId);
 		folderService.deletePlaceInFolder(folderPlace);
