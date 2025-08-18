@@ -76,15 +76,6 @@ public class FolderService {
 			.orElseThrow(() -> new BusinessException(FolderErrorCode.NOT_FOUND));
 	}
 
-	public FolderPlace getFolderPlaceByFolderIdAndPlaceId(Long folderId, Long placeId) {
-		return folderPlaceRepository.findByFolderIdAndPlaceId(folderId, placeId)
-			.orElseThrow(() -> new BusinessException(FolderErrorCode.PLACE_NOT_IN_FOLDER));
-	}
-
-	public void deletePlaceInFolder(FolderPlace folderPlace) {
-		folderPlaceRepository.delete(folderPlace);
-	}
-
 	public Folder getFolderByIdAndUserId(Long folderId, Long userId) {
 		return folderRepository.findByIdAndUserId(folderId, userId)
 			.orElseThrow(() -> new BusinessException(FolderErrorCode.NOT_FOUND));
@@ -98,5 +89,9 @@ public class FolderService {
 
 	public void savePlaceInFolders(List<FolderPlace> folderPlaces) {
 		folderPlaceRepository.saveAll(folderPlaces);
+	}
+
+	public void deletePlaceInFolders(Set<Long> folderIds, Long placeId, Long userId) {
+		folderPlaceRepository.deleteByFolderIdsAndPlaceIdAndOwner(folderIds, placeId, userId);
 	}
 }

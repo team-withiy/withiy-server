@@ -139,20 +139,15 @@ public class PlaceFacade {
 		toRemove.removeAll(targetFolderIds);
 
 		// 제거할 폴더에서 장소를 삭제합니다.
-		for (Long folderId : toRemove) {
-			Folder folder = folderService.getFolderByFolderIdAndUserId(folderId, user.getId());
-			FolderPlace folderPlace = folderService.getFolderPlaceByFolderIdAndPlaceId(folderId,
-				placeId);
-			folderService.deletePlaceInFolder(folderPlace);
-		}
+		folderService.deletePlaceInFolders(toRemove, placeId, user.getId());
 
 		// 추가할 폴더에서 장소를 저장합니다.
-		List<FolderPlace> folderPlaces = new ArrayList<>();
+		List<FolderPlace> inserts = new ArrayList<>();
 		for (Long folderId : toAdd) {
 			Folder folder = folderService.getFolderByFolderIdAndUserId(folderId, user.getId());
-			folderPlaces.add(FolderPlace.from(folder, place));
+			inserts.add(FolderPlace.from(folder, place));
 		}
-		folderService.savePlaceInFolders(folderPlaces);
+		folderService.savePlaceInFolders(inserts);
 
 		return "Place updated in folders successfully.";
 	}
