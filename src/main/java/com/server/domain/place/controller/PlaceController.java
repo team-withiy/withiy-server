@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -136,21 +137,11 @@ public class PlaceController {
 
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.OK)
-	@PostMapping("/{placeId}/bookmarks")
-	@Operation(summary = "폴더에 장소 저장(북마크) api", description = "폴더는 한 개 이상 선택 가능합니다.")
-	public ApiResponseDto<String> savePlaceInFolders(@RequestBody FolderIdsRequest request,
+	@PutMapping("/{placeId}/bookmarks")
+	@Operation(summary = "장소 북마크 추가/삭제", description = "장소가 북마크에 추가되어 있으면 삭제하고, 추가되어 있지 않으면 추가합니다.")
+	public ApiResponseDto<String> toggleBookmark(@RequestBody FolderIdsRequest request,
 		@PathVariable Long placeId, @AuthenticationPrincipal User user) {
-		String result = placeFacade.savePlaceInFolders(request.getFolderIds(), placeId, user);
-		return ApiResponseDto.success(HttpStatus.OK.value(), result);
-	}
-
-	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-	@ResponseStatus(HttpStatus.OK)
-	@DeleteMapping("/{placeId}/bookmarks")
-	@Operation(summary = "폴더에서 장소 삭제(북마크 해제) api", description = "폴더는 한 개 이상 선택 가능합니다.")
-	public ApiResponseDto<String> deletePlaceInFolders(@RequestBody FolderIdsRequest request,
-		@PathVariable Long placeId, @AuthenticationPrincipal User user) {
-		String result = placeFacade.deletePlaceInFolders(request.getFolderIds(), placeId, user);
+		String result = placeFacade.updatePlaceFolders(request.getFolderIds(), placeId, user);
 		return ApiResponseDto.success(HttpStatus.OK.value(), result);
 	}
 }

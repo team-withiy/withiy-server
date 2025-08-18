@@ -19,7 +19,14 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 	List<Place> findPlacesByFolderId(@Param("folderId") Long folderId);
 
 	boolean existsByFolderIdAndPlaceId(Long folderId, Long placeId);
-	
+
 	@Query("SELECT fp FROM FolderPlace fp WHERE fp.folder.id = :folderId AND fp.place.id = :placeId")
 	Optional<FolderPlace> findByFolderIdAndPlaceId(Long folderId, Long placeId);
+
+	@Query("SELECT f.id \n"
+		+ "    FROM FolderPlace fp\n"
+		+ "    JOIN fp.folder f\n"
+		+ "    WHERE fp.place.id = :placeId\n"
+		+ "      AND f.user.id = :userId")
+	List<Long> findFolderIdsByPlaceIdAndUserId(Long placeId, Long userId);
 }

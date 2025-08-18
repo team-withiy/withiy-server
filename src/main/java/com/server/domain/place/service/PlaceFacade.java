@@ -20,6 +20,8 @@ import com.server.domain.place.entity.Place;
 import com.server.domain.review.dto.ReviewDto;
 import com.server.domain.review.service.ReviewService;
 import com.server.domain.user.entity.User;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -122,24 +124,36 @@ public class PlaceFacade {
 	}
 
 	@Transactional
-	public String savePlaceInFolders(Set<Long> folderIds, Long placeId, User user) {
-		for (Long folderId : folderIds) {
-			Folder folder = folderService.getFolderByIdAndUser(folderId, user);
-			folderService.validatePlaceNotInFolder(folderId, placeId);
-			Place place = placeService.getPlaceById(placeId);
-			folderService.savePlaceInFolder(FolderPlace.from(folder, place));
-		}
-		return "Place saved in folder successfully.";
-	}
+	public String updatePlaceFolders(Set<Long> targetFolderIds, Long placeId, User user) {
+		Place place = placeService.getPlaceById(placeId);
 
-	@Transactional
-	public String deletePlaceInFolders(Set<Long> folderIds, Long placeId, User user) {
-		for (Long folderId : folderIds) {
-			Folder folder = folderService.getFolderByIdAndUser(folderId, user);
+		// 현재 사용자의 폴더 목록에서 해당 장소가 속한 폴더 ID를 가져옵니다.
+		Set<Long> currentFolderIds = folderService.getFolderIdsByPlaceIdAndUserId(placeId,
+			user.getId());
+
+		// 추가할 폴더 ID와 제거할 폴더 ID를 계산합니다.
+		Set<Long> toAdd = new HashSet<>(targetFolderIds);
+		toAdd.removeAll(currentFolderIds);
+
+		Set<Long> toRemove = new HashSet<>(currentFolderIds);
+		toRemove.removeAll(targetFolderIds);
+
+		// 제거할 폴더에서 장소를 삭제합니다.
+		for (Long folderId : toRemove) {
+			Folder folder = folderService.getFolderByFolderIdAndUserId(folderId, user.getId());
 			FolderPlace folderPlace = folderService.getFolderPlaceByFolderIdAndPlaceId(folderId,
 				placeId);
 			folderService.deletePlaceInFolder(folderPlace);
 		}
-		return "Place deleted from folder successfully.";
+
+		// 추가할 폴더에서 장소를 저장합니다.
+		List<FolderPlace> folderPlaces = new ArrayList<>();
+		for (Long folderId : toAdd) {
+			Folder folder = folderService.getFolderByFolderIdAndUserId(folderId, user.getId());
+			folderPlaces.add(FolderPlace.from(folder, place));
+		}
+		folderService.savePlaceInFolders(folderPlaces);
+
+		return "Place updated in folders successfully.";
 	}
 }

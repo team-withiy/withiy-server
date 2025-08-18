@@ -26,7 +26,7 @@ public class FolderFacade {
 
 	@Transactional(readOnly = true)
 	public GetFolderPlacesResponse getFolder(Long folderId, User user) {
-		Folder folder = folderService.getFolderByIdAndUser(folderId, user);
+		Folder folder = folderService.getFolderByIdAndUserId(folderId, user.getId());
 		List<Place> places = placeService.getPlacesByFolderId(folder.getId());
 		List<PlaceSummaryDto> placeSummaries = places.stream()
 			.map(place -> {
