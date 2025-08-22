@@ -10,8 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-@Schema(description = "폴더 정보 DTO", name = "FolderDto")
-public class FolderDto {
+public class FolderOptionDto {
 
 	@Schema(description = "폴더 ID", example = "1")
 	private Long id;
@@ -19,27 +18,31 @@ public class FolderDto {
 	private String name;
 	@Schema(description = "폴더 색상", example = "RED")
 	private FolderColor color;
-	@Schema(description = "폴더 썸네일 URL", example = "https://example.com/thumbnail.jpg")
-	private String thumbnailUrl;
+	@Schema(description = "북마크 저장 개수", example = "10")
+	private Long bookmarkCount;
+	@Schema(description = "장소 폴더에 저장 여부", example = "true")
+	private boolean isBookmarked;
 	@Schema(description = "폴더 생성 시간", example = "2023-10-01T12:00:00")
 	private LocalDateTime createdAt;
 
 	@Builder
-	public FolderDto(Long id, String name, FolderColor color, String thumbnailUrl,
-		LocalDateTime createdAt) {
+	public FolderOptionDto(Long id, String name, FolderColor color, Long bookmarkCount,
+		boolean isBookmarked, LocalDateTime createdAt) {
 		this.id = id;
 		this.name = name;
 		this.color = color;
-		this.thumbnailUrl = thumbnailUrl;
+		this.bookmarkCount = bookmarkCount;
+		this.isBookmarked = isBookmarked;
 		this.createdAt = createdAt;
 	}
 
-	public static FolderDto from(Folder folder) {
-		return FolderDto.builder()
+	public static FolderOptionDto from(Folder folder, Long bookmarkCount, boolean isBookmarked) {
+		return FolderOptionDto.builder()
 			.id(folder.getId())
 			.name(folder.getName())
 			.color(folder.getColor())
-			.thumbnailUrl(folder.getThumbnail())
+			.bookmarkCount(bookmarkCount)
+			.isBookmarked(isBookmarked)
 			.createdAt(folder.getCreatedAt())
 			.build();
 	}

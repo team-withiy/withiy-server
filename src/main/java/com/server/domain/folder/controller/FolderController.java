@@ -1,7 +1,8 @@
 package com.server.domain.folder.controller;
 
 import com.server.domain.folder.dto.CreateFolderDto;
-import com.server.domain.folder.dto.FolderDto;
+import com.server.domain.folder.dto.FolderOptionDto;
+import com.server.domain.folder.dto.FolderSummaryDto;
 import com.server.domain.folder.dto.GetFolderPlacesResponse;
 import com.server.domain.folder.dto.UpdateFolderDto;
 import com.server.domain.folder.service.FolderFacade;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,21 +38,20 @@ public class FolderController {
 	@ResponseStatus(HttpStatus.OK)
 	@PostMapping
 	@Operation(summary = "폴더 생성 api", description = "폴더 생성")
-	public ApiResponseDto<FolderDto> createFolder(@AuthenticationPrincipal User user,
+	public ApiResponseDto<FolderSummaryDto> createFolder(@AuthenticationPrincipal User user,
 		@RequestBody CreateFolderDto createFolderDto) {
-		FolderDto folderDto = folderService.createFolder(user, createFolderDto);
-		return ApiResponseDto.success(HttpStatus.OK.value(), folderDto);
+		return ApiResponseDto.success(HttpStatus.OK.value(),
+			folderService.createFolder(user, createFolderDto));
 	}
 
 	@PreAuthorize("hasRole('USER')")
 	@ResponseStatus(HttpStatus.OK)
 	@PatchMapping("/{folderId}")
 	@Operation(summary = "폴더 수정 api", description = "폴더 이름/색상 수정")
-	public ApiResponseDto<FolderDto> updateFolder(@PathVariable Long folderId,
-		@AuthenticationPrincipal User user,
-		@RequestBody UpdateFolderDto updateFolderDto) {
-		FolderDto folderDto = folderService.updateFolder(folderId, user, updateFolderDto);
-		return ApiResponseDto.success(HttpStatus.OK.value(), folderDto);
+	public ApiResponseDto<String> updateFolder(@PathVariable Long folderId,
+		@AuthenticationPrincipal User user, @RequestBody UpdateFolderDto updateFolderDto) {
+		String result = folderService.updateFolder(folderId, user, updateFolderDto);
+		return ApiResponseDto.success(HttpStatus.OK.value(), result);
 	}
 
 	@PreAuthorize("hasRole('USER')")
@@ -67,8 +68,9 @@ public class FolderController {
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping
 	@Operation(summary = "폴더 목록 조회 api", description = "사용자 폴더 목록 조회")
-	public ApiResponseDto<List<FolderDto>> getFolders(@AuthenticationPrincipal User user) {
-		return ApiResponseDto.success(HttpStatus.OK.value(), folderService.getFolders(user));
+	public ApiResponseDto<List<FolderSummaryDto>> getFolders(@AuthenticationPrincipal User user) {
+		return ApiResponseDto.success(HttpStatus.OK.value(),
+			folderFacade.getFolderSummaries(user));
 	}
 
 	@PreAuthorize("hasRole('USER')")
@@ -80,5 +82,16 @@ public class FolderController {
 
 		return ApiResponseDto.success(HttpStatus.OK.value(),
 			folderFacade.getFolder(folderId, user));
+	}
+
+	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+	@ResponseStatus(HttpStatus.OK)
+	@GetMapping("/select")
+	@Operation(summary = "내 폴더 목록 조회 및 각 폴더에 해당 장소 북마크 여부 조회")
+	public ApiResponseDto<List<FolderOptionDto>> getFoldersForPlaceSelection(
+		@RequestParam Long placeId, @AuthenticationPrincipal User user) {
+
+		return ApiResponseDto.success(HttpStatus.OK.value(),
+			folderFacade.getFoldersForPlaceSelection(placeId, user));
 	}
 }
