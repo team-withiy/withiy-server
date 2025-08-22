@@ -1,7 +1,6 @@
 package com.server.domain.folder.dto;
 
 import com.server.domain.folder.entity.Folder;
-import com.server.domain.folder.entity.FolderColor;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,8 +17,8 @@ public class FolderSummaryDto {
 	private Long id;
 	@Schema(description = "폴더 이름", example = "강남 맛집")
 	private String name;
-	@Schema(description = "폴더 색상", example = "RED")
-	private FolderColor color;
+	@Schema(description = "폴더 색상", example = "#FF5733")
+	private String color;
 	@Schema(description = "북마크 저장 개수", example = "10")
 	private Long bookmarkCount;
 	@Schema(description = "폴더 썸네일 URL 목록", example = "[\"https://example.com/thumbnail1.jpg\", \"https://example.com/thumbnail2.jpg\"]")
@@ -28,7 +27,7 @@ public class FolderSummaryDto {
 	private LocalDateTime createdAt;
 
 	@Builder
-	public FolderSummaryDto(Long id, String name, FolderColor color, Long bookmarkCount,
+	public FolderSummaryDto(Long id, String name, String color, Long bookmarkCount,
 		List<String> thumbnails, LocalDateTime createdAt) {
 		this.id = id;
 		this.name = name;
@@ -43,7 +42,7 @@ public class FolderSummaryDto {
 		return FolderSummaryDto.builder()
 			.id(folder.getId())
 			.name(folder.getName())
-			.color(folder.getColor())
+			.color(folder.getColor().getHexCode())
 			.bookmarkCount(bookmarkCount)
 			.thumbnails(thumbnails)
 			.createdAt(folder.getCreatedAt())
@@ -54,7 +53,7 @@ public class FolderSummaryDto {
 		return FolderSummaryDto.builder()
 			.id(folder.getId())
 			.name(folder.getName())
-			.color(folder.getColor())
+			.color(folder.getColor().getHexCode())
 			.bookmarkCount(0L) // 기본값 설정
 			.thumbnails(List.of()) // 기본값 설정
 			.createdAt(folder.getCreatedAt())

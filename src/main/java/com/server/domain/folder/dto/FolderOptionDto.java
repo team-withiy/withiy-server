@@ -1,7 +1,6 @@
 package com.server.domain.folder.dto;
 
 import com.server.domain.folder.entity.Folder;
-import com.server.domain.folder.entity.FolderColor;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import lombok.Builder;
@@ -17,7 +16,7 @@ public class FolderOptionDto {
 	@Schema(description = "폴더 이름", example = "강남 맛집")
 	private String name;
 	@Schema(description = "폴더 색상", example = "RED")
-	private FolderColor color;
+	private String color;
 	@Schema(description = "북마크 저장 개수", example = "10")
 	private Long bookmarkCount;
 	@Schema(description = "장소 폴더에 저장 여부", example = "true")
@@ -26,7 +25,7 @@ public class FolderOptionDto {
 	private LocalDateTime createdAt;
 
 	@Builder
-	public FolderOptionDto(Long id, String name, FolderColor color, Long bookmarkCount,
+	public FolderOptionDto(Long id, String name, String color, Long bookmarkCount,
 		boolean isBookmarked, LocalDateTime createdAt) {
 		this.id = id;
 		this.name = name;
@@ -40,7 +39,7 @@ public class FolderOptionDto {
 		return FolderOptionDto.builder()
 			.id(folder.getId())
 			.name(folder.getName())
-			.color(folder.getColor())
+			.color(folder.getColor().getHexCode())
 			.bookmarkCount(bookmarkCount)
 			.isBookmarked(isBookmarked)
 			.createdAt(folder.getCreatedAt())
