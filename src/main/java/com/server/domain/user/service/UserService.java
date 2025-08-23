@@ -1,5 +1,6 @@
 package com.server.domain.user.service;
 
+import com.server.domain.folder.service.FolderService;
 import com.server.domain.oauth.repository.OAuthRepository;
 import com.server.domain.term.entity.TermAgreement;
 import com.server.domain.term.repository.TermAgreementRepository;
@@ -36,6 +37,7 @@ public class UserService {
 	private final OAuthRepository oauthRepository;
 	private final TermAgreementRepository termAgreementRepository;
 	private final CoupleService coupleService;
+	private final FolderService folderService;
 
 	@Transactional
 	public void saveRefreshToken(Long id, String refreshToken) {
@@ -176,6 +178,9 @@ public class UserService {
 
 		userRepository.save(user);
 		log.info("Updated user information and term agreements for user: {}", user.getNickname());
+
+		// 사용자 등록 후 기본 폴더 생성
+		folderService.createDefaultFolder(user);
 		return user.getNickname();
 	}
 

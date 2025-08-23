@@ -42,6 +42,10 @@ public class Folder {
 	@Column(name = "color")
 	private FolderColor color;
 
+	@Enumerated(EnumType.STRING)
+	@Column(name = "type")
+	private FolderType type;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
@@ -52,9 +56,10 @@ public class Folder {
 	private LocalDateTime createdAt;
 
 	@Builder
-	public Folder(String name, FolderColor color, User user) {
+	public Folder(String name, FolderColor color, FolderType type, User user) {
 		this.name = name;
 		this.color = color;
+		this.type = type;
 		this.user = user;
 	}
 

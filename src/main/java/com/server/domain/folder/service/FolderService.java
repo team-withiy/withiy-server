@@ -5,7 +5,9 @@ import com.server.domain.folder.dto.FolderOptionDto;
 import com.server.domain.folder.dto.FolderSummaryDto;
 import com.server.domain.folder.dto.UpdateFolderDto;
 import com.server.domain.folder.entity.Folder;
+import com.server.domain.folder.entity.FolderColor;
 import com.server.domain.folder.entity.FolderPlace;
+import com.server.domain.folder.entity.FolderType;
 import com.server.domain.folder.repository.FolderPlaceRepository;
 import com.server.domain.folder.repository.FolderRepository;
 import com.server.domain.place.entity.Place;
@@ -27,6 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class FolderService {
 
+	private static String DEFAULT_FOLDER_NAME = "내 장소";
+	private static FolderColor DEFAULT_FOLDER_COLOR = FolderColor.PINK;
 	private final FolderRepository folderRepository;
 	private final FolderPlaceRepository folderPlaceRepository;
 
@@ -42,10 +46,20 @@ public class FolderService {
 		Folder folder = Folder.builder()
 			.name(folderName)
 			.color(createFolderDto.getColor())
+			.type(FolderType.CUSTOM)
 			.user(user)
 			.build();
 		folderRepository.save(folder);
 		return FolderSummaryDto.from(folder);
+	}
+
+	public void createDefaultFolder(User user) {
+		Folder folder = Folder.builder()
+			.name(DEFAULT_FOLDER_NAME)
+			.color(DEFAULT_FOLDER_COLOR)
+			.type(FolderType.DEFAULT)
+			.user(user)
+			.build();
 	}
 
 	@Transactional
@@ -53,6 +67,11 @@ public class FolderService {
 		UpdateFolderDto updateFolderDto) {
 		Folder folder = folderRepository.findByIdAndUserId(folderId, user.getId())
 			.orElseThrow(() -> new BusinessException(FolderErrorCode.NOT_FOUND));
+
+		if (folder.getType() == FolderType.DEFAULT) {
+			throw new BusinessException(FolderErrorCode.DEFAULT_FOLDER_CANNOT_BE_DELETED);
+		}
+		
 		folder.updateName(updateFolderDto.getName());
 		folder.updateColor(updateFolderDto.getColor());
 		folderRepository.save(folder);
@@ -63,6 +82,11 @@ public class FolderService {
 	public String deleteFolder(Long folderId, User user) {
 		Folder folder = folderRepository.findByIdAndUserId(folderId, user.getId())
 			.orElseThrow(() -> new BusinessException(FolderErrorCode.NOT_FOUND));
+
+		if (folder.getType() == FolderType.DEFAULT) {
+			throw new BusinessException(FolderErrorCode.DEFAULT_FOLDER_CANNOT_BE_DELETED);
+		}
+
 		folderPlaceRepository.deleteByFolderId(folder.getId());
 		folderRepository.delete(folder);
 
