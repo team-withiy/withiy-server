@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-@Schema(description = "폴더 정보 DTO", name = "FolderDto")
+@Schema(description = "폴더 정보 DTO", name = "FolderSummaryDto")
 public class FolderSummaryDto {
 
 	@Schema(description = "폴더 ID", example = "1")

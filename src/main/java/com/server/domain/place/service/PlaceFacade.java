@@ -144,7 +144,7 @@ public class PlaceFacade {
 		// 추가할 폴더에서 장소를 저장합니다.
 		List<FolderPlace> inserts = new ArrayList<>();
 		for (Long folderId : toAdd) {
-			Folder folder = folderService.getFolderByFolderIdAndUserId(folderId, user.getId());
+			Folder folder = folderService.getFolderByIdAndUserId(folderId, user.getId());
 			inserts.add(FolderPlace.from(folder, place));
 		}
 		folderService.savePlaceInFolders(inserts);

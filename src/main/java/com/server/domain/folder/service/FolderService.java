@@ -29,8 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class FolderService {
 
-	private static String DEFAULT_FOLDER_NAME = "내 장소";
-	private static FolderColor DEFAULT_FOLDER_COLOR = FolderColor.PINK;
+	private static final String DEFAULT_FOLDER_NAME = "내 장소";
+	private static final FolderColor DEFAULT_FOLDER_COLOR = FolderColor.PINK;
 	private final FolderRepository folderRepository;
 	private final FolderPlaceRepository folderPlaceRepository;
 
@@ -60,6 +60,9 @@ public class FolderService {
 			.type(FolderType.DEFAULT)
 			.user(user)
 			.build();
+
+		folderRepository.save(folder);
+
 	}
 
 	@Transactional
@@ -69,12 +72,11 @@ public class FolderService {
 			.orElseThrow(() -> new BusinessException(FolderErrorCode.NOT_FOUND));
 
 		if (folder.getType() == FolderType.DEFAULT) {
-			throw new BusinessException(FolderErrorCode.DEFAULT_FOLDER_CANNOT_BE_DELETED);
+			throw new BusinessException(FolderErrorCode.DEFAULT_FOLDER_CANNOT_BE_UPDATED);
 		}
-		
+
 		folder.updateName(updateFolderDto.getName());
 		folder.updateColor(updateFolderDto.getColor());
-		folderRepository.save(folder);
 		return folder.getName() + " updated.";
 	}
 
@@ -98,11 +100,7 @@ public class FolderService {
 		List<FolderPlace> folderPlaces = folderPlaceRepository.findFolderPlacesByUserId(
 			user.getId());
 
-		return folderPlaces.stream()
-			.collect(Collectors.groupingBy(
-				FolderPlace::getFolder,
-				Collectors.mapping(FolderPlace::getPlace, Collectors.toList())
-			));
+		return groupFolderPlaces(folderPlaces);
 	}
 
 	@Transactional(readOnly = true)
@@ -110,11 +108,7 @@ public class FolderService {
 		List<FolderPlace> folderPlaces = folderPlaceRepository.findFolderPlacesByUserId(
 			user.getId());
 
-		Map<Folder, List<Place>> folderMap = folderPlaces.stream()
-			.collect(Collectors.groupingBy(
-				FolderPlace::getFolder,
-				Collectors.mapping(FolderPlace::getPlace, Collectors.toList())
-			));
+		Map<Folder, List<Place>> folderMap = groupFolderPlaces(folderPlaces);
 
 		return folderMap.entrySet().stream()
 			.map(entry -> {
@@ -127,11 +121,6 @@ public class FolderService {
 				return FolderOptionDto.from(folder, bookmarkCount, isBookmarked);
 			})
 			.toList();
-	}
-
-	public Folder getFolderByFolderIdAndUserId(Long folderId, Long userId) {
-		return folderRepository.findByIdAndUserId(folderId, userId)
-			.orElseThrow(() -> new BusinessException(FolderErrorCode.NOT_FOUND));
 	}
 
 	public Folder getFolderByIdAndUserId(Long folderId, Long userId) {
@@ -151,6 +140,14 @@ public class FolderService {
 
 	public void deletePlaceInFolders(Set<Long> folderIds, Long placeId, Long userId) {
 		folderPlaceRepository.deleteByFolderIdsAndPlaceIdAndOwner(folderIds, placeId, userId);
+	}
+
+	private Map<Folder, List<Place>> groupFolderPlaces(List<FolderPlace> folderPlaces) {
+		return folderPlaces.stream()
+			.collect(Collectors.groupingBy(
+				FolderPlace::getFolder,
+				Collectors.mapping(FolderPlace::getPlace, Collectors.toList())
+			));
 	}
 
 
