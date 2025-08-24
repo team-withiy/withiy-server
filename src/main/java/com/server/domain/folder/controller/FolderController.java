@@ -84,6 +84,17 @@ public class FolderController {
 			folderFacade.getFolderPlaces(folderId, user));
 	}
 
+	@PreAuthorize("hasRole('USER')")
+	@ResponseStatus(HttpStatus.OK)
+	@GetMapping("/all")
+	@Operation(summary = "저장한 모든 장소 조회 api", description = "저장한 모든 장소 조회")
+	public ApiResponseDto<GetFolderPlacesResponse> getAllFolderPlaces(
+		@AuthenticationPrincipal User user) {
+
+		return ApiResponseDto.success(HttpStatus.OK.value(),
+			folderFacade.getAllFolderPlaces(user));
+	}
+
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/select")

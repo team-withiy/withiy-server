@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class FolderFacade {
 
+	private static final String ALL_PLACE_FOLDER_NAME = "저장한 모든 장소";
 	private final FolderService folderService;
 	private final PlaceService placeService;
 	private final AlbumService albumService;
@@ -45,6 +46,29 @@ public class FolderFacade {
 			})
 			.toList();
 		return GetFolderPlacesResponse.from(folder, placeSummaries);
+	}
+
+	@Transactional(readOnly = true)
+	public GetFolderPlacesResponse getAllFolderPlaces(User user) {
+		Map<Folder, List<Place>> folderPlacesMap = folderService.getFolderPlacesMap(user);
+		List<Place> places = folderPlacesMap.values().stream()
+			.flatMap(List::stream)
+			.distinct()
+			.toList();
+
+		List<PlaceSummaryDto> placeSummaries = places.stream()
+			.map(place -> {
+				Album album = albumService.getAlbumByPlace(place);
+				List<Photo> photos = photoService.getPhotosByAlbum(album);
+				List<String> imageUrls = photos
+					.stream()
+					.map(photo -> photo.getImgUrl())
+					.toList();
+				return PlaceSummaryDto.from(place, imageUrls);
+			})
+			.toList();
+
+		return GetFolderPlacesResponse.ofVirtual(ALL_PLACE_FOLDER_NAME, placeSummaries);
 	}
 
 	@Transactional(readOnly = true)
