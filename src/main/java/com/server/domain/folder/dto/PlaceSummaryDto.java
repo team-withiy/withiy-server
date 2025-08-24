@@ -1,5 +1,6 @@
 package com.server.domain.folder.dto;
 
+import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.place.entity.Place;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
@@ -18,20 +19,25 @@ public class PlaceSummaryDto {
 	private String placeName;
 	@Schema(description = "장소 주소", example = "서울특별시 강남구 테헤란로 123")
 	private String address;
+
 	@Schema(description = "장소 이미지 URL 목록",
 		example = "[\"https://example.com/image1.jpg\", \"https://example.com/image2.jpg\"]")
 	private List<String> imageUrls;
 	@Schema(description = "장소 온도 점수", example = "85")
 	private Long score;
 
+	@Schema(description = "장소 카테고리 정보")
+	private CategoryDto category;
+
 	@Builder
 	public PlaceSummaryDto(Long placeId, String placeName, String address, List<String> imageUrls,
-		Long score) {
+		Long score, CategoryDto category) {
 		this.placeId = placeId;
 		this.placeName = placeName;
 		this.address = address;
 		this.imageUrls = imageUrls;
 		this.score = score;
+		this.category = category;
 	}
 
 	public static PlaceSummaryDto from(Place place, List<String> imageUrls) {
@@ -41,6 +47,7 @@ public class PlaceSummaryDto {
 			.address(place.getAddress())
 			.imageUrls(imageUrls)
 			.score(place.getScore())
+			.category(CategoryDto.from(place.getCategory()))
 			.build();
 	}
 }

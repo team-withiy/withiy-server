@@ -29,9 +29,9 @@ public class FolderFacade {
 	private final PhotoService photoService;
 
 	@Transactional(readOnly = true)
-	public GetFolderPlacesResponse getFolder(Long folderId, User user) {
+	public GetFolderPlacesResponse getFolderPlaces(Long folderId, User user) {
 		Folder folder = folderService.getFolderByIdAndUserId(folderId, user.getId());
-		List<Place> places = placeService.getPlacesByFolderId(folder.getId());
+		List<Place> places = placeService.getPlacesByFolderId(folderId);
 		List<PlaceSummaryDto> placeSummaries = places.stream()
 			.map(place -> {
 				Album album = albumService.getAlbumByPlace(place);
@@ -68,7 +68,7 @@ public class FolderFacade {
 					.filter(Objects::nonNull) // null 제거
 					.limit(4)
 					.toList();
-				
+
 				return FolderSummaryDto.from(folder, bookmarkCount, thumbnails);
 			})
 			.toList();
