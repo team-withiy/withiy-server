@@ -2,6 +2,8 @@ package com.server.domain.folder.service;
 
 import com.server.domain.album.entity.Album;
 import com.server.domain.album.service.AlbumService;
+import com.server.domain.folder.dto.FolderOptionDto;
+import com.server.domain.folder.dto.FolderSummaryDto;
 import com.server.domain.folder.dto.GetFolderPlacesResponse;
 import com.server.domain.folder.dto.PlaceSummaryDto;
 import com.server.domain.folder.entity.Folder;
@@ -11,6 +13,8 @@ import com.server.domain.place.entity.Place;
 import com.server.domain.place.service.PlaceService;
 import com.server.domain.user.entity.User;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,5 +44,33 @@ public class FolderFacade {
 			})
 			.toList();
 		return GetFolderPlacesResponse.from(folder, placeSummaries);
+	}
+
+	public List<FolderOptionDto> getFoldersForPlaceSelection(Long placeId, User user) {
+		Place place = placeService.getPlaceById(placeId);
+		return folderService.getFoldersForPlaceSelection(place, user);
+	}
+
+	public List<FolderSummaryDto> getFolderSummaries(User user) {
+		Map<Folder, List<Place>> folderPlacesMap = folderService.getFolderPlacesMap(user);
+		return folderPlacesMap.entrySet().stream()
+			.map(entry -> {
+				Folder folder = entry.getKey();
+				List<Place> places = entry.getValue();
+				Long bookmarkCount = (long) places.size();
+
+				List<String> thumbnails = places.stream()
+					.map(place -> {
+						Album album = albumService.getAlbumByPlace(place);
+						List<Photo> photos = photoService.getPhotosByAlbum(album);
+						return photos.isEmpty() ? null : photos.get(0).getImgUrl();
+					})
+					.filter(Objects::nonNull) // null 제거
+					.limit(4)
+					.toList();
+				
+				return FolderSummaryDto.from(folder, bookmarkCount, thumbnails);
+			})
+			.toList();
 	}
 }

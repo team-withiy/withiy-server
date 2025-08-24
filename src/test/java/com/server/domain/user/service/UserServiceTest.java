@@ -13,6 +13,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.server.domain.folder.service.FolderService;
 import com.server.domain.oauth.entity.OAuth;
 import com.server.domain.oauth.repository.OAuthRepository;
 import com.server.domain.term.entity.Term;
@@ -54,6 +55,9 @@ public class UserServiceTest {
 
 	@Mock
 	private CoupleService coupleService;
+
+	@Mock
+	private FolderService folderService;
 
 	@InjectMocks
 	private UserService userService;

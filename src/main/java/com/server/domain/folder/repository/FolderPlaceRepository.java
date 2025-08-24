@@ -33,4 +33,11 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		    AND fp.folder.id IN :folderIds
 		""")
 	int deleteByFolderIdsAndPlaceIdAndOwner(Set<Long> folderIds, Long placeId, Long ownerId);
+
+	@Query("SELECT fp " +
+		"FROM FolderPlace fp " +
+		"JOIN FETCH fp.folder f " +
+		"JOIN FETCH fp.place p " +
+		"WHERE f.user.id = :userId")
+	List<FolderPlace> findFolderPlacesByUserId(Long userId);
 }

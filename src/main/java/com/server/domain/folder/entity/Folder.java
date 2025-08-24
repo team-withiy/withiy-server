@@ -42,24 +42,25 @@ public class Folder {
 	@Column(name = "color")
 	private FolderColor color;
 
+	@Enumerated(EnumType.STRING)
+	@Column(name = "type")
+	private FolderType type;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private User user;
-
-	@Column(name = "thumbnail")
-	private String thumbnail;
 
 	@Column(name = "created_at", nullable = false)
 	@CreationTimestamp
 	private LocalDateTime createdAt;
 
 	@Builder
-	public Folder(String name, FolderColor color, User user, String thumbnail) {
+	public Folder(String name, FolderColor color, FolderType type, User user) {
 		this.name = name;
 		this.color = color;
+		this.type = type;
 		this.user = user;
-		this.thumbnail = thumbnail;
 	}
 
 	public void updateName(String name) {
@@ -68,9 +69,5 @@ public class Folder {
 
 	public void updateColor(FolderColor color) {
 		this.color = color;
-	}
-
-	public void updateThumbnail(String thumbnail) {
-		this.thumbnail = thumbnail;
 	}
 }
