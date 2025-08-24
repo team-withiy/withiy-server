@@ -71,8 +71,8 @@ public class FolderService {
 		Folder folder = folderRepository.findByIdAndUserId(folderId, user.getId())
 			.orElseThrow(() -> new BusinessException(FolderErrorCode.NOT_FOUND));
 
-		if (folder.getType() == FolderType.DEFAULT) {
-			throw new BusinessException(FolderErrorCode.DEFAULT_FOLDER_CANNOT_BE_UPDATED);
+		if (folder.getType() != FolderType.CUSTOM) {
+			throw new BusinessException(FolderErrorCode.ONLY_CUSTOM_FOLDER_CAN_BE_UPDATED);
 		}
 
 		folder.updateName(updateFolderDto.getName());
@@ -85,8 +85,8 @@ public class FolderService {
 		Folder folder = folderRepository.findByIdAndUserId(folderId, user.getId())
 			.orElseThrow(() -> new BusinessException(FolderErrorCode.NOT_FOUND));
 
-		if (folder.getType() == FolderType.DEFAULT) {
-			throw new BusinessException(FolderErrorCode.DEFAULT_FOLDER_CANNOT_BE_DELETED);
+		if (folder.getType() != FolderType.CUSTOM) {
+			throw new BusinessException(FolderErrorCode.ONLY_CUSTOM_FOLDER_CAN_BE_DELETED);
 		}
 
 		folderPlaceRepository.deleteByFolderId(folder.getId());
