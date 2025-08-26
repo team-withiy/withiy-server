@@ -97,31 +97,48 @@ public class FolderService {
 
 	@Transactional(readOnly = true)
 	public Map<Folder, List<Place>> getFolderPlacesMap(User user) {
-		List<FolderPlace> folderPlaces = folderPlaceRepository.findFolderPlacesByUserId(
-			user.getId());
 
-		return groupFolderPlaces(folderPlaces);
+		List<Folder> folders = folderRepository.findFoldersByUserId(user.getId());
+		List<Long> folderIds = folders.stream().map(Folder::getId).toList();
+
+		Map<Long, List<Place>> folderIdToPlaces = getFolderIdToPlacesMap(folderIds);
+
+		return folders.stream()
+			.collect(Collectors.toMap(
+				f -> f,
+				f -> folderIdToPlaces.getOrDefault(f.getId(), List.of())
+			));
 	}
 
 	@Transactional(readOnly = true)
 	public List<FolderOptionDto> getFoldersForPlaceSelection(Place place, User user) {
-		List<FolderPlace> folderPlaces = folderPlaceRepository.findFolderPlacesByUserId(
-			user.getId());
+		List<Folder> folders = folderRepository.findFoldersByUserId(user.getId());
+		List<Long> folderIds = folders.stream().map(Folder::getId).toList();
 
-		Map<Folder, List<Place>> folderMap = groupFolderPlaces(folderPlaces);
+		Map<Long, List<Place>> folderIdToPlaces = getFolderIdToPlacesMap(folderIds);
 
-		return folderMap.entrySet().stream()
-			.map(entry -> {
-				Folder folder = entry.getKey();
-				List<Place> places = entry.getValue();
-				Long bookmarkCount = (long) places.size();
+		return folders.stream()
+			.map(folder -> {
+				List<Place> places = folderIdToPlaces.getOrDefault(folder.getId(), List.of());
+				long bookmarkCount = places.stream().distinct().count(); // 중복 방지 가능
 				boolean isBookmarked = places.stream()
-					.anyMatch(p -> p.equals(place));
-
+					.anyMatch(p -> p.getId().equals(place.getId())); // id 비교 안전
 				return FolderOptionDto.from(folder, bookmarkCount, isBookmarked);
 			})
 			.toList();
 	}
+
+	private Map<Long, List<Place>> getFolderIdToPlacesMap(List<Long> folderIds) {
+		List<FolderPlace> folderPlaces = folderPlaceRepository.findFolderPlacesByFolderIds(
+			folderIds);
+
+		return folderPlaces.stream()
+			.collect(Collectors.groupingBy(
+				fp -> fp.getFolder().getId(),
+				Collectors.mapping(FolderPlace::getPlace, Collectors.toList())
+			));
+	}
+
 
 	public Folder getFolderByIdAndUserId(Long folderId, Long userId) {
 		return folderRepository.findByIdAndUserId(folderId, userId)
@@ -142,13 +159,7 @@ public class FolderService {
 		folderPlaceRepository.deleteByFolderIdsAndPlaceIdAndOwner(folderIds, placeId, userId);
 	}
 
-	private Map<Folder, List<Place>> groupFolderPlaces(List<FolderPlace> folderPlaces) {
-		return folderPlaces.stream()
-			.collect(Collectors.groupingBy(
-				FolderPlace::getFolder,
-				Collectors.mapping(FolderPlace::getPlace, Collectors.toList())
-			));
+	public List<Place> getAllPlacesInFolders(Long userId) {
+		return folderPlaceRepository.findDistinctPlacesByUserId(userId);
 	}
-
-
 }
