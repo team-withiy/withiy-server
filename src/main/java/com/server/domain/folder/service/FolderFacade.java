@@ -34,41 +34,29 @@ public class FolderFacade {
 	public GetFolderPlacesResponse getFolderPlaces(Long folderId, User user) {
 		Folder folder = folderService.getFolderByIdAndUserId(folderId, user.getId());
 		List<Place> places = placeService.getPlacesByFolderId(folderId);
-		List<PlaceSummaryDto> placeSummaries = places.stream()
-			.map(place -> {
-				Album album = albumService.getAlbumByPlace(place);
-				List<Photo> photos = photoService.getPhotosByAlbum(album);
-				List<String> imageUrls = photos
-					.stream()
-					.map(photo -> photo.getImgUrl())
-					.toList();
-				return PlaceSummaryDto.from(place, imageUrls);
-			})
-			.toList();
+		List<PlaceSummaryDto> placeSummaries = toPlaceSummaries(places);
 		return GetFolderPlacesResponse.from(folder, placeSummaries);
 	}
 
 	@Transactional(readOnly = true)
 	public GetFolderPlacesResponse getAllFolderPlaces(User user) {
-		Map<Folder, List<Place>> folderPlacesMap = folderService.getFolderPlacesMap(user);
-		List<Place> places = folderPlacesMap.values().stream()
-			.flatMap(List::stream)
-			.distinct()
-			.toList();
+		List<Place> places = folderService.getAllPlacesInFolders(user.getId());
+		List<PlaceSummaryDto> placeSummaries = toPlaceSummaries(places);
+		return GetFolderPlacesResponse.ofVirtual(ALL_PLACE_FOLDER_NAME, placeSummaries);
+	}
 
-		List<PlaceSummaryDto> placeSummaries = places.stream()
+	private List<PlaceSummaryDto> toPlaceSummaries(List<Place> places) {
+		// TODO: albumService, photoService에서 배치 조회 제공 시 성능 최적화 가능
+		return places.stream()
 			.map(place -> {
 				Album album = albumService.getAlbumByPlace(place);
 				List<Photo> photos = photoService.getPhotosByAlbum(album);
-				List<String> imageUrls = photos
-					.stream()
-					.map(photo -> photo.getImgUrl())
+				List<String> imageUrls = photos.stream()
+					.map(Photo::getImgUrl)
 					.toList();
 				return PlaceSummaryDto.from(place, imageUrls);
 			})
 			.toList();
-
-		return GetFolderPlacesResponse.ofVirtual(ALL_PLACE_FOLDER_NAME, placeSummaries);
 	}
 
 	@Transactional(readOnly = true)
