@@ -77,11 +77,22 @@ public class FolderController {
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/{folderId}")
 	@Operation(summary = "폴더 조회 api", description = "특정 폴더 조회")
-	public ApiResponseDto<GetFolderPlacesResponse> getFolder(@PathVariable Long folderId,
+	public ApiResponseDto<GetFolderPlacesResponse> getFolderPlaces(@PathVariable Long folderId,
 		@AuthenticationPrincipal User user) {
 
 		return ApiResponseDto.success(HttpStatus.OK.value(),
-			folderFacade.getFolder(folderId, user));
+			folderFacade.getFolderPlaces(folderId, user));
+	}
+
+	@PreAuthorize("hasRole('USER')")
+	@ResponseStatus(HttpStatus.OK)
+	@GetMapping("/all")
+	@Operation(summary = "저장한 모든 장소 조회 api", description = "저장한 모든 장소 조회")
+	public ApiResponseDto<GetFolderPlacesResponse> getAllFolderPlaces(
+		@AuthenticationPrincipal User user) {
+
+		return ApiResponseDto.success(HttpStatus.OK.value(),
+			folderFacade.getAllFolderPlaces(user));
 	}
 
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")

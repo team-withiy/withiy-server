@@ -36,4 +36,13 @@ public class GetFolderPlacesResponse {
 			.places(placeSummaries)
 			.build();
 	}
+
+	public static GetFolderPlacesResponse ofVirtual(String folderName,
+		List<PlaceSummaryDto> placeSummaries) {
+		return GetFolderPlacesResponse.builder()
+			.folderId(-1L) // 가상 폴더는 DB에 없으니 예약 ID (-1) 사용
+			.folderName(folderName)
+			.places(placeSummaries)
+			.build();
+	}
 }

@@ -5,6 +5,8 @@ import com.server.domain.user.entity.User;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface FolderRepository extends JpaRepository<Folder, Long> {
 
@@ -12,5 +14,6 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
 
 	Optional<Folder> findByIdAndUserId(Long id, Long userId);
 
-	List<Folder> findAllByUser(User user);
+	@Query("SELECT f FROM Folder f WHERE f.user.id = :userId")
+	List<Folder> findFoldersByUserId(@Param("userId") Long userId);
 }
