@@ -21,6 +21,7 @@ public class CreateFolderDto {
 	@Schema(description = "폴더 색상", example = "RED")
 	private FolderColor color;
 
+	@Schema(hidden = true)
 	public String getNormalizedName() {
 		return name.trim().toLowerCase();
 	}
