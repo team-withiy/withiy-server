@@ -15,8 +15,8 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 	@Query("DELETE FROM FolderPlace fp WHERE fp.folder.id = :folderId")
 	int deleteByFolderId(Long folderId);
 
-	@Query("SELECT fp.place FROM FolderPlace fp " +
-		"JOIN FETCH fp.place p " +
+	@Query("SELECT p FROM FolderPlace fp " +
+		"JOIN fp.place p " +
 		"LEFT JOIN FETCH p.category " +
 		"WHERE fp.folder.id = :folderId")
 	List<Place> findPlacesByFolderId(@Param("folderId") Long folderId);
