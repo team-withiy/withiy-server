@@ -38,7 +38,7 @@ public class Folder {
 	@Column(name = "name")
 	private String name;
 	
-	@Column(name = "color")
+	@Column(name = "color", length = 7)
 	private String color;
 
 	@Enumerated(EnumType.STRING)
