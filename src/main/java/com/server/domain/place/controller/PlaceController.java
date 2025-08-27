@@ -131,7 +131,7 @@ public class PlaceController {
 	@Operation(summary = "장소 북마크 여부 조회", description = "장소 id를 받아 사용자가 해당 장소를 북마크했는지 여부 조회")
 	public ApiResponseDto<Boolean> isBookmarked(@PathVariable Long placeId,
 		@AuthenticationPrincipal User user) {
-		Boolean isBookmarked = placeService.isBookmarked(placeId, user);
+		Boolean isBookmarked = placeFacade.isBookmarked(placeId, user);
 		return ApiResponseDto.success(HttpStatus.OK.value(), isBookmarked);
 	}
 

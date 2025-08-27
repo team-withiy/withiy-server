@@ -217,12 +217,6 @@ public class PlaceService {
 		return placeBookmarkRepository.countByPlaceAndNotDeleted(place);
 	}
 
-	public boolean isBookmarked(Long placeId, User user) {
-		Place place = placeRepository.findById(placeId)
-			.orElseThrow(() -> new BusinessException(PlaceErrorCode.NOT_FOUND));
-		return placeBookmarkRepository.existsByPlaceAndUser(place, user);
-	}
-
 	public List<Place> getPlacesByFolderId(Long folderId) {
 		return folderPlaceRepository.findPlacesByFolderId(folderId);
 	}
