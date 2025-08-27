@@ -135,4 +135,8 @@ public class PlaceFacade {
 
 		return "Place updated in folders successfully.";
 	}
+
+	public boolean isBookmarked(Long placeId, User user) {
+		return folderService.existsFolderByPlaceIdAndUserId(placeId, user.getId());
+	}
 }

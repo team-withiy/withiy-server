@@ -145,6 +145,10 @@ public class FolderService {
 			.orElseThrow(() -> new BusinessException(FolderErrorCode.NOT_FOUND));
 	}
 
+	public boolean existsFolderByPlaceIdAndUserId(Long placeId, Long userId) {
+		return folderPlaceRepository.findFolderIdsByPlaceIdAndUserId(placeId, userId).size() > 0;
+	}
+
 	public Set<Long> getFolderIdsByPlaceIdAndUserId(Long placeId, Long userId) {
 		return new HashSet<>(
 			folderPlaceRepository.findFolderIdsByPlaceIdAndUserId(placeId, userId)
