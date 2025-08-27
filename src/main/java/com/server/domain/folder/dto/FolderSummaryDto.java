@@ -46,7 +46,7 @@ public class FolderSummaryDto {
 		return FolderSummaryDto.builder()
 			.id(folder.getId())
 			.name(folder.getName())
-			.color(folder.getColor().getHexCode())
+			.color(folder.getColor())
 			.bookmarkCount(bookmarkCount)
 			.thumbnails(thumbnails)
 			.type(folder.getType())
@@ -58,7 +58,7 @@ public class FolderSummaryDto {
 		return FolderSummaryDto.builder()
 			.id(folder.getId())
 			.name(folder.getName())
-			.color(folder.getColor().getHexCode())
+			.color(folder.getColor())
 			.bookmarkCount(0L) // 기본값 설정
 			.thumbnails(List.of()) // 기본값 설정
 			.type(folder.getType())

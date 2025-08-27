@@ -37,10 +37,9 @@ public class Folder {
 
 	@Column(name = "name")
 	private String name;
-
-	@Enumerated(EnumType.STRING)
+	
 	@Column(name = "color")
-	private FolderColor color;
+	private String color;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "type")
@@ -56,7 +55,7 @@ public class Folder {
 	private LocalDateTime createdAt;
 
 	@Builder
-	public Folder(String name, FolderColor color, FolderType type, User user) {
+	public Folder(String name, String color, FolderType type, User user) {
 		this.name = name;
 		this.color = color;
 		this.type = type;
@@ -67,7 +66,7 @@ public class Folder {
 		this.name = name;
 	}
 
-	public void updateColor(FolderColor color) {
+	public void updateColor(String color) {
 		this.color = color;
 	}
 }

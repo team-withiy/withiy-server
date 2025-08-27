@@ -30,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class FolderService {
 
 	private static final String DEFAULT_FOLDER_NAME = "내 장소";
-	private static final FolderColor DEFAULT_FOLDER_COLOR = FolderColor.PINK;
+	private static final String DEFAULT_FOLDER_COLOR = FolderColor.PINK.getHexCode();
 	private final FolderRepository folderRepository;
 	private final FolderPlaceRepository folderPlaceRepository;
 
