@@ -39,7 +39,7 @@ public class FolderOptionDto {
 		return FolderOptionDto.builder()
 			.id(folder.getId())
 			.name(folder.getName())
-			.color(folder.getColor().getHexCode())
+			.color(folder.getColor())
 			.bookmarkCount(bookmarkCount)
 			.isBookmarked(isBookmarked)
 			.createdAt(folder.getCreatedAt())
