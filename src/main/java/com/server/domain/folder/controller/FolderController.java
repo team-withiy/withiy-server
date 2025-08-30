@@ -10,6 +10,7 @@ import com.server.domain.folder.service.FolderService;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -39,7 +40,7 @@ public class FolderController {
 	@PostMapping
 	@Operation(summary = "폴더 생성 api", description = "폴더 생성")
 	public ApiResponseDto<FolderSummaryDto> createFolder(@AuthenticationPrincipal User user,
-		@RequestBody CreateFolderDto createFolderDto) {
+		@Valid @RequestBody CreateFolderDto createFolderDto) {
 		return ApiResponseDto.success(HttpStatus.OK.value(),
 			folderService.createFolder(user, createFolderDto));
 	}
