@@ -28,12 +28,11 @@ import com.server.global.dto.pagination.ApiCursorPaginationRequest;
 import com.server.global.dto.pagination.CursorPageDto;
 import com.server.global.error.code.PlaceErrorCode;
 import com.server.global.error.exception.BusinessException;
-import java.util.Collections;
+import com.server.global.service.CursorPageService;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PlaceService {
+public class PlaceService extends CursorPageService<Place, Long> {
 
 	private final PlaceRepository placeRepository;
 	private final PlaceBookmarkRepository placeBookmarkRepository;
@@ -222,58 +221,23 @@ public class PlaceService {
 		return placeBookmarkRepository.countByPlaceAndNotDeleted(place);
 	}
 
-	public CursorPageDto<Place> getPlacesByFolder(Long folderId,
+	public CursorPageDto<Place, Long> getPlacesByFolder(Long folderId,
 		ApiCursorPaginationRequest pageRequest) {
-		int limit = pageRequest.getLimit();
-		Pageable pageable = PageRequest.of(0, limit + 1);
-		List<Place> fetched;
+		return super.getPage(folderId, pageRequest);
+	}
 
-		// 1. Prev 모드인지 Next 모드인지 분기
-		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
-			// prev 모드: cursor보다 큰 값 ASC로 가져온 뒤 뒤집기
-			fetched = folderPlaceRepository.findPrevPlaces(folderId, pageRequest.getCursor(),
-				pageable);
-			Collections.reverse(fetched);
-		} else {
-			// next 모드: cursor보다 작은 값 DESC로 가져오기
-			fetched = folderPlaceRepository.findNextPlaces(folderId, pageRequest.getCursor(),
-				pageable);
-		}
+	@Override
+	protected List<Place> findNext(Long folderId, Long cursor, Pageable pageable) {
+		return folderPlaceRepository.findNextPlaces(folderId, cursor, pageable);
+	}
 
-		// 2. hasNext / hasPrev 판별 (limit+1 조회 결과 기준)
-		boolean hasMore = fetched.size() > limit;
+	@Override
+	protected List<Place> findPrev(Long folderId, Long cursor, Pageable pageable) {
+		return folderPlaceRepository.findPrevPlaces(folderId, cursor, pageable);
+	}
 
-		boolean hasNext;
-		boolean hasPrev;
-
-		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
-			hasPrev = hasMore;                      // limit+1 → 이전 페이지가 더 있음
-			hasNext = pageRequest.getCursor() != null; // cursor가 있으면 이후 페이지가 있음
-		} else {
-			hasNext = hasMore;                      // limit+1 → 다음 페이지가 더 있음
-			hasPrev = pageRequest.getCursor() != null; // cursor가 있으면 이전 페이지가 있음
-		}
-
-		// 3. 실제 반환할 데이터만 잘라내기
-		List<Place> places = hasMore ? fetched.subList(0, limit) : fetched;
-
-		// 4. 커서 설정
-		Long nextCursor = null;
-		Long prevCursor = null;
-
-		if (!places.isEmpty()) {
-			// hasNext/hasPrev 여부에 따라 커서 값 조정
-			nextCursor = hasNext ? places.get(places.size() - 1).getId() : null;
-			prevCursor = hasPrev ? places.get(0).getId() : null;
-		}
-
-		return CursorPageDto.<Place>builder()
-			.data(places)
-			.hasNext(hasNext)
-			.hasPrev(hasPrev)
-			.total(places.size()) // 현재 페이지 개수, 필요하다면 COUNT(*)로 전체 건수 넣을 수 있음
-			.nextCursor(nextCursor)
-			.prevCursor(prevCursor)
-			.build();
+	@Override
+	protected Long extractId(Place entity) {
+		return entity.getId();
 	}
 }

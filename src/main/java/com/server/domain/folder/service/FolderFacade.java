@@ -33,12 +33,13 @@ public class FolderFacade {
 	private final PhotoService photoService;
 
 	@Transactional(readOnly = true)
-	public CursorPageDto<PlaceSummaryDto> getFolderPlaces(Long folderId, User user,
+	public CursorPageDto<PlaceSummaryDto, Long> getFolderPlaces(Long folderId, User user,
 		ApiCursorPaginationRequest pageRequest) {
 
 		Folder folder = folderService.getFolderByIdAndUser(folderId, user.getId());
 
-		CursorPageDto<Place> page = placeService.getPlacesByFolder(folder.getId(), pageRequest);
+		CursorPageDto<Place, Long> page = placeService.getPlacesByFolder(folder.getId(),
+			pageRequest);
 
 		return page.map(place -> {
 			Album album = albumService.getAlbumByPlace(place);

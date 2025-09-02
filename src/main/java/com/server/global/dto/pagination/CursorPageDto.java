@@ -11,14 +11,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CursorPageDto<T> {
+public class CursorPageDto<T, ID> {
 
 	private List<T> data;
 	private boolean hasPrev;
 	private boolean hasNext;
 	private long total;
-	private Long prevCursor;
-	private Long nextCursor;
+	private ID prevCursor;
+	private ID nextCursor;
 
 	public boolean hasPrev() {
 		return this.hasPrev;
@@ -29,8 +29,8 @@ public class CursorPageDto<T> {
 	}
 
 	// DTO 변환용 map 메서드
-	public <R> CursorPageDto<R> map(Function<T, R> mapper) {
-		return CursorPageDto.<R>builder()
+	public <R> CursorPageDto<R, ID> map(Function<T, R> mapper) {
+		return CursorPageDto.<R, ID>builder()
 			.data(this.data.stream().map(mapper).toList())
 			.hasPrev(this.hasPrev)
 			.hasNext(this.hasNext)
