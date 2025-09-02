@@ -56,22 +56,24 @@ public class FolderFacade {
 	@Transactional(readOnly = true)
 	public GetFolderPlacesResponse getAllFolderPlaces(User user) {
 		List<Place> places = folderService.getAllPlacesInFolders(user.getId());
-		List<PlaceSummaryDto> placeSummaries = toPlaceSummaries(places);
-		return GetFolderPlacesResponse.ofVirtual(ALL_PLACE_FOLDER_NAME, placeSummaries);
-	}
+		List<Long> placeIds = places.stream().map(Place::getId).toList();
+		
+		Map<Long, Album> albumMap = albumService.getAlbumsByPlaceIds(placeIds);
+		Map<Long, List<Photo>> photoMap = photoService.getPhotosByAlbumIds(
+			albumMap.values().stream().map(Album::getId).toList()
+		);
 
-	private List<PlaceSummaryDto> toPlaceSummaries(List<Place> places) {
-		// TODO: albumService, photoService에서 배치 조회 제공 시 성능 최적화 가능
-		return places.stream()
+		List<PlaceSummaryDto> placeSummaries = places.stream()
 			.map(place -> {
-				Album album = albumService.getAlbumByPlace(place);
-				List<Photo> photos = photoService.getPhotosByAlbum(album);
-				List<String> imageUrls = photos.stream()
+				Album album = albumMap.get(place.getId());
+				List<String> imageUrls = photoMap.getOrDefault(album.getId(), List.of())
+					.stream()
 					.map(Photo::getImgUrl)
 					.toList();
 				return PlaceSummaryDto.from(place, imageUrls);
 			})
 			.toList();
+		return GetFolderPlacesResponse.ofVirtual(ALL_PLACE_FOLDER_NAME, placeSummaries);
 	}
 
 	@Transactional(readOnly = true)

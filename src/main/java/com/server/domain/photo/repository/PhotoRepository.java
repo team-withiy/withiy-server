@@ -18,4 +18,11 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 	List<Photo> findByAlbum(@Param("album") Album album, Pageable pageable);
 
 	List<Photo> findAllByAlbumAndUser(Album album, User reviewer);
+
+
+	@Query("SELECT p FROM Photo p " +
+		"JOIN FETCH p.album " +
+		"WHERE p.album.id IN :albumIds " +
+		"ORDER BY p.createdAt DESC")
+	List<Photo> findAllByAlbumIds(List<Long> albumIds);
 }

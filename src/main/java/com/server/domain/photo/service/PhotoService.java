@@ -1,13 +1,12 @@
 package com.server.domain.photo.service;
 
 import com.server.domain.album.entity.Album;
-import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.repository.PhotoRepository;
 import com.server.domain.user.entity.User;
-import com.server.global.dto.ImageResponseDto;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -17,21 +16,6 @@ import org.springframework.stereotype.Service;
 public class PhotoService {
 
 	private final PhotoRepository photoRepository;
-
-	public List<PhotoDto> convertToPhotoDtos(List<ImageResponseDto> imageDtos) {
-
-		List<PhotoDto> photoDtos = new ArrayList<>();
-
-		for (ImageResponseDto imgDto : imageDtos) {
-			PhotoDto photoDto = PhotoDto.builder()
-				.imageUrl(imgDto.getImageUrl())
-				.build();
-
-			photoDtos.add(photoDto);
-		}
-
-		return photoDtos;
-	}
 
 	public void saveAll(List<Photo> photos) {
 		photoRepository.saveAll(photos);
@@ -62,5 +46,11 @@ public class PhotoService {
 
 	public List<Photo> getPhotosByAlbumAndUser(Album album, User reviewer) {
 		return photoRepository.findAllByAlbumAndUser(album, reviewer);
+	}
+
+	public Map<Long, List<Photo>> getPhotosByAlbumIds(List<Long> albumIds) {
+		List<Photo> photos = photoRepository.findAllByAlbumIds(albumIds);
+		return photos.stream()
+			.collect(Collectors.groupingBy(photo -> photo.getAlbum().getId()));
 	}
 }
