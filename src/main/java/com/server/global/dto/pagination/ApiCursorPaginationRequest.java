@@ -11,8 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ApiCursorPaginationRequest implements PaginationRequest {
 
-	private Long where;         // 커서 (id)
-	private int limit;          // 몇 개 가져올지
-	private Boolean prev;       // 이전 방향?
-	private Boolean includeCursor; // 커서 포함 여부
+	private Long cursor;
+	private int limit;
+	private Boolean prev;
 }

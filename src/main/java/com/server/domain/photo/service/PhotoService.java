@@ -9,6 +9,7 @@ import com.server.global.dto.ImageResponseDto;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -55,8 +56,8 @@ public class PhotoService {
 		saveAll(photos);
 	}
 
-	public List<Photo> getPhotosByAlbum(Album album) {
-		return photoRepository.findAllByAlbum(album);
+	public List<Photo> getPhotosByAlbum(Album album, int limit) {
+		return photoRepository.findByAlbum(album, PageRequest.of(0, limit));
 	}
 
 	public List<Photo> getPhotosByAlbumAndUser(Album album, User reviewer) {

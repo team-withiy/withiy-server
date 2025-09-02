@@ -10,16 +10,10 @@ import org.springframework.data.repository.query.Param;
 
 public interface PlaceBookmarkRepository extends JpaRepository<PlaceBookmark, Long> {
 
-	boolean existsByPlaceIdAndUserId(Long placeId, Long userId);
-
-	void deleteByUserIdAndPlaceId(Long userId, Long placeId);
-
 	@Query("SELECT pb FROM PlaceBookmark pb JOIN FETCH pb.place WHERE pb.user = :user")
 	List<PlaceBookmark> findByUserWithPlace(User user);
 
 	@Query("SELECT COUNT(pb) FROM PlaceBookmark pb " +
 		"WHERE pb.place = :place AND pb.deletedAt IS NULL")
 	long countByPlaceAndNotDeleted(@Param("place") Place place);
-
-	boolean existsByPlaceAndUser(Place place, User user);
 }

@@ -140,7 +140,7 @@ public class FolderService {
 	}
 
 
-	public Folder getFolderByIdAndUserId(Long folderId, Long userId) {
+	public Folder getFolderByIdAndUser(Long folderId, Long userId) {
 		return folderRepository.findByIdAndUserId(folderId, userId)
 			.orElseThrow(() -> new BusinessException(FolderErrorCode.NOT_FOUND));
 	}

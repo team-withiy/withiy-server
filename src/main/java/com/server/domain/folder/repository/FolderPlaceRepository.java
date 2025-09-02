@@ -4,6 +4,7 @@ import com.server.domain.folder.entity.FolderPlace;
 import com.server.domain.place.entity.Place;
 import java.util.List;
 import java.util.Set;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,8 +19,22 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 	@Query("SELECT p FROM FolderPlace fp " +
 		"JOIN fp.place p " +
 		"LEFT JOIN FETCH p.category " +
-		"WHERE fp.folder.id = :folderId")
-	List<Place> findPlacesByFolderId(@Param("folderId") Long folderId);
+		"WHERE fp.folder.id = :folderId " +
+		"AND (:cursor IS NULL OR p.id < :cursor) " +
+		"ORDER BY p.id DESC")
+	List<Place> findNextPlaces(@Param("folderId") Long folderId,
+		@Param("cursor") Long cursor,
+		Pageable pageable);
+
+	@Query("SELECT p FROM FolderPlace fp " +
+		"JOIN fp.place p " +
+		"LEFT JOIN FETCH p.category " +
+		"WHERE fp.folder.id = :folderId " +
+		"AND (:cursor IS NULL OR p.id > :cursor) " +
+		"ORDER BY p.id ASC")
+	List<Place> findPrevPlaces(@Param("folderId") Long folderId,
+		@Param("cursor") Long cursor,
+		Pageable pageable);
 
 	@Query("SELECT f.id \n"
 		+ "    FROM FolderPlace fp\n"

@@ -4,11 +4,14 @@ import com.server.domain.folder.dto.CreateFolderDto;
 import com.server.domain.folder.dto.FolderOptionDto;
 import com.server.domain.folder.dto.FolderSummaryDto;
 import com.server.domain.folder.dto.GetFolderPlacesResponse;
+import com.server.domain.folder.dto.PlaceSummaryDto;
 import com.server.domain.folder.dto.UpdateFolderDto;
 import com.server.domain.folder.service.FolderFacade;
 import com.server.domain.folder.service.FolderService;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
+import com.server.global.dto.pagination.ApiCursorPaginationRequest;
+import com.server.global.dto.pagination.ApiCursorPaginationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -18,6 +21,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -77,12 +81,13 @@ public class FolderController {
 	@PreAuthorize("hasRole('USER')")
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/{folderId}")
-	@Operation(summary = "폴더 조회 api", description = "특정 폴더 조회")
-	public ApiResponseDto<GetFolderPlacesResponse> getFolderPlaces(@PathVariable Long folderId,
-		@AuthenticationPrincipal User user) {
+	@Operation(summary = "폴더 조회 api", description = "폴더 내 장소들을 커서 페이징으로 조회")
+	public ApiCursorPaginationResponse<PlaceSummaryDto> getFolderPlaces(@PathVariable Long folderId,
+		@AuthenticationPrincipal User user,
+		@Valid @ModelAttribute ApiCursorPaginationRequest pageRequest) {
 
-		return ApiResponseDto.success(HttpStatus.OK.value(),
-			folderFacade.getFolderPlaces(folderId, user));
+		return ApiCursorPaginationResponse.success(HttpStatus.OK.value(),
+			folderFacade.getFolderPlaces(folderId, user, pageRequest));
 	}
 
 	@PreAuthorize("hasRole('USER')")

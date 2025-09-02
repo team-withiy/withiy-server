@@ -12,6 +12,8 @@ import com.server.domain.photo.service.PhotoService;
 import com.server.domain.place.entity.Place;
 import com.server.domain.place.service.PlaceService;
 import com.server.domain.user.entity.User;
+import com.server.global.dto.pagination.ApiCursorPaginationRequest;
+import com.server.global.dto.pagination.CursorPageDto;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,11 +33,23 @@ public class FolderFacade {
 	private final PhotoService photoService;
 
 	@Transactional(readOnly = true)
-	public GetFolderPlacesResponse getFolderPlaces(Long folderId, User user) {
-		Folder folder = folderService.getFolderByIdAndUserId(folderId, user.getId());
-		List<Place> places = placeService.getPlacesByFolderId(folderId);
-		List<PlaceSummaryDto> placeSummaries = toPlaceSummaries(places);
-		return GetFolderPlacesResponse.from(folder, placeSummaries);
+	public CursorPageDto<PlaceSummaryDto> getFolderPlaces(Long folderId, User user,
+		ApiCursorPaginationRequest pageRequest) {
+
+		Folder folder = folderService.getFolderByIdAndUser(folderId, user.getId());
+
+		CursorPageDto<Place> page = placeService.getPlacesByFolder(folder.getId(), pageRequest);
+
+		return page.map(place -> {
+			Album album = albumService.getAlbumByPlace(place);
+
+			List<String> imageUrls = photoService.getPhotosByAlbum(album, 4)
+				.stream()
+				.map(Photo::getImgUrl)
+				.toList();
+
+			return PlaceSummaryDto.from(place, imageUrls);
+		});
 	}
 
 	@Transactional(readOnly = true)
