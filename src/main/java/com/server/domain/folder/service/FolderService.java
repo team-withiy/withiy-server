@@ -162,8 +162,4 @@ public class FolderService {
 	public void deletePlaceInFolders(Set<Long> folderIds, Long placeId, Long userId) {
 		folderPlaceRepository.deleteByFolderIdsAndPlaceIdAndOwner(folderIds, placeId, userId);
 	}
-
-	public List<Place> getAllPlacesInFolders(Long userId) {
-		return folderPlaceRepository.findDistinctPlacesByUserId(userId);
-	}
 }
