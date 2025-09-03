@@ -40,9 +40,7 @@ public class AlbumService {
 
 	public Map<Long, Album> getAlbumsByPlaceIds(List<Long> placeIds) {
 		List<PlaceAlbum> placeAlbums = placeAlbumRepository.findByPlaceIds(placeIds);
-		Map<Long, Album> albumMap = placeAlbums.stream()
+		return placeAlbums.stream()
 			.collect(Collectors.toMap(pa -> pa.getPlace().getId(), PlaceAlbum::getAlbum));
-
-
 	}
 }

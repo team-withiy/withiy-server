@@ -21,9 +21,15 @@ public class PhotoService {
 		photoRepository.saveAll(photos);
 	}
 
-	public List<String> getPhotoUrls(Album album) {
+	// TODO: 페이징 처리 작업 시 삭제 예정
+	public List<String> getAllPhotoUrls(Album album) {
 
-		return photoRepository.findImageUrlsByAlbum(album);
+		return photoRepository.findAllImageUrlByAlbum(album);
+	}
+
+	public List<String> getLimitedPhotoUrls(Album album, int limit) {
+		return photoRepository.findImageUrlsByAlbum(album,
+			PageRequest.of(0, limit));
 	}
 
 	public void uploadPhotos(Album album, User uploader, List<String> imageUrls) {
@@ -40,8 +46,8 @@ public class PhotoService {
 		saveAll(photos);
 	}
 
-	public List<Photo> getPhotosByAlbum(Album album, int limit) {
-		return photoRepository.findByAlbum(album, PageRequest.of(0, limit));
+	public List<Photo> getPhotosByAlbum(Album album) {
+		return photoRepository.findAllByAlbum(album);
 	}
 
 	public List<Photo> getPhotosByAlbumAndUser(Album album, User reviewer) {
@@ -52,5 +58,12 @@ public class PhotoService {
 		List<Photo> photos = photoRepository.findAllByAlbumIds(albumIds);
 		return photos.stream()
 			.collect(Collectors.groupingBy(photo -> photo.getAlbum().getId()));
+	}
+
+	public Map<Long, Photo> getFirstPhotoByAlbumIds(List<Long> albumIds) {
+		List<Photo> photos = photoRepository.findAllByAlbumIds(albumIds);
+		return photos.stream()
+			.collect(Collectors.toMap(photo -> photo.getAlbum().getId(), photo -> photo,
+				(existing, replacement) -> existing));
 	}
 }

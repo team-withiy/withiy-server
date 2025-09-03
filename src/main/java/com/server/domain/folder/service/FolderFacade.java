@@ -41,14 +41,12 @@ public class FolderFacade {
 		CursorPageDto<Place, Long> page = placeService.getPlacesByFolder(folder.getId(),
 			pageRequest);
 
+		List<Long> placeIds = page.getData().stream().map(Place::getId).toList();
+		Map<Long, Album> albumMap = albumService.getAlbumsByPlaceIds(placeIds);
+
 		return page.map(place -> {
-			Album album = albumService.getAlbumByPlace(place);
-
-			List<String> imageUrls = photoService.getPhotosByAlbum(album, 4)
-				.stream()
-				.map(Photo::getImgUrl)
-				.toList();
-
+			Album album = albumMap.get(place.getId());
+			List<String> imageUrls = photoService.getLimitedPhotoUrls(album, 4);
 			return PlaceSummaryDto.from(place, imageUrls);
 		});
 	}
@@ -57,7 +55,7 @@ public class FolderFacade {
 	public GetFolderPlacesResponse getAllFolderPlaces(User user) {
 		List<Place> places = folderService.getAllPlacesInFolders(user.getId());
 		List<Long> placeIds = places.stream().map(Place::getId).toList();
-		
+
 		Map<Long, Album> albumMap = albumService.getAlbumsByPlaceIds(placeIds);
 		Map<Long, List<Photo>> photoMap = photoService.getPhotosByAlbumIds(
 			albumMap.values().stream().map(Album::getId).toList()
@@ -114,7 +112,7 @@ public class FolderFacade {
 				List<Place> places = entry.getValue();
 				Long bookmarkCount = (long) places.size();
 
-				List<String> thumbnails = extractThumbnails(places);
+				List<String> thumbnails = extractFirstThumbnails(places);
 				return FolderSummaryDto.from(folder, bookmarkCount, thumbnails);
 			})
 			.toList();
@@ -133,7 +131,7 @@ public class FolderFacade {
 			.toList();
 
 		Long totalCount = (long) allPlaces.size();
-		List<String> thumbnails = extractThumbnails(allPlaces);
+		List<String> thumbnails = extractFirstThumbnails(allPlaces);
 
 		return FolderSummaryDto.ofVirtual("저장된 모든 장소", totalCount, thumbnails);
 	}
@@ -144,12 +142,23 @@ public class FolderFacade {
 	 * @param places
 	 * @return
 	 */
-	private List<String> extractThumbnails(List<Place> places) {
+	private List<String> extractFirstThumbnails(List<Place> places) {
+		List<Long> placeIds = places.stream().map(Place::getId).toList();
+
+		// placeId → album
+		Map<Long, Album> albumMap = albumService.getAlbumsByPlaceIds(placeIds);
+
+		// albumId → 대표 photo
+		Map<Long, Photo> photoMap = photoService.getFirstPhotoByAlbumIds(
+			albumMap.values().stream().map(Album::getId).toList()
+		);
+
 		return places.stream()
 			.map(place -> {
-				Album album = albumService.getAlbumByPlace(place);
-				List<Photo> photos = photoService.getPhotosByAlbum(album);
-				return photos.isEmpty() ? null : photos.get(0).getImgUrl();
+				Album album = albumMap.get(place.getId());
+				return (album != null && photoMap.containsKey(album.getId()))
+					? photoMap.get(album.getId()).getImgUrl()
+					: null;
 			})
 			.filter(Objects::nonNull)
 			.limit(4)
