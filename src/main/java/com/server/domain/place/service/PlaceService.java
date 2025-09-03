@@ -26,10 +26,16 @@ import com.server.domain.search.dto.SearchSource;
 import com.server.domain.user.entity.User;
 import com.server.global.error.code.PlaceErrorCode;
 import com.server.global.error.exception.BusinessException;
+import com.server.global.pagination.dto.ApiCursorPaginationRequest;
+import com.server.global.pagination.dto.CursorPageDto;
+import com.server.global.pagination.utils.CursorPaginationUtils;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -217,7 +223,55 @@ public class PlaceService {
 		return placeBookmarkRepository.countByPlaceAndNotDeleted(place);
 	}
 
-	public List<Place> getPlacesByFolderId(Long folderId) {
-		return folderPlaceRepository.findPlacesByFolderId(folderId);
+	public CursorPageDto<Place, Long> getPlacesByFolder(Long folderId,
+		ApiCursorPaginationRequest pageRequest) {
+		int limit = pageRequest.getLimit();
+		Pageable pageable = PageRequest.of(0, limit + 1);
+
+		List<Place> fetched;
+
+		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
+			fetched = folderPlaceRepository.findPrevPlacesByFolder(folderId,
+				pageRequest.getCursor(),
+				pageable);
+			Collections.reverse(fetched);
+		} else {
+			fetched = folderPlaceRepository.findNextPlacesByFolder(folderId,
+				pageRequest.getCursor(),
+				pageable);
+		}
+
+		return CursorPaginationUtils.paginate(
+			fetched,
+			limit,
+			Boolean.TRUE.equals(pageRequest.getPrev()),
+			pageRequest.getCursor(),
+			Place::getId // 커서 기준 값 추출 방법 전달
+		);
+	}
+
+	public CursorPageDto<Place, Long> getAllPlacesInFolders(Long userId,
+		ApiCursorPaginationRequest pageRequest) {
+		int limit = pageRequest.getLimit();
+		Pageable pageable = PageRequest.of(0, limit + 1);
+
+		List<Place> fetched;
+
+		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
+			fetched = folderPlaceRepository.findPrevPlacesByUser(userId, pageRequest.getCursor(),
+				pageable);
+			Collections.reverse(fetched);
+		} else {
+			fetched = folderPlaceRepository.findNextPlacesByUser(userId, pageRequest.getCursor(),
+				pageable);
+		}
+
+		return CursorPaginationUtils.paginate(
+			fetched,
+			limit,
+			Boolean.TRUE.equals(pageRequest.getPrev()),
+			pageRequest.getCursor(),
+			Place::getId // 커서 기준 값 추출 방법 전달
+		);
 	}
 }

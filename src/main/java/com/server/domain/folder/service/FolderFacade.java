@@ -4,7 +4,6 @@ import com.server.domain.album.entity.Album;
 import com.server.domain.album.service.AlbumService;
 import com.server.domain.folder.dto.FolderOptionDto;
 import com.server.domain.folder.dto.FolderSummaryDto;
-import com.server.domain.folder.dto.GetFolderPlacesResponse;
 import com.server.domain.folder.dto.PlaceSummaryDto;
 import com.server.domain.folder.entity.Folder;
 import com.server.domain.photo.entity.Photo;
@@ -12,7 +11,10 @@ import com.server.domain.photo.service.PhotoService;
 import com.server.domain.place.entity.Place;
 import com.server.domain.place.service.PlaceService;
 import com.server.domain.user.entity.User;
+import com.server.global.pagination.dto.ApiCursorPaginationRequest;
+import com.server.global.pagination.dto.CursorPageDto;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -25,38 +27,30 @@ import org.springframework.transaction.annotation.Transactional;
 public class FolderFacade {
 
 	private static final String ALL_PLACE_FOLDER_NAME = "저장한 모든 장소";
+	private static final int DEFAULT_THUMBNAIL_LIMIT = 4;
 	private final FolderService folderService;
 	private final PlaceService placeService;
 	private final AlbumService albumService;
 	private final PhotoService photoService;
 
 	@Transactional(readOnly = true)
-	public GetFolderPlacesResponse getFolderPlaces(Long folderId, User user) {
-		Folder folder = folderService.getFolderByIdAndUserId(folderId, user.getId());
-		List<Place> places = placeService.getPlacesByFolderId(folderId);
-		List<PlaceSummaryDto> placeSummaries = toPlaceSummaries(places);
-		return GetFolderPlacesResponse.from(folder, placeSummaries);
+	public CursorPageDto<PlaceSummaryDto, Long> getFolderPlaces(Long folderId, User user,
+		ApiCursorPaginationRequest pageRequest) {
+
+		Folder folder = folderService.getFolderByIdAndUser(folderId, user.getId());
+
+		CursorPageDto<Place, Long> page = placeService.getPlacesByFolder(folder.getId(),
+			pageRequest);
+		return mapToPlaceSummary(page);
 	}
 
 	@Transactional(readOnly = true)
-	public GetFolderPlacesResponse getAllFolderPlaces(User user) {
-		List<Place> places = folderService.getAllPlacesInFolders(user.getId());
-		List<PlaceSummaryDto> placeSummaries = toPlaceSummaries(places);
-		return GetFolderPlacesResponse.ofVirtual(ALL_PLACE_FOLDER_NAME, placeSummaries);
-	}
+	public CursorPageDto<PlaceSummaryDto, Long> getAllFolderPlaces(User user,
+		ApiCursorPaginationRequest pageRequest) {
 
-	private List<PlaceSummaryDto> toPlaceSummaries(List<Place> places) {
-		// TODO: albumService, photoService에서 배치 조회 제공 시 성능 최적화 가능
-		return places.stream()
-			.map(place -> {
-				Album album = albumService.getAlbumByPlace(place);
-				List<Photo> photos = photoService.getPhotosByAlbum(album);
-				List<String> imageUrls = photos.stream()
-					.map(Photo::getImgUrl)
-					.toList();
-				return PlaceSummaryDto.from(place, imageUrls);
-			})
-			.toList();
+		CursorPageDto<Place, Long> page = placeService.getAllPlacesInFolders(user.getId(),
+			pageRequest);
+		return mapToPlaceSummary(page);
 	}
 
 	@Transactional(readOnly = true)
@@ -97,7 +91,7 @@ public class FolderFacade {
 				List<Place> places = entry.getValue();
 				Long bookmarkCount = (long) places.size();
 
-				List<String> thumbnails = extractThumbnails(places);
+				List<String> thumbnails = extractFirstThumbnails(places);
 				return FolderSummaryDto.from(folder, bookmarkCount, thumbnails);
 			})
 			.toList();
@@ -116,9 +110,9 @@ public class FolderFacade {
 			.toList();
 
 		Long totalCount = (long) allPlaces.size();
-		List<String> thumbnails = extractThumbnails(allPlaces);
+		List<String> thumbnails = extractFirstThumbnails(allPlaces);
 
-		return FolderSummaryDto.ofVirtual("저장된 모든 장소", totalCount, thumbnails);
+		return FolderSummaryDto.ofVirtual(ALL_PLACE_FOLDER_NAME, totalCount, thumbnails);
 	}
 
 	/**
@@ -127,15 +121,43 @@ public class FolderFacade {
 	 * @param places
 	 * @return
 	 */
-	private List<String> extractThumbnails(List<Place> places) {
+	private List<String> extractFirstThumbnails(List<Place> places) {
+		List<Long> placeIds = places.stream().map(Place::getId).toList();
+
+		// placeId → album
+		Map<Long, Album> albumMap = albumService.getAlbumsByPlaceIds(placeIds);
+
+		// albumId → 대표 photo
+		Map<Long, Photo> photoMap = photoService.getFirstPhotoByAlbumIds(
+			albumMap.values().stream().map(Album::getId).toList()
+		);
+
 		return places.stream()
 			.map(place -> {
-				Album album = albumService.getAlbumByPlace(place);
-				List<Photo> photos = photoService.getPhotosByAlbum(album);
-				return photos.isEmpty() ? null : photos.get(0).getImgUrl();
+				Album album = albumMap.get(place.getId());
+				return (album != null && photoMap.containsKey(album.getId()))
+					? photoMap.get(album.getId()).getImgUrl()
+					: null;
 			})
 			.filter(Objects::nonNull)
 			.limit(4)
 			.toList();
+	}
+
+	/**
+	 * 폴더 내 장소 요약 페이지 매핑 (썸네일 포함)
+	 */
+	private CursorPageDto<PlaceSummaryDto, Long> mapToPlaceSummary(
+		CursorPageDto<Place, Long> page) {
+		List<Long> placeIds = page.getData().stream().map(Place::getId).toList();
+		Map<Long, Album> albumMap = albumService.getAlbumsByPlaceIds(placeIds);
+
+		return page.map(place -> {
+			Album album = albumMap.get(place.getId());
+			List<String> imageUrls = (album != null)
+				? photoService.getLimitedPhotoUrls(album, DEFAULT_THUMBNAIL_LIMIT)
+				: Collections.emptyList();
+			return PlaceSummaryDto.from(place, imageUrls);
+		});
 	}
 }

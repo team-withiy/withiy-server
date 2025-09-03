@@ -6,6 +6,9 @@ import com.server.domain.album.repository.AlbumRepository;
 import com.server.domain.place.entity.Place;
 import com.server.domain.place.repository.PlaceAlbumRepository;
 import com.server.domain.user.entity.User;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -33,5 +36,11 @@ public class AlbumService {
 			.user(user)
 			.build();
 		return save(savedPlace, album);
+	}
+
+	public Map<Long, Album> getAlbumsByPlaceIds(List<Long> placeIds) {
+		List<PlaceAlbum> placeAlbums = placeAlbumRepository.findByPlaceIds(placeIds);
+		return placeAlbums.stream()
+			.collect(Collectors.toMap(pa -> pa.getPlace().getId(), PlaceAlbum::getAlbum));
 	}
 }

@@ -1,14 +1,14 @@
 package com.server.domain.photo.service;
 
 import com.server.domain.album.entity.Album;
-import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.repository.PhotoRepository;
 import com.server.domain.user.entity.User;
-import com.server.global.dto.ImageResponseDto;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,28 +17,19 @@ public class PhotoService {
 
 	private final PhotoRepository photoRepository;
 
-	public List<PhotoDto> convertToPhotoDtos(List<ImageResponseDto> imageDtos) {
-
-		List<PhotoDto> photoDtos = new ArrayList<>();
-
-		for (ImageResponseDto imgDto : imageDtos) {
-			PhotoDto photoDto = PhotoDto.builder()
-				.imageUrl(imgDto.getImageUrl())
-				.build();
-
-			photoDtos.add(photoDto);
-		}
-
-		return photoDtos;
-	}
-
 	public void saveAll(List<Photo> photos) {
 		photoRepository.saveAll(photos);
 	}
 
-	public List<String> getPhotoUrls(Album album) {
+	// TODO: 페이징 처리 작업 시 삭제 예정
+	public List<String> getAllPhotoUrls(Album album) {
 
-		return photoRepository.findImageUrlsByAlbum(album);
+		return photoRepository.findAllImageUrlByAlbum(album);
+	}
+
+	public List<String> getLimitedPhotoUrls(Album album, int limit) {
+		return photoRepository.findImageUrlsByAlbum(album,
+			PageRequest.of(0, limit));
 	}
 
 	public void uploadPhotos(Album album, User uploader, List<String> imageUrls) {
@@ -61,5 +52,18 @@ public class PhotoService {
 
 	public List<Photo> getPhotosByAlbumAndUser(Album album, User reviewer) {
 		return photoRepository.findAllByAlbumAndUser(album, reviewer);
+	}
+
+	public Map<Long, List<Photo>> getPhotosByAlbumIds(List<Long> albumIds) {
+		List<Photo> photos = photoRepository.findAllByAlbumIds(albumIds);
+		return photos.stream()
+			.collect(Collectors.groupingBy(photo -> photo.getAlbum().getId()));
+	}
+
+	public Map<Long, Photo> getFirstPhotoByAlbumIds(List<Long> albumIds) {
+		List<Photo> photos = photoRepository.findAllByAlbumIds(albumIds);
+		return photos.stream()
+			.collect(Collectors.toMap(photo -> photo.getAlbum().getId(), photo -> photo,
+				(existing, replacement) -> existing));
 	}
 }

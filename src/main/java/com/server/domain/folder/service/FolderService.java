@@ -140,7 +140,7 @@ public class FolderService {
 	}
 
 
-	public Folder getFolderByIdAndUserId(Long folderId, Long userId) {
+	public Folder getFolderByIdAndUser(Long folderId, Long userId) {
 		return folderRepository.findByIdAndUserId(folderId, userId)
 			.orElseThrow(() -> new BusinessException(FolderErrorCode.NOT_FOUND));
 	}
@@ -161,9 +161,5 @@ public class FolderService {
 
 	public void deletePlaceInFolders(Set<Long> folderIds, Long placeId, Long userId) {
 		folderPlaceRepository.deleteByFolderIdsAndPlaceIdAndOwner(folderIds, placeId, userId);
-	}
-
-	public List<Place> getAllPlacesInFolders(Long userId) {
-		return folderPlaceRepository.findDistinctPlacesByUserId(userId);
 	}
 }
