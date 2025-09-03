@@ -12,14 +12,18 @@ import org.springframework.data.repository.query.Param;
 public interface PhotoRepository extends JpaRepository<Photo, Long> {
 
 	@Query("SELECT p.imgUrl FROM Photo p WHERE p.album = :album")
-	List<String> findImageUrlsByAlbum(@Param("album") Album album);
+	List<String> findAllImageUrlByAlbum(@Param("album") Album album);
 
-	@Query("SELECT p FROM Photo p WHERE p.album = :album ORDER BY p.createdAt DESC")
-	List<Photo> findByAlbum(@Param("album") Album album, Pageable pageable);
+	@Query("SELECT p.imgUrl FROM Photo p " +
+		"WHERE p.album = :album " +
+		"ORDER BY p.createdAt DESC")
+	List<String> findImageUrlsByAlbum(@Param("album") Album album, Pageable pageable);
 
 	List<Photo> findAllByAlbumAndUser(Album album, User reviewer);
 
 
+	List<Photo> findAllByAlbum(Album album);
+	
 	@Query("SELECT p FROM Photo p " +
 		"JOIN FETCH p.album " +
 		"WHERE p.album.id IN :albumIds " +
