@@ -82,7 +82,8 @@ public class FolderController {
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/{folderId}")
 	@Operation(summary = "폴더 조회 api", description = "폴더 내 장소들을 커서 페이징으로 조회")
-	public ApiCursorPaginationResponse<PlaceSummaryDto> getFolderPlaces(@PathVariable Long folderId,
+	public ApiCursorPaginationResponse<PlaceSummaryDto, Long> getFolderPlaces(
+		@PathVariable Long folderId,
 		@AuthenticationPrincipal User user,
 		@Valid @ModelAttribute ApiCursorPaginationRequest pageRequest) {
 

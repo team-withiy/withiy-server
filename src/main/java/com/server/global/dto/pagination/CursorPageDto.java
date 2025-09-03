@@ -31,7 +31,7 @@ public class CursorPageDto<T, ID> {
 	// DTO 변환용 map 메서드
 	public <R> CursorPageDto<R, ID> map(Function<T, R> mapper) {
 		return CursorPageDto.<R, ID>builder()
-			.data(this.data.stream().map(mapper).toList())
+			.data(List.copyOf(this.data.stream().map(mapper).toList()))
 			.hasPrev(this.hasPrev)
 			.hasNext(this.hasNext)
 			.total(this.total)
