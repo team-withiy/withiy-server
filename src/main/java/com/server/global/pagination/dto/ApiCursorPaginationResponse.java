@@ -1,4 +1,4 @@
-package com.server.global.dto.pagination;
+package com.server.global.pagination.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;

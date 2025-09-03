@@ -1,7 +1,7 @@
 package com.server.global.service;
 
-import com.server.global.dto.pagination.ApiCursorPaginationRequest;
-import com.server.global.dto.pagination.CursorPageDto;
+import com.server.global.pagination.dto.ApiCursorPaginationRequest;
+import com.server.global.pagination.dto.CursorPageDto;
 import java.util.Collections;
 import java.util.List;
 import org.springframework.data.domain.PageRequest;

@@ -1,4 +1,4 @@
-package com.server.global.dto.pagination;
+package com.server.global.pagination.dto;
 
 public interface PaginationRequest {
 

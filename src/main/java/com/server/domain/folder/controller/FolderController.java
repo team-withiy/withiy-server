@@ -3,15 +3,14 @@ package com.server.domain.folder.controller;
 import com.server.domain.folder.dto.CreateFolderDto;
 import com.server.domain.folder.dto.FolderOptionDto;
 import com.server.domain.folder.dto.FolderSummaryDto;
-import com.server.domain.folder.dto.GetFolderPlacesResponse;
 import com.server.domain.folder.dto.PlaceSummaryDto;
 import com.server.domain.folder.dto.UpdateFolderDto;
 import com.server.domain.folder.service.FolderFacade;
 import com.server.domain.folder.service.FolderService;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
-import com.server.global.dto.pagination.ApiCursorPaginationRequest;
-import com.server.global.dto.pagination.ApiCursorPaginationResponse;
+import com.server.global.pagination.dto.ApiCursorPaginationRequest;
+import com.server.global.pagination.dto.ApiCursorPaginationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -95,11 +94,12 @@ public class FolderController {
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/all")
 	@Operation(summary = "저장한 모든 장소 조회 api", description = "저장한 모든 장소 조회")
-	public ApiResponseDto<GetFolderPlacesResponse> getAllFolderPlaces(
-		@AuthenticationPrincipal User user) {
+	public ApiCursorPaginationResponse<PlaceSummaryDto, Long> getAllFolderPlaces(
+		@AuthenticationPrincipal User user,
+		@Valid @ModelAttribute ApiCursorPaginationRequest pageRequest) {
 
-		return ApiResponseDto.success(HttpStatus.OK.value(),
-			folderFacade.getAllFolderPlaces(user));
+		return ApiCursorPaginationResponse.success(HttpStatus.OK.value(),
+			folderFacade.getAllFolderPlaces(user, pageRequest));
 	}
 
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
