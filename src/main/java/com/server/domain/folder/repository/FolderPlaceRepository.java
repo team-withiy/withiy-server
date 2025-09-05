@@ -57,27 +57,23 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		"WHERE fp.folder.id IN :folderIds")
 	List<FolderPlace> findFolderPlacesByFolderIds(@Param("folderIds") List<Long> folderIds);
 
-	@Query("SELECT p FROM Place p " +
-		"WHERE p.id IN (" +
-		"  SELECT p2.id FROM FolderPlace fp " +
-		"   JOIN fp.folder f " +
-		"   JOIN fp.place p2 " +
-		"   WHERE f.user.id = :userId " +
-		"   AND (:cursor IS NULL OR p2.id < :cursor)" +
-		") " +
+	@Query("SELECT DISTINCT p FROM FolderPlace fp " +
+		"JOIN fp.place p " +
+		"JOIN fp.folder f " +
+		"LEFT JOIN FETCH p.category " +
+		"WHERE f.user.id = :userId " +
+		"AND (:cursor IS NULL OR p.id < :cursor) " +
 		"ORDER BY p.id DESC")
 	List<Place> findNextPlacesByUser(@Param("userId") Long userId,
 		@Param("cursor") Long cursor,
 		Pageable pageable);
-	
-	@Query("SELECT p FROM Place p " +
-		"WHERE p.id IN (" +
-		"  SELECT p2.id FROM FolderPlace fp " +
-		"   JOIN fp.folder f " +
-		"   JOIN fp.place p2 " +
-		"   WHERE f.user.id = :userId " +
-		"   AND (:cursor IS NULL OR p2.id > :cursor)" +
-		") " +
+
+	@Query("SELECT DISTINCT p FROM FolderPlace fp " +
+		"JOIN fp.place p " +
+		"JOIN fp.folder f " +
+		"LEFT JOIN FETCH p.category " +
+		"WHERE f.user.id = :userId " +
+		"AND (:cursor IS NULL OR p.id > :cursor) " +
 		"ORDER BY p.id ASC")
 	List<Place> findPrevPlacesByUser(@Param("userId") Long userId,
 		@Param("cursor") Long cursor,
