@@ -54,12 +54,6 @@ public class PhotoService {
 		return photoRepository.findAllByAlbumAndUser(album, reviewer);
 	}
 
-	public Map<Long, List<Photo>> getPhotosByAlbumIds(List<Long> albumIds) {
-		List<Photo> photos = photoRepository.findAllByAlbumIds(albumIds);
-		return photos.stream()
-			.collect(Collectors.groupingBy(photo -> photo.getAlbum().getId()));
-	}
-
 	public Map<Long, Photo> getFirstPhotoByAlbumIds(List<Long> albumIds) {
 		List<Photo> photos = photoRepository.findAllByAlbumIds(albumIds);
 		return photos.stream()

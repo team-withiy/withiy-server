@@ -18,7 +18,7 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 
 	@Query("SELECT p FROM FolderPlace fp " +
 		"JOIN fp.place p " +
-		"LEFT JOIN FETCH p.category " +
+		"LEFT JOIN p.category " +
 		"WHERE fp.folder.id = :folderId " +
 		"AND (:cursor IS NULL OR p.id < :cursor) " +
 		"ORDER BY p.id DESC")
@@ -28,7 +28,7 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 
 	@Query("SELECT p FROM FolderPlace fp " +
 		"JOIN fp.place p " +
-		"LEFT JOIN FETCH p.category " +
+		"LEFT JOIN p.category " +
 		"WHERE fp.folder.id = :folderId " +
 		"AND (:cursor IS NULL OR p.id > :cursor) " +
 		"ORDER BY p.id ASC")
@@ -60,7 +60,7 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 	@Query("SELECT DISTINCT p FROM FolderPlace fp " +
 		"JOIN fp.place p " +
 		"JOIN fp.folder f " +
-		"LEFT JOIN FETCH p.category " +
+		"LEFT JOIN p.category " +
 		"WHERE f.user.id = :userId " +
 		"AND (:cursor IS NULL OR p.id < :cursor) " +
 		"ORDER BY p.id DESC")
@@ -71,7 +71,7 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 	@Query("SELECT DISTINCT p FROM FolderPlace fp " +
 		"JOIN fp.place p " +
 		"JOIN fp.folder f " +
-		"LEFT JOIN FETCH p.category " +
+		"LEFT JOIN p.category " +
 		"WHERE f.user.id = :userId " +
 		"AND (:cursor IS NULL OR p.id > :cursor) " +
 		"ORDER BY p.id ASC")
