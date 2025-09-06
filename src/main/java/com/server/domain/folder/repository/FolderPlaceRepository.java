@@ -65,7 +65,7 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 	List<Long> findPrevPlaceIdsByUser(@Param("userId") Long userId,
 		@Param("cursor") Long cursor);
 
-	@Query("SELECT DISTINCT fp.place.id FROM FolderPlace fp " +
+	@Query("SELECT fp.place.id FROM FolderPlace fp " +
 		"JOIN fp.folder f " +
 		"WHERE f.user.id = :userId " +
 		"ORDER BY fp.place.id ASC")
