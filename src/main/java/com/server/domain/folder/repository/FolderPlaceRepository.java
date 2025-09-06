@@ -68,14 +68,14 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		@Param("cursor") Long cursor,
 		Pageable pageable);
 
-	@Query("SELECT DISTINCT fp.place.id FROM FolderPlace fp " +
+	@Query("SELECT fp.place.id FROM FolderPlace fp " +
 		"JOIN fp.folder f " +
 		"WHERE f.user.id = :userId " +
-		"AND (:cursor IS NULL OR fp.place.id < :cursor) " +
+//		"AND (:cursor IS NULL OR fp.place.id < :cursor) " +
 		"ORDER BY fp.place.id DESC")
 	List<Long> findNextPlaceIdsByUser(
 		@Param("userId") Long userId,
-		@Param("cursor") Long cursor,
+//		@Param("cursor") Long cursor,
 		Pageable pageable
 	);
 
