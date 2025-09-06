@@ -33,4 +33,7 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
 		"AND p.status = :status")
 	List<Place> findPlacesByStatusAndCategory(@Param("status") PlaceStatus status,
 		Category category);
+
+	@Query("SELECT p FROM Place p WHERE p.id IN :ids ORDER BY p.id DESC")
+	List<Place> findPlacesByIds(List<Long> ids);
 }
