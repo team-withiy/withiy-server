@@ -283,11 +283,13 @@ public class PlaceService {
 		List<Place> fetched;
 
 		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
-			fetched = folderPlaceRepository.findPrevPlacesByUser(userId, pageRequest.getCursor(),
+			fetched = folderPlaceRepository.findPrevPlacesByUser(userId,
+//				pageRequest.getCursor(),
 				pageable);
 			Collections.reverse(fetched);
 		} else {
-			fetched = folderPlaceRepository.findNextPlacesByUser(userId, pageRequest.getCursor(),
+			fetched = folderPlaceRepository.findNextPlacesByUser(userId,
+//				pageRequest.getCursor(),
 				pageable);
 		}
 

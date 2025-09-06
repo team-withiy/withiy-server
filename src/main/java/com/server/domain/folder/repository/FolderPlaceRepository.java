@@ -60,23 +60,23 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 	@Query("SELECT DISTINCT p FROM FolderPlace fp " +
 		"JOIN fp.place p " +
 		"JOIN fp.folder f " +
-		"LEFT JOIN p.category " +
+//		"LEFT JOIN p.category " +
 		"WHERE f.user.id = :userId " +
-		"AND p.id < :cursor " +
+//		"AND p.id < :cursor " +
 		"ORDER BY p.id DESC")
 	List<Place> findNextPlacesByUser(@Param("userId") Long userId,
-		@Param("cursor") Long cursor,
+//		@Param("cursor") Long cursor,
 		Pageable pageable);
 
 	@Query("SELECT DISTINCT p FROM FolderPlace fp " +
 		"JOIN fp.place p " +
 		"JOIN fp.folder f " +
-		"LEFT JOIN p.category " +
+//		"LEFT JOIN p.category " +
 		"WHERE f.user.id = :userId " +
-		"AND p.id > :cursor " +
+//		"AND p.id > :cursor " +
 		"ORDER BY p.id ASC")
 	List<Place> findPrevPlacesByUser(@Param("userId") Long userId,
-		@Param("cursor") Long cursor,
+//		@Param("cursor") Long cursor,
 		Pageable pageable);
 
 
