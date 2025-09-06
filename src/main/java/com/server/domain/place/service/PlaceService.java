@@ -30,7 +30,6 @@ import com.server.global.error.exception.BusinessException;
 import com.server.global.pagination.dto.ApiCursorPaginationRequest;
 import com.server.global.pagination.dto.CursorPageDto;
 import com.server.global.pagination.utils.CursorPaginationUtils;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -285,9 +284,8 @@ public class PlaceService {
 		int limit = pageRequest.getLimit();
 
 		List<Place> fetched;
-//		List<Long> ids = folderPlaceRepository.findAllPlaceIdsByUser(userId);
-		List<Long> ids = Arrays.asList(1L, 2L, 3L);
-		fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
+		List<Long> ids = folderPlaceRepository.findAllPlaceIdsByUser(userId);
+		fetched = ids.isEmpty() ? List.of() : placeRepository.findAll();
 
 		return fetched.stream()
 			.limit(limit)
