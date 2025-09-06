@@ -73,7 +73,7 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		"JOIN fp.folder f " +
 //		"LEFT JOIN p.category " +
 		"WHERE f.user.id = :userId " +
-//		"AND p.id > :cursor " +
+		"AND p.id > :cursor " +
 		"ORDER BY p.id ASC")
 	List<Place> findPrevPlacesByUser(@Param("userId") Long userId,
 //		@Param("cursor") Long cursor,
