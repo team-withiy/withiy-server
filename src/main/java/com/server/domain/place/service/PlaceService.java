@@ -250,7 +250,32 @@ public class PlaceService {
 		);
 	}
 
-	public CursorPageDto<Place, Long> getAllPlacesInFolders(Long userId,
+//	public CursorPageDto<Place, Long> getAllPlacesInFolders(Long userId,
+//		ApiCursorPaginationRequest pageRequest) {
+//		int limit = pageRequest.getLimit();
+//		Pageable pageable = PageRequest.of(0, limit + 1);
+//
+//		List<Place> fetched;
+//
+//		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
+//			fetched = folderPlaceRepository.findPrevPlacesByUser(userId, pageRequest.getCursor(),
+//				pageable);
+//			Collections.reverse(fetched);
+//		} else {
+//			fetched = folderPlaceRepository.findNextPlacesByUser(userId, pageRequest.getCursor(),
+//				pageable);
+//		}
+//
+//		return CursorPaginationUtils.paginate(
+//			fetched,
+//			limit,
+//			Boolean.TRUE.equals(pageRequest.getPrev()),
+//			pageRequest.getCursor(),
+//			Place::getId // 커서 기준 값 추출 방법 전달
+//		);
+//	}
+
+	public List<Place> getAllPlacesInFolders(Long userId,
 		ApiCursorPaginationRequest pageRequest) {
 		int limit = pageRequest.getLimit();
 		Pageable pageable = PageRequest.of(0, limit + 1);
@@ -266,12 +291,6 @@ public class PlaceService {
 				pageable);
 		}
 
-		return CursorPaginationUtils.paginate(
-			fetched,
-			limit,
-			Boolean.TRUE.equals(pageRequest.getPrev()),
-			pageRequest.getCursor(),
-			Place::getId // 커서 기준 값 추출 방법 전달
-		);
+		return fetched;
 	}
 }
