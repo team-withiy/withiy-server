@@ -90,15 +90,27 @@ public class FolderController {
 			folderFacade.getFolderPlaces(folderId, user, pageRequest));
 	}
 
+//	@PreAuthorize("hasRole('USER')")
+//	@ResponseStatus(HttpStatus.OK)
+//	@GetMapping("/all")
+//	@Operation(summary = "저장한 모든 장소 조회 api", description = "저장한 모든 장소 조회")
+//	public ApiCursorPaginationResponse<PlaceSummaryDto, Long> getAllFolderPlaces(
+//		@AuthenticationPrincipal User user,
+//		@Valid @ModelAttribute ApiCursorPaginationRequest pageRequest) {
+//
+//		return ApiCursorPaginationResponse.success(HttpStatus.OK.value(),
+//			folderFacade.getAllFolderPlaces(user, pageRequest));
+//	}
+
 	@PreAuthorize("hasRole('USER')")
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/all")
 	@Operation(summary = "저장한 모든 장소 조회 api", description = "저장한 모든 장소 조회")
-	public ApiCursorPaginationResponse<PlaceSummaryDto, Long> getAllFolderPlaces(
+	public ApiResponseDto<List<PlaceSummaryDto>> getAllFolderPlaces(
 		@AuthenticationPrincipal User user,
 		@Valid @ModelAttribute ApiCursorPaginationRequest pageRequest) {
 
-		return ApiCursorPaginationResponse.success(HttpStatus.OK.value(),
+		return ApiResponseDto.success(HttpStatus.OK.value(),
 			folderFacade.getAllFolderPlaces(user, pageRequest));
 	}
 

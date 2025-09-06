@@ -44,13 +44,20 @@ public class FolderFacade {
 		return mapToPlaceSummary(page);
 	}
 
+//	@Transactional(readOnly = true)
+//	public CursorPageDto<PlaceSummaryDto, Long> getAllFolderPlaces(User user,
+//		ApiCursorPaginationRequest pageRequest) {
+//
+//		CursorPageDto<Place, Long> page = placeService.getAllPlacesInFolders(user.getId(),
+//			pageRequest);
+//		return mapToPlaceSummary(page);
+//	}
+
 	@Transactional(readOnly = true)
-	public CursorPageDto<PlaceSummaryDto, Long> getAllFolderPlaces(User user,
+	public List<PlaceSummaryDto> getAllFolderPlaces(User user,
 		ApiCursorPaginationRequest pageRequest) {
 
-		CursorPageDto<Place, Long> page = placeService.getAllPlacesInFolders(user.getId(),
-			pageRequest);
-		return mapToPlaceSummary(page);
+		return placeService.getAllPlacesInFolders(user.getId(), pageRequest);
 	}
 
 	@Transactional(readOnly = true)

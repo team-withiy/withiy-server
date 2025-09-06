@@ -1,5 +1,6 @@
 package com.server.global.pagination.dto;
 
+import com.server.domain.folder.dto.PlaceSummaryDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,7 +21,7 @@ public class ApiCursorPaginationResponse<T, ID> implements PaginationResponse<T>
 	@Schema(description = "응답 메시지", example = "Request processed successfully.")
 	private String message;
 	@Schema(description = "데이터 목록")
-	private List<T> data;
+	private List<PlaceSummaryDto> data;
 	@Schema(description = "응답 생성 시간", example = "2023-10-05T14:48:00")
 	private LocalDateTime timestamp;
 	@Schema(description = "이전 페이지 존재 여부", example = "true")

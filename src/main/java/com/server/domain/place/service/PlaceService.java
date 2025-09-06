@@ -5,6 +5,7 @@ import com.server.domain.album.service.AlbumService;
 import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.service.CategoryService;
+import com.server.domain.folder.dto.PlaceSummaryDto;
 import com.server.domain.folder.repository.FolderPlaceRepository;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.service.PhotoService;
@@ -238,7 +239,7 @@ public class PlaceService {
 			fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
 		}
 
-		fetched = fetched.subList(0, limit + 1);
+//		fetched = fetched.subList(0, limit + 1);
 
 		return CursorPaginationUtils.paginate(
 			fetched,
@@ -249,32 +250,46 @@ public class PlaceService {
 		);
 	}
 
-	public CursorPageDto<Place, Long> getAllPlacesInFolders(Long userId,
+//	public CursorPageDto<Place, Long> getAllPlacesInFolders(Long userId,
+//		ApiCursorPaginationRequest pageRequest) {
+//		int limit = pageRequest.getLimit();
+//
+//		List<Place> fetched;
+//		List<Long> ids = folderPlaceRepository.findAllPlaceIdsByUser(userId);
+//		fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
+////		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
+////			List<Long> ids = folderPlaceRepository.findPrevPlaceIdsByUser(userId,
+////				pageRequest.getCursor());
+////			fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
+////			Collections.reverse(fetched);
+////		} else {
+////			List<Long> ids = folderPlaceRepository.findNextPlaceIdsByUser(userId,
+////				pageRequest.getCursor());
+////			fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
+////		}
+//
+
+	/// /		fetched = fetched.subList(0, limit + 1);
+//
+//		return CursorPaginationUtils.paginate(
+//			fetched,
+//			limit,
+//			Boolean.TRUE.equals(pageRequest.getPrev()),
+//			pageRequest.getCursor(),
+//			Place::getId // 커서 기준 값 추출 방법 전달
+//		);
+//	}
+	public List<PlaceSummaryDto> getAllPlacesInFolders(Long userId,
 		ApiCursorPaginationRequest pageRequest) {
 		int limit = pageRequest.getLimit();
 
 		List<Place> fetched;
 		List<Long> ids = folderPlaceRepository.findAllPlaceIdsByUser(userId);
 		fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
-//		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
-//			List<Long> ids = folderPlaceRepository.findPrevPlaceIdsByUser(userId,
-//				pageRequest.getCursor());
-//			fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
-//			Collections.reverse(fetched);
-//		} else {
-//			List<Long> ids = folderPlaceRepository.findNextPlaceIdsByUser(userId,
-//				pageRequest.getCursor());
-//			fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
-//		}
 
-		fetched = fetched.subList(0, limit + 1);
-
-		return CursorPaginationUtils.paginate(
-			fetched,
-			limit,
-			Boolean.TRUE.equals(pageRequest.getPrev()),
-			pageRequest.getCursor(),
-			Place::getId // 커서 기준 값 추출 방법 전달
-		);
+		return fetched.stream()
+			.limit(limit)
+			.map(place -> PlaceSummaryDto.from(place, null))
+			.toList();
 	}
 }

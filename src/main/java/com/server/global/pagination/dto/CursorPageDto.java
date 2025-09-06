@@ -1,5 +1,6 @@
 package com.server.global.pagination.dto;
 
+import com.server.domain.folder.dto.PlaceSummaryDto;
 import java.util.List;
 import java.util.function.Function;
 import lombok.AllArgsConstructor;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CursorPageDto<T, ID> {
 
-	private List<T> data;
+	private List<PlaceSummaryDto> data;
 	private boolean hasPrev;
 	private boolean hasNext;
 	private long total;
