@@ -288,9 +288,14 @@ public class PlaceService {
 				pageable);
 			Collections.reverse(fetched);
 		} else {
-			fetched = folderPlaceRepository.findNextPlacesByUser(userId,
-				pageRequest.getCursor(),
-				pageable);
+			List<Long> ids = folderPlaceRepository.findNextPlaceIdsByUser(userId,
+				pageRequest.getCursor(), pageable);
+
+			if (ids.isEmpty()) {
+				return List.of();
+			}
+
+			fetched = placeRepository.findPlacesByIds(ids);
 		}
 
 		return fetched;
