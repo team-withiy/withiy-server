@@ -254,17 +254,18 @@ public class PlaceService {
 		int limit = pageRequest.getLimit();
 
 		List<Place> fetched;
-
-		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
-			List<Long> ids = folderPlaceRepository.findPrevPlaceIdsByUser(userId,
-				pageRequest.getCursor());
-			fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
-			Collections.reverse(fetched);
-		} else {
-			List<Long> ids = folderPlaceRepository.findNextPlaceIdsByUser(userId,
-				pageRequest.getCursor());
-			fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
-		}
+		List<Long> ids = folderPlaceRepository.findAllPlaceIdsByUser(userId);
+		fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
+//		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
+//			List<Long> ids = folderPlaceRepository.findPrevPlaceIdsByUser(userId,
+//				pageRequest.getCursor());
+//			fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
+//			Collections.reverse(fetched);
+//		} else {
+//			List<Long> ids = folderPlaceRepository.findNextPlaceIdsByUser(userId,
+//				pageRequest.getCursor());
+//			fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
+//		}
 
 		fetched = fetched.subList(0, limit + 1);
 
