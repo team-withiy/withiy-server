@@ -4,7 +4,7 @@ Authorization: Bearer {{accessToken}}
 Accept: application/json
 
 ### 폴더 내 장소 목록 조회 (다음 페이지, cursor=123)
-GET {{baseUrl}}/api/folders/7?cursor=5&limit=10&prev=false
+GET {{baseUrl}}/api/folders/7?cursor=2&limit=10&prev=false
 Authorization: Bearer {{accessToken}}
 Accept: application/json
 
