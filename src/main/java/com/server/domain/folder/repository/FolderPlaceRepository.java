@@ -20,7 +20,7 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		"JOIN fp.place p " +
 		"LEFT JOIN p.category " +
 		"WHERE fp.folder.id = :folderId " +
-//		"AND (:cursor IS NULL OR p.id < :cursor) " +
+		"AND p.id < :cursor " +
 		"ORDER BY p.id DESC")
 	List<Place> findNextPlacesByFolder(@Param("folderId") Long folderId,
 		@Param("cursor") Long cursor,
@@ -30,7 +30,7 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		"JOIN fp.place p " +
 		"LEFT JOIN p.category " +
 		"WHERE fp.folder.id = :folderId " +
-//		"AND (:cursor IS NULL OR p.id > :cursor) " +
+		"AND p.id > :cursor " +
 		"ORDER BY p.id ASC")
 	List<Place> findPrevPlacesByFolder(@Param("folderId") Long folderId,
 		@Param("cursor") Long cursor,
@@ -62,7 +62,7 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		"JOIN fp.folder f " +
 		"LEFT JOIN p.category " +
 		"WHERE f.user.id = :userId " +
-//		"AND (:cursor IS NULL OR p.id < :cursor) " +
+		"AND p.id < :cursor " +
 		"ORDER BY p.id DESC")
 	List<Place> findNextPlacesByUser(@Param("userId") Long userId,
 		@Param("cursor") Long cursor,
@@ -73,7 +73,7 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		"JOIN fp.folder f " +
 		"LEFT JOIN p.category " +
 		"WHERE f.user.id = :userId " +
-//		"AND (:cursor IS NULL OR p.id > :cursor) " +
+		"AND p.id > :cursor " +
 		"ORDER BY p.id ASC")
 	List<Place> findPrevPlacesByUser(@Param("userId") Long userId,
 		@Param("cursor") Long cursor,
