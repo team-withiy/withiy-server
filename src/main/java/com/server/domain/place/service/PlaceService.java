@@ -34,8 +34,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -226,20 +224,19 @@ public class PlaceService {
 	public CursorPageDto<Place, Long> getPlacesByFolder(Long folderId,
 		ApiCursorPaginationRequest pageRequest) {
 		int limit = pageRequest.getLimit();
-		Pageable pageable = PageRequest.of(0, limit + 1);
 
 		List<Place> fetched;
 
 		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
 			fetched = folderPlaceRepository.findPrevPlacesByFolder(folderId,
-				pageRequest.getCursor(),
-				pageable);
+				pageRequest.getCursor());
 			Collections.reverse(fetched);
 		} else {
 			fetched = folderPlaceRepository.findNextPlacesByFolder(folderId,
-				pageRequest.getCursor(),
-				pageable);
+				pageRequest.getCursor());
 		}
+
+		fetched = fetched.subList(0, limit + 1);
 
 		return CursorPaginationUtils.paginate(
 			fetched,
@@ -253,18 +250,17 @@ public class PlaceService {
 	public CursorPageDto<Place, Long> getAllPlacesInFolders(Long userId,
 		ApiCursorPaginationRequest pageRequest) {
 		int limit = pageRequest.getLimit();
-		Pageable pageable = PageRequest.of(0, limit + 1);
 
 		List<Place> fetched;
 
 		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
-			fetched = folderPlaceRepository.findPrevPlacesByUser(userId, pageRequest.getCursor(),
-				pageable);
+			fetched = folderPlaceRepository.findPrevPlacesByUser(userId, pageRequest.getCursor());
 			Collections.reverse(fetched);
 		} else {
-			fetched = folderPlaceRepository.findNextPlacesByUser(userId, pageRequest.getCursor(),
-				pageable);
+			fetched = folderPlaceRepository.findNextPlacesByUser(userId, pageRequest.getCursor());
 		}
+
+		fetched = fetched.subList(0, limit + 1);
 
 		return CursorPaginationUtils.paginate(
 			fetched,
