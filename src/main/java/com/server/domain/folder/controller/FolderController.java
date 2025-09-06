@@ -7,7 +7,6 @@ import com.server.domain.folder.dto.PlaceSummaryDto;
 import com.server.domain.folder.dto.UpdateFolderDto;
 import com.server.domain.folder.service.FolderFacade;
 import com.server.domain.folder.service.FolderService;
-import com.server.domain.place.entity.Place;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
 import com.server.global.pagination.dto.ApiCursorPaginationRequest;
@@ -107,7 +106,7 @@ public class FolderController {
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/all")
 	@Operation(summary = "저장한 모든 장소 조회 api", description = "저장한 모든 장소 조회")
-	public ApiResponseDto<List<Place>> getAllFolderPlaces(
+	public ApiResponseDto<List<PlaceSummaryDto>> getAllFolderPlaces(
 		@AuthenticationPrincipal User user,
 		@Valid @ModelAttribute ApiCursorPaginationRequest pageRequest) {
 

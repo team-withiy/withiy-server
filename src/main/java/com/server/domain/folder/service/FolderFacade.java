@@ -54,10 +54,15 @@ public class FolderFacade {
 //	}
 
 	@Transactional(readOnly = true)
-	public List<Place> getAllFolderPlaces(User user,
+	public List<PlaceSummaryDto> getAllFolderPlaces(User user,
 		ApiCursorPaginationRequest pageRequest) {
 
-		return placeService.getAllPlacesInFolders(user.getId(), pageRequest);
+		List<Place> places = placeService.getAllPlacesInFolders(user.getId(), pageRequest);
+		return places.stream()
+			.map(place -> {
+				return PlaceSummaryDto.from(place, null);
+			})
+			.toList();
 	}
 
 	@Transactional(readOnly = true)
