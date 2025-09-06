@@ -74,9 +74,10 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 //		"AND (:cursor IS NULL OR fp.place.id < :cursor) " +
 		"ORDER BY fp.place.id DESC")
 	List<Long> findNextPlaceIdsByUser(
-		@Param("userId") Long userId,
+		@Param("userId") Long userId
+//		,
 //		@Param("cursor") Long cursor,
-		Pageable pageable
+//		Pageable pageable
 	);
 
 	@Query("SELECT p FROM Place p WHERE p.id IN (" +
