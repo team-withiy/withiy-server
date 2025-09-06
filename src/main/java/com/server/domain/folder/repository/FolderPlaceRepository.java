@@ -58,7 +58,7 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 	List<FolderPlace> findFolderPlacesByFolderIds(@Param("folderIds") List<Long> folderIds);
 
 	@Query("SELECT p FROM Place p WHERE p.id IN (" +
-		"SELECT DISTINCT fp.place.id FROM FolderPlace fp " +
+		"SELECT fp.place.id FROM FolderPlace fp " +
 		"JOIN fp.folder f " +
 		"WHERE f.user.id = :userId " +
 		"AND (:cursor IS NULL OR fp.place.id < :cursor) " +
@@ -69,7 +69,7 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		Pageable pageable);
 
 	@Query("SELECT p FROM Place p WHERE p.id IN (" +
-		"  SELECT DISTINCT fp.place.id FROM FolderPlace fp " +
+		"  SELECT fp.place.id FROM FolderPlace fp " +
 		"  JOIN fp.folder f " +
 		"  WHERE f.user.id = :userId " +
 		"  AND (:cursor IS NULL OR fp.place.id > :cursor)" +
