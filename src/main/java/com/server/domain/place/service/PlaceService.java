@@ -228,12 +228,14 @@ public class PlaceService {
 		List<Place> fetched;
 
 		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
-			fetched = folderPlaceRepository.findPrevPlacesByFolder(folderId,
+			List<Long> ids = folderPlaceRepository.findPrevPlaceIdsByFolder(folderId,
 				pageRequest.getCursor());
+			fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
 			Collections.reverse(fetched);
 		} else {
-			fetched = folderPlaceRepository.findNextPlacesByFolder(folderId,
+			List<Long> ids = folderPlaceRepository.findNextPlaceIdsByFolder(folderId,
 				pageRequest.getCursor());
+			fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
 		}
 
 		fetched = fetched.subList(0, limit + 1);
@@ -254,10 +256,14 @@ public class PlaceService {
 		List<Place> fetched;
 
 		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
-			fetched = folderPlaceRepository.findPrevPlacesByUser(userId, pageRequest.getCursor());
+			List<Long> ids = folderPlaceRepository.findPrevPlaceIdsByUser(userId,
+				pageRequest.getCursor());
+			fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
 			Collections.reverse(fetched);
 		} else {
-			fetched = folderPlaceRepository.findNextPlacesByUser(userId, pageRequest.getCursor());
+			List<Long> ids = folderPlaceRepository.findNextPlaceIdsByUser(userId,
+				pageRequest.getCursor());
+			fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
 		}
 
 		fetched = fetched.subList(0, limit + 1);

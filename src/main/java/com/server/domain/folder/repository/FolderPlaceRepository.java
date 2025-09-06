@@ -1,7 +1,6 @@
 package com.server.domain.folder.repository;
 
 import com.server.domain.folder.entity.FolderPlace;
-import com.server.domain.place.entity.Place;
 import java.util.List;
 import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,22 +14,18 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 	@Query("DELETE FROM FolderPlace fp WHERE fp.folder.id = :folderId")
 	int deleteByFolderId(Long folderId);
 
-	@Query("SELECT p FROM FolderPlace fp " +
-		"JOIN fp.place p " +
-		"LEFT JOIN p.category " +
+	@Query("SELECT fp.place.id FROM FolderPlace fp " +
 		"WHERE fp.folder.id = :folderId " +
-		"AND p.id < :cursor " +
-		"ORDER BY p.id DESC")
-	List<Place> findNextPlacesByFolder(@Param("folderId") Long folderId,
+		"AND (:cursor IS NULL OR fp.place.id < :cursor) " +
+		"ORDER BY fp.place.id DESC")
+	List<Long> findNextPlaceIdsByFolder(@Param("folderId") Long folderId,
 		@Param("cursor") Long cursor);
 
-	@Query("SELECT p FROM FolderPlace fp " +
-		"JOIN fp.place p " +
-		"LEFT JOIN p.category " +
+	@Query("SELECT fp.place.id FROM FolderPlace fp " +
 		"WHERE fp.folder.id = :folderId " +
-		"AND p.id > :cursor " +
-		"ORDER BY p.id ASC")
-	List<Place> findPrevPlacesByFolder(@Param("folderId") Long folderId,
+		"AND (:cursor IS NULL OR fp.place.id > :cursor) " +
+		"ORDER BY fp.place.id ASC")
+	List<Long> findPrevPlaceIdsByFolder(@Param("folderId") Long folderId,
 		@Param("cursor") Long cursor);
 
 	@Query("SELECT f.id \n"
@@ -54,25 +49,19 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		"WHERE fp.folder.id IN :folderIds")
 	List<FolderPlace> findFolderPlacesByFolderIds(@Param("folderIds") List<Long> folderIds);
 
-	@Query("SELECT p FROM Place p WHERE p.id IN (" +
-		"SELECT fp.place.id FROM FolderPlace fp " +
+	@Query("SELECT DISTINCT fp.place.id FROM FolderPlace fp " +
 		"JOIN fp.folder f " +
 		"WHERE f.user.id = :userId " +
 		"AND (:cursor IS NULL OR fp.place.id < :cursor) " +
-		"ORDER BY fp.place.id DESC" +
-		") ORDER BY p.id DESC")
-	List<Place> findNextPlacesByUser(@Param("userId") Long userId,
+		"ORDER BY fp.place.id DESC")
+	List<Long> findNextPlaceIdsByUser(@Param("userId") Long userId,
 		@Param("cursor") Long cursor);
 
-	@Query("SELECT p FROM Place p WHERE p.id IN (" +
-		"  SELECT fp.place.id FROM FolderPlace fp " +
-		"  JOIN fp.folder f " +
-		"  WHERE f.user.id = :userId " +
-		"  AND (:cursor IS NULL OR fp.place.id > :cursor)" +
-		"  ORDER BY fp.place.id ASC" +
-		") ORDER BY p.id ASC")
-	List<Place> findPrevPlacesByUser(@Param("userId") Long userId,
+	@Query("SELECT DISTINCT fp.place.id FROM FolderPlace fp " +
+		"JOIN fp.folder f " +
+		"WHERE f.user.id = :userId " +
+		"AND (:cursor IS NULL OR fp.place.id > :cursor) " +
+		"ORDER BY fp.place.id ASC")
+	List<Long> findPrevPlaceIdsByUser(@Param("userId") Long userId,
 		@Param("cursor") Long cursor);
-
-
 }
