@@ -57,26 +57,26 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		"WHERE fp.folder.id IN :folderIds")
 	List<FolderPlace> findFolderPlacesByFolderIds(@Param("folderIds") List<Long> folderIds);
 
-	@Query("SELECT DISTINCT p FROM FolderPlace fp " +
-		"JOIN fp.place p " +
+	@Query("SELECT p FROM Place p WHERE p.id IN (" +
+		"SELECT DISTINCT fp.place.id FROM FolderPlace fp " +
 		"JOIN fp.folder f " +
-//		"LEFT JOIN p.category " +
 		"WHERE f.user.id = :userId " +
-//		"AND p.id < :cursor " +
-		"ORDER BY p.id DESC")
+		"AND (:cursor IS NULL OR fp.place.id < :cursor) " +
+		"ORDER BY fp.place.id DESC" +
+		") ORDER BY p.id DESC")
 	List<Place> findNextPlacesByUser(@Param("userId") Long userId,
-//		@Param("cursor") Long cursor,
+		@Param("cursor") Long cursor,
 		Pageable pageable);
 
-	@Query("SELECT DISTINCT p FROM FolderPlace fp " +
-		"JOIN fp.place p " +
-		"JOIN fp.folder f " +
-//		"LEFT JOIN p.category " +
-		"WHERE f.user.id = :userId " +
-//		"AND p.id > :cursor " +
-		"ORDER BY p.id ASC")
+	@Query("SELECT p FROM Place p WHERE p.id IN (" +
+		"  SELECT DISTINCT fp.place.id FROM FolderPlace fp " +
+		"  JOIN fp.folder f " +
+		"  WHERE f.user.id = :userId " +
+		"  AND (:cursor IS NULL OR fp.place.id > :cursor)" +
+		"  ORDER BY fp.place.id ASC" +
+		") ORDER BY p.id ASC")
 	List<Place> findPrevPlacesByUser(@Param("userId") Long userId,
-//		@Param("cursor") Long cursor,
+		@Param("cursor") Long cursor,
 		Pageable pageable);
 
 
