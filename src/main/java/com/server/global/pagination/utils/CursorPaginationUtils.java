@@ -7,6 +7,7 @@ import java.util.function.Function;
 public class CursorPaginationUtils {
 
 	public static <T, ID> CursorPageDto<T, ID> paginate(
+		long total,
 		List<T> fetched,        // limit+1 데이터
 		int limit,
 		boolean isPrev,
@@ -39,7 +40,7 @@ public class CursorPaginationUtils {
 			.data(data)
 			.hasNext(hasNext)
 			.hasPrev(hasPrev)
-			.total(data.size())
+			.total(total)
 			.nextCursor(nextCursor)
 			.prevCursor(prevCursor)
 			.build();

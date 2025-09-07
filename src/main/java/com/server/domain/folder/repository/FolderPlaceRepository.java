@@ -65,4 +65,12 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		"ORDER BY fp.place.id ASC")
 	List<Long> findPrevPlaceIdsByUser(@Param("userId") Long userId,
 		@Param("cursor") Long cursor, Pageable pageable);
+
+	@Query("SELECT COUNT(fp) FROM FolderPlace fp WHERE fp.folder.id = :folderId")
+	long countPlacesInFolder(Long folderId);
+
+	@Query("SELECT COUNT(DISTINCT fp.place.id) FROM FolderPlace fp " +
+		"JOIN fp.folder f " +
+		"WHERE f.user.id = :userId")
+	long countDistinctPlacesByUser(Long userId);
 }

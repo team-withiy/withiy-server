@@ -226,9 +226,12 @@ public class PlaceService {
 
 	public CursorPageDto<Place, Long> getPlacesByFolder(Long folderId,
 		ApiCursorPaginationRequest pageRequest) {
+		long total;
 		int limit = pageRequest.getLimit();
 		Pageable pageable = PageRequest.of(0, limit + 1);
 		List<Place> fetched;
+
+		total = folderPlaceRepository.countPlacesInFolder(folderId);
 
 		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
 			List<Long> ids = folderPlaceRepository.findPrevPlaceIdsByFolder(folderId,
@@ -244,6 +247,7 @@ public class PlaceService {
 		}
 
 		return CursorPaginationUtils.paginate(
+			total,
 			fetched,
 			limit,
 			Boolean.TRUE.equals(pageRequest.getPrev()),
@@ -254,6 +258,7 @@ public class PlaceService {
 
 	public CursorPageDto<Place, Long> getAllPlacesInFolders(Long userId,
 		ApiCursorPaginationRequest pageRequest) {
+		long total = folderPlaceRepository.countDistinctPlacesByUser(userId);
 		int limit = pageRequest.getLimit();
 		Pageable pageable = PageRequest.of(0, limit + 1);
 
@@ -272,6 +277,7 @@ public class PlaceService {
 		}
 
 		return CursorPaginationUtils.paginate(
+			total,
 			fetched,
 			limit,
 			Boolean.TRUE.equals(pageRequest.getPrev()),
