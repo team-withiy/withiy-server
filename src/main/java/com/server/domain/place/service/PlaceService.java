@@ -5,7 +5,6 @@ import com.server.domain.album.service.AlbumService;
 import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.service.CategoryService;
-import com.server.domain.folder.dto.PlaceSummaryDto;
 import com.server.domain.folder.repository.FolderPlaceRepository;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.service.PhotoService;
@@ -35,6 +34,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -225,21 +227,21 @@ public class PlaceService {
 	public CursorPageDto<Place, Long> getPlacesByFolder(Long folderId,
 		ApiCursorPaginationRequest pageRequest) {
 		int limit = pageRequest.getLimit();
-
+		Pageable pageable = PageRequest.of(0, limit + 1);
 		List<Place> fetched;
 
 		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
 			List<Long> ids = folderPlaceRepository.findPrevPlaceIdsByFolder(folderId,
-				pageRequest.getCursor());
-			fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
+				pageRequest.getCursor(), pageable);
+			fetched = ids.isEmpty() ? List.of()
+				: placeRepository.findPlacesByIds(ids, Sort.by(Sort.Direction.ASC, "id"));
 			Collections.reverse(fetched);
 		} else {
 			List<Long> ids = folderPlaceRepository.findNextPlaceIdsByFolder(folderId,
-				pageRequest.getCursor());
-			fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
+				pageRequest.getCursor(), pageable);
+			fetched = ids.isEmpty() ? List.of()
+				: placeRepository.findPlacesByIds(ids, Sort.by(Sort.Direction.DESC, "id"));
 		}
-
-//		fetched = fetched.subList(0, limit + 1);
 
 		return CursorPaginationUtils.paginate(
 			fetched,
@@ -250,46 +252,32 @@ public class PlaceService {
 		);
 	}
 
-//	public CursorPageDto<Place, Long> getAllPlacesInFolders(Long userId,
-//		ApiCursorPaginationRequest pageRequest) {
-//		int limit = pageRequest.getLimit();
-//
-//		List<Place> fetched;
-//		List<Long> ids = folderPlaceRepository.findAllPlaceIdsByUser(userId);
-//		fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
-////		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
-////			List<Long> ids = folderPlaceRepository.findPrevPlaceIdsByUser(userId,
-////				pageRequest.getCursor());
-////			fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
-////			Collections.reverse(fetched);
-////		} else {
-////			List<Long> ids = folderPlaceRepository.findNextPlaceIdsByUser(userId,
-////				pageRequest.getCursor());
-////			fetched = ids.isEmpty() ? List.of() : placeRepository.findPlacesByIds(ids);
-////		}
-//
-
-	/// /		fetched = fetched.subList(0, limit + 1);
-//
-//		return CursorPaginationUtils.paginate(
-//			fetched,
-//			limit,
-//			Boolean.TRUE.equals(pageRequest.getPrev()),
-//			pageRequest.getCursor(),
-//			Place::getId // 커서 기준 값 추출 방법 전달
-//		);
-//	}
-	public List<PlaceSummaryDto> getAllPlacesInFolders(Long userId,
+	public CursorPageDto<Place, Long> getAllPlacesInFolders(Long userId,
 		ApiCursorPaginationRequest pageRequest) {
 		int limit = pageRequest.getLimit();
 
 		List<Place> fetched;
-		List<Long> ids = folderPlaceRepository.findAllPlaceIdsByUser(userId);
-		fetched = ids.isEmpty() ? List.of() : placeRepository.findAll();
+		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
+			List<Long> ids = folderPlaceRepository.findPrevPlaceIdsByUser(userId,
+				pageRequest.getCursor());
+			ids = ids.subList(0, Math.min(ids.size(), limit + 1));
+			fetched = ids.isEmpty() ? List.of()
+				: placeRepository.findPlacesByIds(ids, Sort.by(Sort.Direction.ASC, "id"));
+			Collections.reverse(fetched);
+		} else {
+			List<Long> ids = folderPlaceRepository.findNextPlaceIdsByUser(userId,
+				pageRequest.getCursor());
+			ids = ids.subList(0, Math.min(ids.size(), limit + 1));
+			fetched = ids.isEmpty() ? List.of()
+				: placeRepository.findPlacesByIds(ids, Sort.by(Sort.Direction.DESC, "id"));
+		}
 
-		return fetched.stream()
-			.limit(limit)
-			.map(place -> PlaceSummaryDto.from(place, null))
-			.toList();
+		return CursorPaginationUtils.paginate(
+			fetched,
+			limit,
+			Boolean.TRUE.equals(pageRequest.getPrev()),
+			pageRequest.getCursor(),
+			Place::getId // 커서 기준 값 추출 방법 전달
+		);
 	}
 }

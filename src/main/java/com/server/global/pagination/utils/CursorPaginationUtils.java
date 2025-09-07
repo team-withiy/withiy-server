@@ -17,17 +17,16 @@ public class CursorPaginationUtils {
 
 		boolean hasNext;
 		boolean hasPrev;
-
+		List<T> data;
 		if (isPrev) {
 			hasPrev = hasMore;
 			hasNext = cursor != null;
+			data = fetched.subList(fetched.size() - limit, fetched.size());
 		} else {
 			hasNext = hasMore;
 			hasPrev = cursor != null;
+			data = fetched.subList(0, limit);
 		}
-
-		// 실제 데이터 자르기
-		List<T> data = hasMore ? fetched.subList(0, limit) : fetched;
 
 		// 커서 설정
 		ID nextCursor =

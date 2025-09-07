@@ -3,6 +3,7 @@ package com.server.domain.folder.repository;
 import com.server.domain.folder.entity.FolderPlace;
 import java.util.List;
 import java.util.Set;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -19,14 +20,14 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		"AND (:cursor IS NULL OR fp.place.id < :cursor) " +
 		"ORDER BY fp.place.id DESC")
 	List<Long> findNextPlaceIdsByFolder(@Param("folderId") Long folderId,
-		@Param("cursor") Long cursor);
+		@Param("cursor") Long cursor, Pageable pageable);
 
 	@Query("SELECT fp.place.id FROM FolderPlace fp " +
 		"WHERE fp.folder.id = :folderId " +
 		"AND (:cursor IS NULL OR fp.place.id > :cursor) " +
 		"ORDER BY fp.place.id ASC")
 	List<Long> findPrevPlaceIdsByFolder(@Param("folderId") Long folderId,
-		@Param("cursor") Long cursor);
+		@Param("cursor") Long cursor, Pageable pageable);
 
 	@Query("SELECT f.id \n"
 		+ "    FROM FolderPlace fp\n"
@@ -64,10 +65,4 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		"ORDER BY fp.place.id ASC")
 	List<Long> findPrevPlaceIdsByUser(@Param("userId") Long userId,
 		@Param("cursor") Long cursor);
-
-	@Query("SELECT fp.place.id FROM FolderPlace fp " +
-		"JOIN fp.folder f " +
-		"WHERE f.user.id = :userId " +
-		"ORDER BY fp.place.id ASC")
-	List<Long> findAllPlaceIdsByUser(@Param("userId") Long userId);
 }

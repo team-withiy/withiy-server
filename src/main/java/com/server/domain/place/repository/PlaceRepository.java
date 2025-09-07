@@ -4,6 +4,7 @@ import com.server.domain.category.entity.Category;
 import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.place.entity.Place;
 import java.util.List;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -34,6 +35,6 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
 	List<Place> findPlacesByStatusAndCategory(@Param("status") PlaceStatus status,
 		Category category);
 
-	@Query("SELECT p FROM Place p WHERE p.id IN :ids ORDER BY p.id DESC")
-	List<Place> findPlacesByIds(List<Long> ids);
+	@Query("SELECT p FROM Place p WHERE p.id IN :ids")
+	List<Place> findPlacesByIds(List<Long> ids, Sort sort);
 }
