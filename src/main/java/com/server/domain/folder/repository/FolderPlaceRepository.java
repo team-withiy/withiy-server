@@ -73,4 +73,26 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		"JOIN fp.folder f " +
 		"WHERE f.user.id = :userId")
 	long countDistinctPlacesByUser(Long userId);
+
+	@Query("SELECT CASE WHEN COUNT(fp) > 0 THEN true ELSE false END " +
+		"FROM FolderPlace fp " +
+		"WHERE fp.folder.id = :folderId AND fp.place.id < :cursor")
+	boolean existsNextPlaceByFolder(Long folderId, Long cursor);
+
+	@Query("SELECT CASE WHEN COUNT(fp) > 0 THEN true ELSE false END " +
+		"FROM FolderPlace fp " +
+		"WHERE fp.folder.id = :folderId AND fp.place.id > :cursor")
+	boolean existsPrevPlaceByFolder(Long folderId, Long cursor);
+
+	@Query("SELECT CASE WHEN COUNT(DISTINCT fp.place.id) > 0 THEN true ELSE false END " +
+		"FROM FolderPlace fp " +
+		"JOIN fp.folder f " +
+		"WHERE f.user.id = :userId AND fp.place.id < :cursor")
+	boolean existsNextPlaceByUser(Long userId, Long cursor);
+
+	@Query("SELECT CASE WHEN COUNT(DISTINCT fp.place.id) > 0 THEN true ELSE false END " +
+		"FROM FolderPlace fp " +
+		"JOIN fp.folder f " +
+		"WHERE f.user.id = :userId AND fp.place.id > :cursor")
+	boolean existsPrevPlaceByUser(Long userId, Long cursor);
 }

@@ -12,21 +12,15 @@ public class CursorPaginationUtils {
 		int limit,
 		boolean isPrev,
 		Long cursor,
+		boolean hasPrev,
+		boolean hasNext,
 		Function<T, ID> idExtractor // ID 추출 함수 (ex: Place::getId)
 	) {
-		boolean hasMore = fetched.size() > limit;
-
-		boolean hasNext;
-		boolean hasPrev;
 		List<T> data;
 		if (isPrev) {
-			hasPrev = hasMore;
-			hasNext = cursor != null;
 			int start = Math.max(0, fetched.size() - limit);
 			data = fetched.subList(start, fetched.size());
 		} else {
-			hasNext = hasMore;
-			hasPrev = cursor != null;
 			int end = Math.min(fetched.size(), limit);
 			data = fetched.subList(0, end);
 		}
