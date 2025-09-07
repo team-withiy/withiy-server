@@ -226,9 +226,15 @@ public class PlaceService {
 
 	public CursorPageDto<Place, Long> getPlacesByFolder(Long folderId,
 		ApiCursorPaginationRequest pageRequest) {
+		long total;
 		int limit = pageRequest.getLimit();
+		Long cursor = pageRequest.getCursor();
+		boolean hasNext = false;
+		boolean hasPrev = false;
 		Pageable pageable = PageRequest.of(0, limit + 1);
 		List<Place> fetched;
+
+		total = folderPlaceRepository.countPlacesInFolder(folderId);
 
 		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
 			List<Long> ids = folderPlaceRepository.findPrevPlaceIdsByFolder(folderId,
@@ -236,46 +242,69 @@ public class PlaceService {
 			fetched = ids.isEmpty() ? List.of()
 				: placeRepository.findPlacesByIds(ids, Sort.by(Sort.Direction.ASC, "id"));
 			Collections.reverse(fetched);
+			boolean hasMore = fetched.size() > limit;
+			hasPrev = hasMore;
+			hasNext = folderPlaceRepository.existsNextPlaceByFolder(folderId,
+				cursor);
 		} else {
 			List<Long> ids = folderPlaceRepository.findNextPlaceIdsByFolder(folderId,
-				pageRequest.getCursor(), pageable);
+				cursor, pageable);
 			fetched = ids.isEmpty() ? List.of()
 				: placeRepository.findPlacesByIds(ids, Sort.by(Sort.Direction.DESC, "id"));
+			boolean hasMore = fetched.size() > limit;
+			hasNext = hasMore;
+			hasPrev = folderPlaceRepository.existsPrevPlaceByFolder(folderId, cursor);
 		}
 
 		return CursorPaginationUtils.paginate(
+			total,
 			fetched,
 			limit,
 			Boolean.TRUE.equals(pageRequest.getPrev()),
-			pageRequest.getCursor(),
+			cursor,
+			hasPrev,
+			hasNext,
 			Place::getId // 커서 기준 값 추출 방법 전달
 		);
 	}
 
 	public CursorPageDto<Place, Long> getAllPlacesInFolders(Long userId,
 		ApiCursorPaginationRequest pageRequest) {
+		long total = folderPlaceRepository.countDistinctPlacesByUser(userId);
 		int limit = pageRequest.getLimit();
+		Long cursor = pageRequest.getCursor();
+		boolean hasNext = false;
+		boolean hasPrev = false;
 		Pageable pageable = PageRequest.of(0, limit + 1);
 
 		List<Place> fetched;
 		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
 			List<Long> ids = folderPlaceRepository.findPrevPlaceIdsByUser(userId,
-				pageRequest.getCursor(), pageable);
+				cursor, pageable);
 			fetched = ids.isEmpty() ? List.of()
 				: placeRepository.findPlacesByIds(ids, Sort.by(Sort.Direction.ASC, "id"));
 			Collections.reverse(fetched);
+			boolean hasMore = fetched.size() > limit;
+			hasPrev = hasMore;
+			hasNext = folderPlaceRepository.existsNextPlaceByUser(userId, cursor);
 		} else {
 			List<Long> ids = folderPlaceRepository.findNextPlaceIdsByUser(userId,
-				pageRequest.getCursor(), pageable);
+				cursor, pageable);
 			fetched = ids.isEmpty() ? List.of()
 				: placeRepository.findPlacesByIds(ids, Sort.by(Sort.Direction.DESC, "id"));
+			boolean hasMore = fetched.size() > limit;
+			hasNext = hasMore;
+			hasPrev = folderPlaceRepository.existsPrevPlaceByUser(userId, cursor);
 		}
 
 		return CursorPaginationUtils.paginate(
+			total,
 			fetched,
 			limit,
 			Boolean.TRUE.equals(pageRequest.getPrev()),
-			pageRequest.getCursor(),
+			cursor,
+			hasPrev,
+			hasNext,
 			Place::getId // 커서 기준 값 추출 방법 전달
 		);
 	}

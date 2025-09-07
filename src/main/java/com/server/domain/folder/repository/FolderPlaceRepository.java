@@ -65,4 +65,34 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		"ORDER BY fp.place.id ASC")
 	List<Long> findPrevPlaceIdsByUser(@Param("userId") Long userId,
 		@Param("cursor") Long cursor, Pageable pageable);
+
+	@Query("SELECT COUNT(fp) FROM FolderPlace fp WHERE fp.folder.id = :folderId")
+	long countPlacesInFolder(Long folderId);
+
+	@Query("SELECT COUNT(DISTINCT fp.place.id) FROM FolderPlace fp " +
+		"JOIN fp.folder f " +
+		"WHERE f.user.id = :userId")
+	long countDistinctPlacesByUser(Long userId);
+
+	@Query("SELECT CASE WHEN COUNT(fp) > 0 THEN true ELSE false END " +
+		"FROM FolderPlace fp " +
+		"WHERE fp.folder.id = :folderId AND fp.place.id < :cursor")
+	boolean existsNextPlaceByFolder(Long folderId, Long cursor);
+
+	@Query("SELECT CASE WHEN COUNT(fp) > 0 THEN true ELSE false END " +
+		"FROM FolderPlace fp " +
+		"WHERE fp.folder.id = :folderId AND fp.place.id > :cursor")
+	boolean existsPrevPlaceByFolder(Long folderId, Long cursor);
+
+	@Query("SELECT CASE WHEN COUNT(DISTINCT fp.place.id) > 0 THEN true ELSE false END " +
+		"FROM FolderPlace fp " +
+		"JOIN fp.folder f " +
+		"WHERE f.user.id = :userId AND fp.place.id < :cursor")
+	boolean existsNextPlaceByUser(Long userId, Long cursor);
+
+	@Query("SELECT CASE WHEN COUNT(DISTINCT fp.place.id) > 0 THEN true ELSE false END " +
+		"FROM FolderPlace fp " +
+		"JOIN fp.folder f " +
+		"WHERE f.user.id = :userId AND fp.place.id > :cursor")
+	boolean existsPrevPlaceByUser(Long userId, Long cursor);
 }
