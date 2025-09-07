@@ -56,7 +56,7 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		"AND (:cursor IS NULL OR fp.place.id < :cursor) " +
 		"ORDER BY fp.place.id DESC")
 	List<Long> findNextPlaceIdsByUser(@Param("userId") Long userId,
-		@Param("cursor") Long cursor);
+		@Param("cursor") Long cursor, Pageable pageable);
 
 	@Query("SELECT DISTINCT fp.place.id FROM FolderPlace fp " +
 		"JOIN fp.folder f " +
@@ -64,5 +64,5 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		"AND (:cursor IS NULL OR fp.place.id > :cursor) " +
 		"ORDER BY fp.place.id ASC")
 	List<Long> findPrevPlaceIdsByUser(@Param("userId") Long userId,
-		@Param("cursor") Long cursor);
+		@Param("cursor") Long cursor, Pageable pageable);
 }

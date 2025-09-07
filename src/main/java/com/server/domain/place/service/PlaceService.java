@@ -255,19 +255,18 @@ public class PlaceService {
 	public CursorPageDto<Place, Long> getAllPlacesInFolders(Long userId,
 		ApiCursorPaginationRequest pageRequest) {
 		int limit = pageRequest.getLimit();
+		Pageable pageable = PageRequest.of(0, limit + 1);
 
 		List<Place> fetched;
 		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
 			List<Long> ids = folderPlaceRepository.findPrevPlaceIdsByUser(userId,
-				pageRequest.getCursor());
-			ids = ids.subList(0, Math.min(ids.size(), limit + 1));
+				pageRequest.getCursor(), pageable);
 			fetched = ids.isEmpty() ? List.of()
 				: placeRepository.findPlacesByIds(ids, Sort.by(Sort.Direction.ASC, "id"));
 			Collections.reverse(fetched);
 		} else {
 			List<Long> ids = folderPlaceRepository.findNextPlaceIdsByUser(userId,
-				pageRequest.getCursor());
-			ids = ids.subList(0, Math.min(ids.size(), limit + 1));
+				pageRequest.getCursor(), pageable);
 			fetched = ids.isEmpty() ? List.of()
 				: placeRepository.findPlacesByIds(ids, Sort.by(Sort.Direction.DESC, "id"));
 		}

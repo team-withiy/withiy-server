@@ -21,11 +21,13 @@ public class CursorPaginationUtils {
 		if (isPrev) {
 			hasPrev = hasMore;
 			hasNext = cursor != null;
-			data = fetched.subList(fetched.size() - limit, fetched.size());
+			int start = Math.max(0, fetched.size() - limit);
+			data = fetched.subList(start, fetched.size());
 		} else {
 			hasNext = hasMore;
 			hasPrev = cursor != null;
-			data = fetched.subList(0, limit);
+			int end = Math.min(fetched.size(), limit);
+			data = fetched.subList(0, end);
 		}
 
 		// 커서 설정
