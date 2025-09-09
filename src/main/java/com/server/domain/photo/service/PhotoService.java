@@ -9,12 +9,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class PhotoService {
 
+	private final static int PLACE_DEFAULT_PHOTO_LIMIT = 30;
 	private final PhotoRepository photoRepository;
 
 	public void saveAll(List<Photo> photos) {
@@ -47,7 +49,8 @@ public class PhotoService {
 	}
 
 	public List<Photo> getPhotosByAlbum(Album album) {
-		return photoRepository.findAllByAlbum(album);
+		Pageable pageable = PageRequest.of(0, PLACE_DEFAULT_PHOTO_LIMIT);
+		return photoRepository.findAllByAlbum(album, pageable);
 	}
 
 	public List<Photo> getPhotosByAlbumAndUser(Album album, User reviewer) {

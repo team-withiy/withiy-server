@@ -27,6 +27,10 @@ public class GetPlaceDetailResponse {
 	private Long score;
 	@Schema(description = "장소 사진 목록")
 	private List<PhotoDto> photos;
+	@Schema(description = "장소 사진 총 개수", example = "100")
+	private int totalPhotoCount;
+	@Schema(description = "더보기 필요 여부 (total > 30)", example = "true")
+	private boolean hasMorePhotos;
 	@Schema(description = "장소 리뷰 목록")
 	private List<ReviewDto> reviews;
 
