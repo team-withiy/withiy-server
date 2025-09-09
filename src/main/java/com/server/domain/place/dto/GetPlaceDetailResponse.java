@@ -36,9 +36,8 @@ public class GetPlaceDetailResponse {
 
 	@Builder
 	public GetPlaceDetailResponse(Long placeId, String placeName, CategoryDto category,
-		String address,
-		LocationDto location, Long score,
-		List<PhotoDto> photos, List<ReviewDto> reviews) {
+		String address, LocationDto location, Long score, List<PhotoDto> photos,
+		int totalPhotoCount, boolean hasMorePhotos, List<ReviewDto> reviews) {
 		this.placeId = placeId;
 		this.placeName = placeName;
 		this.category = category;
@@ -46,6 +45,8 @@ public class GetPlaceDetailResponse {
 		this.location = location;
 		this.score = score;
 		this.photos = photos;
+		this.totalPhotoCount = totalPhotoCount;
+		this.hasMorePhotos = hasMorePhotos;
 		this.reviews = reviews;
 	}
 }

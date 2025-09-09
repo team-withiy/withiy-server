@@ -32,4 +32,6 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 		"WHERE p.album.id IN :albumIds " +
 		"ORDER BY p.createdAt DESC")
 	List<Photo> findAllByAlbumIds(List<Long> albumIds);
+
+	int countPhotosByAlbum(Album album);
 }

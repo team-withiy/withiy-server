@@ -8,6 +8,7 @@ import com.server.domain.place.dto.GetPlaceDetailResponse;
 import com.server.domain.place.dto.PlaceDetailDto;
 import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.dto.PlaceFocusDto;
+import com.server.domain.place.dto.RegisterPhotoRequest;
 import com.server.domain.place.dto.RegisterPlaceDto;
 import com.server.domain.place.dto.UpdatePlaceDto;
 import com.server.domain.place.service.PlaceFacade;
@@ -96,7 +97,7 @@ public class PlaceController {
 	}
 
 	@ResponseStatus(HttpStatus.OK)
-	@GetMapping("/detail/{placeId}")
+	@GetMapping("/{placeId}/detail")
 	@Operation(summary = "특정 장소 상세 정보 가져오기", description = "장소 id를 받아 특정 장소 자세한 정보 조회")
 	public ApiResponseDto<GetPlaceDetailResponse> getPlaceDetail(@PathVariable Long placeId) {
 		GetPlaceDetailResponse response = placeFacade.getPlaceDetail(placeId);
@@ -143,5 +144,15 @@ public class PlaceController {
 		@PathVariable Long placeId, @AuthenticationPrincipal User user) {
 		String result = placeFacade.updatePlaceFolders(request.getFolderIds(), placeId, user);
 		return ApiResponseDto.success(HttpStatus.OK.value(), result);
+	}
+
+	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+	@ResponseStatus(HttpStatus.OK)
+	@PostMapping("/{placeId}/photos")
+	public ApiResponseDto<String> registerPhotos(@AuthenticationPrincipal User user,
+		@PathVariable Long placeId, @RequestBody RegisterPhotoRequest request) {
+
+		return ApiResponseDto.success(HttpStatus.OK.value(),
+			placeFacade.registerPhotos(user, placeId, request));
 	}
 }

@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PhotoService {
 
-	private final static int PLACE_DEFAULT_PHOTO_LIMIT = 30;
 	private final PhotoRepository photoRepository;
 
 	public void saveAll(List<Photo> photos) {
@@ -48,8 +47,8 @@ public class PhotoService {
 		saveAll(photos);
 	}
 
-	public List<Photo> getPhotosByAlbum(Album album) {
-		Pageable pageable = PageRequest.of(0, PLACE_DEFAULT_PHOTO_LIMIT);
+	public List<Photo> getPhotosByAlbum(Album album, int limit) {
+		Pageable pageable = PageRequest.of(0, limit);
 		return photoRepository.findAllByAlbum(album, pageable);
 	}
 
@@ -62,5 +61,9 @@ public class PhotoService {
 		return photos.stream()
 			.collect(Collectors.toMap(photo -> photo.getAlbum().getId(), photo -> photo,
 				(existing, replacement) -> existing));
+	}
+
+	public int getTotalPhotoCountByAlbum(Album album) {
+		return photoRepository.countPhotosByAlbum(album);
 	}
 }

@@ -15,6 +15,7 @@ import com.server.domain.place.dto.CreatePlaceResponse;
 import com.server.domain.place.dto.GetPlaceDetailResponse;
 import com.server.domain.place.dto.LocationDto;
 import com.server.domain.place.dto.PlaceStatus;
+import com.server.domain.place.dto.RegisterPhotoRequest;
 import com.server.domain.place.entity.Place;
 import com.server.domain.review.dto.ReviewDto;
 import com.server.domain.review.service.ReviewService;
@@ -31,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PlaceFacade {
 
+	private final static int PLACE_DEFAULT_PHOTO_LIMIT = 30;
 	private final PlaceService placeService;
 	private final AlbumService albumService;
 	private final CategoryService categoryService;
@@ -77,10 +79,13 @@ public class PlaceFacade {
 			.build();
 
 		Album album = albumService.getAlbumByPlace(place);
-		List<PhotoDto> photos = photoService.getPhotosByAlbum(album)
+		int totalPhotoCount = photoService.getTotalPhotoCountByAlbum(album);
+		List<PhotoDto> photos = photoService.getPhotosByAlbum(album, PLACE_DEFAULT_PHOTO_LIMIT)
 			.stream()
 			.map(PhotoDto::from)
 			.toList();
+
+		boolean hasMorePhotos = totalPhotoCount > PLACE_DEFAULT_PHOTO_LIMIT ? true : false;
 
 		List<ReviewDto> reviews = reviewService.getReviewsByPlace(place)
 			.stream()
@@ -103,6 +108,8 @@ public class PlaceFacade {
 			.location(location)
 			.score(place.getScore())
 			.photos(photos)
+			.totalPhotoCount(totalPhotoCount)
+			.hasMorePhotos(hasMorePhotos)
 			.reviews(reviews)
 			.build();
 	}
@@ -138,5 +145,12 @@ public class PlaceFacade {
 
 	public boolean isBookmarked(Long placeId, User user) {
 		return folderService.existsFolderByPlaceIdAndUserId(placeId, user.getId());
+	}
+
+	public String registerPhotos(User user, Long placeId, RegisterPhotoRequest request) {
+		Place place = placeService.getPlaceById(placeId);
+		Album album = albumService.getAlbumByPlace(place);
+		photoService.uploadPhotos(album, user, request.getImageUrls());
+		return "Photos uploaded successfully.";
 	}
 }
