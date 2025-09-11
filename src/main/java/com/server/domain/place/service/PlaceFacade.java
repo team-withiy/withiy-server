@@ -9,6 +9,7 @@ import com.server.domain.folder.entity.Folder;
 import com.server.domain.folder.entity.FolderPlace;
 import com.server.domain.folder.service.FolderService;
 import com.server.domain.photo.dto.PhotoDto;
+import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.service.PhotoService;
 import com.server.domain.place.dto.CreatePlaceDto;
 import com.server.domain.place.dto.CreatePlaceResponse;
@@ -20,6 +21,8 @@ import com.server.domain.place.entity.Place;
 import com.server.domain.review.dto.ReviewDto;
 import com.server.domain.review.service.ReviewService;
 import com.server.domain.user.entity.User;
+import com.server.global.pagination.dto.ApiCursorPaginationRequest;
+import com.server.global.pagination.dto.CursorPageDto;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -152,5 +155,15 @@ public class PlaceFacade {
 		Album album = albumService.getAlbumByPlace(place);
 		photoService.uploadPhotos(album, user, request.getImageUrls());
 		return "Photos uploaded successfully.";
+	}
+
+	public CursorPageDto<PhotoDto, Long> getPlacePhotos(Long placeId,
+		ApiCursorPaginationRequest pageRequest) {
+		Place place = placeService.getPlaceById(placeId);
+		List<Album> albums = albumService.getAlbumsByPlace(place.getId());
+		CursorPageDto<Photo, Long> page = photoService.getPhotosByAlbums(albums, pageRequest);
+
+		// Photo -> PhotoDto 변환
+		return page.map(PhotoDto::from);
 	}
 }

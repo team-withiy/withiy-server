@@ -1,5 +1,6 @@
 package com.server.domain.place.controller;
 
+import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.place.dto.CreatePlaceByUserDto;
 import com.server.domain.place.dto.CreatePlaceDto;
 import com.server.domain.place.dto.CreatePlaceResponse;
@@ -15,7 +16,10 @@ import com.server.domain.place.service.PlaceFacade;
 import com.server.domain.place.service.PlaceService;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
+import com.server.global.pagination.dto.ApiCursorPaginationRequest;
+import com.server.global.pagination.dto.ApiCursorPaginationResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +28,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -154,5 +159,13 @@ public class PlaceController {
 
 		return ApiResponseDto.success(HttpStatus.OK.value(),
 			placeFacade.registerPhotos(user, placeId, request));
+	}
+
+	@ResponseStatus(HttpStatus.OK)
+	@GetMapping("/{placeId}/photos")
+	public ApiCursorPaginationResponse<PhotoDto, Long> getPlacePhotos(@PathVariable Long placeId,
+		@Valid @ModelAttribute ApiCursorPaginationRequest pageRequest) {
+		return ApiCursorPaginationResponse.success(HttpStatus.OK.value(),
+			placeFacade.getPlacePhotos(placeId, pageRequest));
 	}
 }

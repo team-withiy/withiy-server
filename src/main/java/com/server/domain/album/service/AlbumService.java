@@ -25,8 +25,7 @@ public class AlbumService {
 	}
 
 	public Album getAlbumByPlace(Place place) {
-		return placeAlbumRepository.findByPlace(place)
-			.map(PlaceAlbum::getAlbum)
+		return placeAlbumRepository.findAlbumByPlace(place.getId())
 			.orElse(null);
 	}
 
@@ -42,5 +41,9 @@ public class AlbumService {
 		List<PlaceAlbum> placeAlbums = placeAlbumRepository.findByPlaceIds(placeIds);
 		return placeAlbums.stream()
 			.collect(Collectors.toMap(pa -> pa.getPlace().getId(), PlaceAlbum::getAlbum));
+	}
+
+	public List<Album> getAlbumsByPlace(Long placeId) {
+		return placeAlbumRepository.findAlbumsByPlaceId(placeId);
 	}
 }
