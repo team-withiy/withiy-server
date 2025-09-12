@@ -138,9 +138,9 @@ public class PlaceService {
 	public PlaceDto registerPlace(User user, RegisterPlaceDto registerPlaceDto) {
 		Place place = placeRepository.findById(registerPlaceDto.getPlaceId())
 			.orElseThrow(() -> new BusinessException(PlaceErrorCode.NOT_FOUND));
-		Review savedreview = reviewService.save(place, user, registerPlaceDto.getReview(),
+		reviewService.save(place, user, registerPlaceDto.getReview(),
 			registerPlaceDto.getScore());
-		Album album = albumService.getAlbumByPlace(place);
+		Album album = albumService.getAlbumByPlaceId(place.getId());
 
 		List<Photo> photos = registerPlaceDto.getPhotos().stream()
 			.map(photoDto -> Photo.builder()

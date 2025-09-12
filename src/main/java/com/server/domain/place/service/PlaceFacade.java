@@ -9,16 +9,22 @@ import com.server.domain.folder.entity.Folder;
 import com.server.domain.folder.entity.FolderPlace;
 import com.server.domain.folder.service.FolderService;
 import com.server.domain.photo.dto.PhotoDto;
+import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.service.PhotoService;
 import com.server.domain.place.dto.CreatePlaceDto;
 import com.server.domain.place.dto.CreatePlaceResponse;
 import com.server.domain.place.dto.GetPlaceDetailResponse;
 import com.server.domain.place.dto.LocationDto;
 import com.server.domain.place.dto.PlaceStatus;
+import com.server.domain.place.dto.RegisterPhotoRequest;
 import com.server.domain.place.entity.Place;
 import com.server.domain.review.dto.ReviewDto;
 import com.server.domain.review.service.ReviewService;
 import com.server.domain.user.entity.User;
+import com.server.global.error.code.AlbumErrorCode;
+import com.server.global.error.exception.BusinessException;
+import com.server.global.pagination.dto.ApiCursorPaginationRequest;
+import com.server.global.pagination.dto.CursorPageDto;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PlaceFacade {
 
+	private final static int PLACE_DEFAULT_PHOTO_LIMIT = 30;
 	private final PlaceService placeService;
 	private final AlbumService albumService;
 	private final CategoryService categoryService;
@@ -76,11 +83,15 @@ public class PlaceFacade {
 			.region3depth(place.getRegion3depth())
 			.build();
 
-		Album album = albumService.getAlbumByPlace(place);
-		List<PhotoDto> photos = photoService.getPhotosByAlbum(album)
+		Album album = albumService.getAlbumByPlaceId(place.getId());
+		int totalPhotoCount = photoService.getTotalPhotoCountByAlbum(album);
+		List<PhotoDto> photos = photoService.getLimitedPhotosByAlbum(album,
+				PLACE_DEFAULT_PHOTO_LIMIT)
 			.stream()
 			.map(PhotoDto::from)
 			.toList();
+
+		boolean hasMorePhotos = totalPhotoCount > PLACE_DEFAULT_PHOTO_LIMIT;
 
 		List<ReviewDto> reviews = reviewService.getReviewsByPlace(place)
 			.stream()
@@ -103,6 +114,8 @@ public class PlaceFacade {
 			.location(location)
 			.score(place.getScore())
 			.photos(photos)
+			.totalPhotoCount(totalPhotoCount)
+			.hasMorePhotos(hasMorePhotos)
 			.reviews(reviews)
 			.build();
 	}
@@ -138,5 +151,42 @@ public class PlaceFacade {
 
 	public boolean isBookmarked(Long placeId, User user) {
 		return folderService.existsFolderByPlaceIdAndUserId(placeId, user.getId());
+	}
+
+	public String registerPhotos(User user, Long placeId, RegisterPhotoRequest request) {
+		Place place = placeService.getPlaceById(placeId);
+		Album album = albumService.getAlbumByPlaceId(place.getId());
+		photoService.uploadPhotos(album, user, request.getImageUrls());
+		return "Photos uploaded successfully.";
+	}
+
+	public CursorPageDto<PhotoDto, Long> getPlacePhotos(Long placeId,
+		ApiCursorPaginationRequest pageRequest) {
+		Place place = placeService.getPlaceById(placeId);
+		Album album = albumService.getAlbumByPlaceId(place.getId());
+		CursorPageDto<Photo, Long> page = photoService.getPhotosByAlbumWithCursor(album,
+			pageRequest);
+
+		// Photo -> PhotoDto 변환
+		return page.map(PhotoDto::from);
+	}
+
+	@Transactional(readOnly = true)
+	public PhotoDto getPlacePhoto(Long placeId, Long photoId) {
+		Photo photo = photoService.getPhotoById(photoId);
+		Album album = photo.getAlbum();
+
+		if (album == null) {
+			throw new BusinessException(AlbumErrorCode.ALBUM_NOT_FOUND);
+		}
+
+		Long albumId = album.getId();
+		Place place = albumService.getPlaceByAlbumId(albumId);
+
+		if (!place.getId().equals(placeId)) {
+			throw new BusinessException(AlbumErrorCode.PLACE_NOT_MATCHED);
+		}
+
+		return PhotoDto.from(photo);
 	}
 }

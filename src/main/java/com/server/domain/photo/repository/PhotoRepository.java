@@ -21,12 +21,49 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 
 	List<Photo> findAllByAlbumAndUser(Album album, User reviewer);
 
+	@Query("SELECT p FROM Photo p " +
+		"JOIN p.album " +
+		"WHERE p.album = :album " +
+		"ORDER BY p.createdAt DESC")
+	List<Photo> findAllByAlbum(Album album, Pageable pageable);
 
-	List<Photo> findAllByAlbum(Album album);
-	
 	@Query("SELECT p FROM Photo p " +
 		"JOIN FETCH p.album " +
 		"WHERE p.album.id IN :albumIds " +
 		"ORDER BY p.createdAt DESC")
 	List<Photo> findAllByAlbumIds(List<Long> albumIds);
+
+	int countPhotosByAlbum(Album album);
+
+	@Query("SELECT COUNT(p) FROM Photo p WHERE p.album.id = :albumId")
+	long countPhotosByAlbumId(Long albumId);
+
+	@Query("SELECT p FROM Photo p " +
+		"JOIN p.album a " +
+		"WHERE a.id = :albumId " +
+		"AND p.id > :cursor " +
+		"ORDER BY p.createdAt ASC")
+	List<Photo> findPrevPhotosByAlbumId(Long albumId, Long cursor, Pageable pageable);
+
+	@Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END " +
+		"FROM Photo p " +
+		"JOIN p.album a " +
+		"WHERE a.id = :albumId " +
+		"AND p.id < :cursor " +
+		"ORDER BY p.createdAt DESC")
+	boolean existsNextPhotoByAlbumId(Long albumId, Long cursor);
+
+	@Query("SELECT p FROM Photo p " +
+		"JOIN p.album a " +
+		"WHERE a.id = :albumId " +
+		"AND p.id < :cursor " +
+		"ORDER BY p.createdAt DESC")
+	List<Photo> findNextPhotosByAlbumId(Long albumId, Long cursor, Pageable pageable);
+
+	@Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END " +
+		"FROM Photo p " +
+		"JOIN p.album a " +
+		"WHERE a.id = :albumIds " +
+		"AND p.id > :cursor ")
+	boolean existsPrevPhotoByAlbumId(Long albumId, Long cursor);
 }

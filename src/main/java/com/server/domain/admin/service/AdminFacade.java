@@ -67,7 +67,7 @@ public class AdminFacade {
 
 		for (Place place : places) {
 			placeNames.add(place.getName());
-			Album album = albumService.getAlbumByPlace(place);
+			Album album = albumService.getAlbumByPlaceId(place.getId());
 			if (album != null) {
 				photoUrls.addAll(photoService.getAllPhotoUrls(album));
 			}
@@ -90,7 +90,7 @@ public class AdminFacade {
 			long score = place.getScore();
 
 			// 사진 URL 목록 조회
-			Album album = albumService.getAlbumByPlace(place);
+			Album album = albumService.getAlbumByPlaceId(place.getId());
 			List<String> photoUrls =
 				(album != null) ? photoService.getAllPhotoUrls(album) : new ArrayList<>();
 

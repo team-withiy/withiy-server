@@ -1,5 +1,6 @@
 package com.server.domain.place.controller;
 
+import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.place.dto.CreatePlaceByUserDto;
 import com.server.domain.place.dto.CreatePlaceDto;
 import com.server.domain.place.dto.CreatePlaceResponse;
@@ -8,13 +9,17 @@ import com.server.domain.place.dto.GetPlaceDetailResponse;
 import com.server.domain.place.dto.PlaceDetailDto;
 import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.dto.PlaceFocusDto;
+import com.server.domain.place.dto.RegisterPhotoRequest;
 import com.server.domain.place.dto.RegisterPlaceDto;
 import com.server.domain.place.dto.UpdatePlaceDto;
 import com.server.domain.place.service.PlaceFacade;
 import com.server.domain.place.service.PlaceService;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
+import com.server.global.pagination.dto.ApiCursorPaginationRequest;
+import com.server.global.pagination.dto.ApiCursorPaginationResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +28,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -96,7 +102,7 @@ public class PlaceController {
 	}
 
 	@ResponseStatus(HttpStatus.OK)
-	@GetMapping("/detail/{placeId}")
+	@GetMapping("/{placeId}/detail")
 	@Operation(summary = "특정 장소 상세 정보 가져오기", description = "장소 id를 받아 특정 장소 자세한 정보 조회")
 	public ApiResponseDto<GetPlaceDetailResponse> getPlaceDetail(@PathVariable Long placeId) {
 		GetPlaceDetailResponse response = placeFacade.getPlaceDetail(placeId);
@@ -143,5 +149,31 @@ public class PlaceController {
 		@PathVariable Long placeId, @AuthenticationPrincipal User user) {
 		String result = placeFacade.updatePlaceFolders(request.getFolderIds(), placeId, user);
 		return ApiResponseDto.success(HttpStatus.OK.value(), result);
+	}
+
+	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+	@ResponseStatus(HttpStatus.OK)
+	@PostMapping("/{placeId}/photos")
+	public ApiResponseDto<String> registerPhotos(@AuthenticationPrincipal User user,
+		@PathVariable Long placeId, @RequestBody RegisterPhotoRequest request) {
+
+		return ApiResponseDto.success(HttpStatus.OK.value(),
+			placeFacade.registerPhotos(user, placeId, request));
+	}
+
+	@ResponseStatus(HttpStatus.OK)
+	@GetMapping("/{placeId}/photos")
+	public ApiCursorPaginationResponse<PhotoDto, Long> getPlacePhotos(@PathVariable Long placeId,
+		@Valid @ModelAttribute ApiCursorPaginationRequest pageRequest) {
+		return ApiCursorPaginationResponse.success(HttpStatus.OK.value(),
+			placeFacade.getPlacePhotos(placeId, pageRequest));
+	}
+
+	@GetMapping("/{placeId}/photos/{photoId}")
+	@ResponseStatus(HttpStatus.OK)
+	public ApiResponseDto<PhotoDto> getPlacePhoto(@PathVariable Long placeId,
+		@PathVariable Long photoId) {
+		return ApiResponseDto.success(HttpStatus.OK.value(),
+			placeFacade.getPlacePhoto(placeId, photoId));
 	}
 }
