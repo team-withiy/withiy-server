@@ -5,6 +5,8 @@ import com.server.domain.folder.repository.FolderPlaceRepository;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.repository.PhotoRepository;
 import com.server.domain.user.entity.User;
+import com.server.global.error.code.PhotoErrorCode;
+import com.server.global.error.exception.BusinessException;
 import com.server.global.pagination.dto.ApiCursorPaginationRequest;
 import com.server.global.pagination.dto.CursorPageDto;
 import com.server.global.pagination.utils.CursorPaginationUtils;
@@ -53,7 +55,7 @@ public class PhotoService {
 		saveAll(photos);
 	}
 
-	public List<Photo> getPhotosByAlbum(Album album, int limit) {
+	public List<Photo> getLimitedPhotosByAlbum(Album album, int limit) {
 		Pageable pageable = PageRequest.of(0, limit);
 		return photoRepository.findAllByAlbum(album, pageable);
 	}
@@ -73,7 +75,7 @@ public class PhotoService {
 		return photoRepository.countPhotosByAlbum(album);
 	}
 
-	public CursorPageDto<Photo, Long> getPhotosByAlbums(List<Album> albums,
+	public CursorPageDto<Photo, Long> getPhotosByAlbumWithCursor(Album album,
 		ApiCursorPaginationRequest pageRequest) {
 		long total;
 		int limit = pageRequest.getLimit();
@@ -82,23 +84,22 @@ public class PhotoService {
 		boolean hasPrev = false;
 		Pageable pageable = PageRequest.of(0, limit + 1);
 		List<Photo> fetched;
-		List<Long> albumIds = albums.stream().map(Album::getId).toList();
-		total = photoRepository.countPhotosByAlbumIds(albumIds);
+		total = photoRepository.countPhotosByAlbumId(album.getId());
 
 		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
 
-			fetched = photoRepository.findPrevPhotosByAlbumIds(albumIds, cursor,
+			fetched = photoRepository.findPrevPhotosByAlbumId(album.getId(), cursor,
 				pageable);
 			Collections.reverse(fetched);
 			boolean hasMore = fetched.size() > limit;
 			hasPrev = hasMore;
-			hasNext = photoRepository.existsNextPhotoByAlbumIds(albumIds, cursor);
+			hasNext = photoRepository.existsNextPhotoByAlbumId(album.getId(), cursor);
 		} else {
-			fetched = photoRepository.findNextPhotosByAlbumIds(albumIds, cursor,
+			fetched = photoRepository.findNextPhotosByAlbumId(album.getId(), cursor,
 				pageable);
 			boolean hasMore = fetched.size() > limit;
 			hasNext = hasMore;
-			hasPrev = photoRepository.existsPrevPhotoByAlbumIds(albumIds, cursor);
+			hasPrev = photoRepository.existsPrevPhotoByAlbumId(album.getId(), cursor);
 		}
 
 		return CursorPaginationUtils.paginate(
@@ -111,5 +112,10 @@ public class PhotoService {
 			hasNext,
 			Photo::getId
 		);
+	}
+
+	public Photo getPhotoById(Long photoId) {
+		return photoRepository.findById(photoId)
+			.orElseThrow(() -> new BusinessException(PhotoErrorCode.PHOTO_NOT_FOUND));
 	}
 }

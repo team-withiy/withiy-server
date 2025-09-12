@@ -168,4 +168,12 @@ public class PlaceController {
 		return ApiCursorPaginationResponse.success(HttpStatus.OK.value(),
 			placeFacade.getPlacePhotos(placeId, pageRequest));
 	}
+
+	@GetMapping("/{placeId}/photos/{photoId}")
+	@ResponseStatus(HttpStatus.OK)
+	public ApiResponseDto<PhotoDto> getPlacePhoto(@PathVariable Long placeId,
+		@PathVariable Long photoId) {
+		return ApiResponseDto.success(HttpStatus.OK.value(),
+			placeFacade.getPlacePhoto(placeId, photoId));
+	}
 }

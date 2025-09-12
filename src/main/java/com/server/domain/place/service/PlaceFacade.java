@@ -21,6 +21,8 @@ import com.server.domain.place.entity.Place;
 import com.server.domain.review.dto.ReviewDto;
 import com.server.domain.review.service.ReviewService;
 import com.server.domain.user.entity.User;
+import com.server.global.error.code.AlbumErrorCode;
+import com.server.global.error.exception.BusinessException;
 import com.server.global.pagination.dto.ApiCursorPaginationRequest;
 import com.server.global.pagination.dto.CursorPageDto;
 import java.util.ArrayList;
@@ -81,14 +83,15 @@ public class PlaceFacade {
 			.region3depth(place.getRegion3depth())
 			.build();
 
-		Album album = albumService.getAlbumByPlace(place);
+		Album album = albumService.getAlbumByPlaceId(place.getId());
 		int totalPhotoCount = photoService.getTotalPhotoCountByAlbum(album);
-		List<PhotoDto> photos = photoService.getPhotosByAlbum(album, PLACE_DEFAULT_PHOTO_LIMIT)
+		List<PhotoDto> photos = photoService.getLimitedPhotosByAlbum(album,
+				PLACE_DEFAULT_PHOTO_LIMIT)
 			.stream()
 			.map(PhotoDto::from)
 			.toList();
 
-		boolean hasMorePhotos = totalPhotoCount > PLACE_DEFAULT_PHOTO_LIMIT ? true : false;
+		boolean hasMorePhotos = totalPhotoCount > PLACE_DEFAULT_PHOTO_LIMIT;
 
 		List<ReviewDto> reviews = reviewService.getReviewsByPlace(place)
 			.stream()
@@ -152,7 +155,7 @@ public class PlaceFacade {
 
 	public String registerPhotos(User user, Long placeId, RegisterPhotoRequest request) {
 		Place place = placeService.getPlaceById(placeId);
-		Album album = albumService.getAlbumByPlace(place);
+		Album album = albumService.getAlbumByPlaceId(place.getId());
 		photoService.uploadPhotos(album, user, request.getImageUrls());
 		return "Photos uploaded successfully.";
 	}
@@ -160,10 +163,30 @@ public class PlaceFacade {
 	public CursorPageDto<PhotoDto, Long> getPlacePhotos(Long placeId,
 		ApiCursorPaginationRequest pageRequest) {
 		Place place = placeService.getPlaceById(placeId);
-		List<Album> albums = albumService.getAlbumsByPlace(place.getId());
-		CursorPageDto<Photo, Long> page = photoService.getPhotosByAlbums(albums, pageRequest);
+		Album album = albumService.getAlbumByPlaceId(place.getId());
+		CursorPageDto<Photo, Long> page = photoService.getPhotosByAlbumWithCursor(album,
+			pageRequest);
 
 		// Photo -> PhotoDto 변환
 		return page.map(PhotoDto::from);
+	}
+
+	@Transactional(readOnly = true)
+	public PhotoDto getPlacePhoto(Long placeId, Long photoId) {
+		Photo photo = photoService.getPhotoById(photoId);
+		Album album = photo.getAlbum();
+
+		if (album == null) {
+			throw new BusinessException(AlbumErrorCode.ALBUM_NOT_FOUND);
+		}
+
+		Long albumId = album.getId();
+		Place place = albumService.getPlaceByAlbumId(albumId);
+
+		if (!place.getId().equals(placeId)) {
+			throw new BusinessException(AlbumErrorCode.PLACE_NOT_MATCHED);
+		}
+
+		return PhotoDto.from(photo);
 	}
 }
