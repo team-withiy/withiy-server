@@ -82,7 +82,7 @@ public class User {
 	private List<OAuth> oAuth;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true,
-		fetch = FetchType.LAZY)
+		fetch = FetchType.EAGER)
 	@JsonIgnore
 	private List<TermAgreement> termAgreements = new ArrayList<>();
 
