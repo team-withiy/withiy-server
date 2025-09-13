@@ -24,6 +24,12 @@ public class ReportFacade {
 	private final PhotoService photoService;
 	private final UserService userService;
 
+	/**
+	 * 신고 생성
+	 *
+	 * @param reporter 신고자
+	 * @param request  신고 요청 정보
+	 */
 	@Transactional
 	public void createReport(User reporter, CreateReportRequest request) {
 
