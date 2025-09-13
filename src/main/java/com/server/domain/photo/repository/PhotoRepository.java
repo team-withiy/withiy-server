@@ -2,7 +2,6 @@ package com.server.domain.photo.repository;
 
 import com.server.domain.album.entity.Album;
 import com.server.domain.photo.entity.Photo;
-import com.server.domain.user.entity.User;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,8 +17,6 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 		"WHERE p.album = :album " +
 		"ORDER BY p.createdAt DESC")
 	List<String> findImageUrlsByAlbum(@Param("album") Album album, Pageable pageable);
-
-	List<Photo> findAllByAlbumAndUser(Album album, User reviewer);
 
 	@Query("SELECT p FROM Photo p " +
 		"JOIN p.album " +
@@ -66,4 +63,10 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 		"WHERE a.id = :albumIds " +
 		"AND p.id > :cursor ")
 	boolean existsPrevPhotoByAlbumId(Long albumId, Long cursor);
+
+	@Query("SELECT p.imgUrl FROM Photo p " +
+		"WHERE p.album.id = :albumId " +
+		"AND p.user.id = :userId " +
+		"ORDER BY p.createdAt DESC")
+	List<String> findImageUrlsByAlbumIdAndUserId(Long albumId, Long userId, Pageable pageable);
 }

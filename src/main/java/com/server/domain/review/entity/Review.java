@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
@@ -52,6 +53,10 @@ public class Review {
 	@Column(name = "created_at", nullable = false)
 	@CreationTimestamp
 	private LocalDateTime createdAt;
+
+	@Column(name = "updated_at", nullable = false)
+	@UpdateTimestamp
+	private LocalDateTime updatedAt;
 
 	@Builder
 	public Review(Place place, User user, String contents, Long score) {

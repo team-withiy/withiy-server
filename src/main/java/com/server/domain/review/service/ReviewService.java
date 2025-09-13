@@ -7,7 +7,10 @@ import com.server.domain.user.entity.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,13 +19,28 @@ public class ReviewService {
 
 	private final ReviewRepository reviewRepository;
 
+	@Transactional
 	public Review save(Place place, User user, String contents, Long score) {
-		Review review = new Review(place, user, contents,
-			score);
+		Review review = Review.builder()
+			.place(place)
+			.user(user)
+			.contents(contents)
+			.score(score)
+			.build();
+
 		return reviewRepository.save(review);
 	}
 
-	public List<Review> getReviewsByPlace(Place place) {
-		return reviewRepository.findAllByPlace(place);
+	/**
+	 * 특정 장소에 대한 리뷰를 최신순, 평점순으로 정렬하여 limit 개수만큼 조회
+	 *
+	 * @param place
+	 * @param limit
+	 * @return
+	 */
+	@Transactional
+	public List<Review> getTopReviewsByPlace(Place place, int limit) {
+		Pageable pageable = PageRequest.of(0, limit);
+		return reviewRepository.findByPlaceId(place.getId(), pageable);
 	}
 }
