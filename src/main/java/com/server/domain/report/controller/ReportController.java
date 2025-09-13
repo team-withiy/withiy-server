@@ -40,13 +40,13 @@ public class ReportController {
 	}
 
 	@PreAuthorize("hasRole('USER')")
-	@ResponseStatus(HttpStatus.OK)
+	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping
 	@Operation(summary = "신고 생성 API", description = "사용자가 사진, 장소 등을 신고하는 API")
 	public ApiResponseDto<String> createReport(@AuthenticationPrincipal User user,
 		@RequestBody CreateReportRequest request) {
 		reportFacade.createReport(user, request);
-		return ApiResponseDto.success(HttpStatus.OK.value(), "신고가 성공적으로 접수되었습니다.");
+		return ApiResponseDto.success(HttpStatus.CREATED.value(), "신고가 성공적으로 접수되었습니다.");
 	}
 
 }

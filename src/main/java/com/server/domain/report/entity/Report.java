@@ -23,7 +23,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
@@ -59,7 +59,7 @@ public class Report {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "reason_type", nullable = false)
-	private ReportReasonType reasonType; // e.g., 신고 사유 (PHOTO_INAPPROPRIATE, PLACE_INACCURATE
+	private ReportReasonType reasonType; // e.g., 신고 사유 (PHOTO_INAPPROPRIATE, PLACE_INACCURATE)
 
 	@Column(name = "contents", nullable = true, length = 500)
 	private String contents;
@@ -69,7 +69,7 @@ public class Report {
 	private LocalDateTime createdAt;
 
 	@Column(name = "updated_at", nullable = false)
-	@UpdateTimestamp
+	@LastModifiedDate
 	private LocalDateTime updatedAt;
 
 	@Column(name = "deleted_at", nullable = true)

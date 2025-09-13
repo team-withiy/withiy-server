@@ -34,6 +34,5 @@ public class ReportService {
 			.build();
 
 		reportRepository.save(report);
-
 	}
 }
