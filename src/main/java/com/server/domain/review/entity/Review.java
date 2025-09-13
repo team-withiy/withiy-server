@@ -1,5 +1,6 @@
 package com.server.domain.review.entity;
 
+import com.server.domain.dateSchedule.entity.DateSchedule;
 import com.server.domain.place.entity.Place;
 import com.server.domain.user.entity.User;
 import jakarta.persistence.Column;
@@ -11,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.Builder;
@@ -43,6 +45,11 @@ public class Review {
 	@JoinColumn(name = "user_id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private User user;
+
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "date_schedule_id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	private DateSchedule dateSchedule;
 
 	@Column(name = "contents")
 	private String contents;

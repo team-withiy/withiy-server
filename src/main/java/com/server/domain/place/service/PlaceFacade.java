@@ -198,4 +198,26 @@ public class PlaceFacade {
 
 		return PhotoDto.from(photo);
 	}
+
+	@Transactional(readOnly = true)
+	public CursorPageDto<ReviewDto, Long> getPlaceReviews(Long placeId,
+		ApiCursorPaginationRequest pageRequest) {
+		// 장소 조회
+		Place place = placeService.getPlaceById(placeId);
+		// 장소 리뷰 커서 페이지 조회
+		CursorPageDto<Review, Long> page = reviewService.getReviewsByPlaceWithCursor(place,
+			pageRequest);
+		// Review -> ReviewDto 변환
+		List<Review> reviews = page.getData();
+		Album album = albumService.getAlbumByPlaceId(place.getId());
+		Map<Long, List<String>> reviewToPhotoUrls = photoService.getPhotosGroupedByReview(reviews,
+			album);
+
+		return page.map(review -> {
+				List<String> reviewerImageUrls = reviewToPhotoUrls.getOrDefault(review.getId(),
+					List.of());
+				return ReviewDto.of(review, review.getUser(), reviewerImageUrls, place.getName());
+			}
+		);
+	}
 }

@@ -4,6 +4,12 @@ import com.server.domain.place.entity.Place;
 import com.server.domain.review.entity.Review;
 import com.server.domain.review.repository.ReviewRepository;
 import com.server.domain.user.entity.User;
+import com.server.global.error.code.ReviewErrorCode;
+import com.server.global.error.exception.BusinessException;
+import com.server.global.pagination.dto.ApiCursorPaginationRequest;
+import com.server.global.pagination.dto.CursorPageDto;
+import com.server.global.pagination.utils.CursorPaginationUtils;
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,5 +48,57 @@ public class ReviewService {
 	public List<Review> getTopReviewsByPlace(Place place, int limit) {
 		Pageable pageable = PageRequest.of(0, limit);
 		return reviewRepository.findByPlaceId(place.getId(), pageable);
+	}
+
+	public CursorPageDto<Review, Long> getReviewsByPlaceWithCursor(Place place,
+		ApiCursorPaginationRequest pageRequest) {
+
+		Long cursor = pageRequest.getCursor();
+		int limit = pageRequest.getLimit();
+		boolean hasNext = false;
+		boolean hasPrev = false;
+		long total = reviewRepository.countReviewsByPlaceId(place.getId());
+
+		Review cursorReview = reviewRepository.findById(cursor)
+			.orElseThrow(() -> new BusinessException(ReviewErrorCode.REVIEW_NOT_FOUND));
+
+		Pageable pageable = PageRequest.of(0, limit + 1);
+		List<Review> fetched;
+
+		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
+			fetched = reviewRepository.findPrevReviewsByPlaceId(place.getId(),
+				cursorReview.getUpdatedAt(),
+				cursorReview.getScore(),
+				pageable);
+
+			Collections.reverse(fetched);
+			boolean hasMore = fetched.size() > limit;
+			hasPrev = hasMore;
+			hasNext = reviewRepository.existsNextReviewByPlaceId(place.getId(),
+				cursorReview.getUpdatedAt(),
+				cursorReview.getScore());
+		} else {
+
+			fetched = reviewRepository.findNextReviewsByPlaceId(place.getId(),
+				cursorReview.getUpdatedAt(),
+				cursorReview.getScore(),
+				pageable);
+			boolean hasMore = fetched.size() > limit;
+			hasNext = hasMore;
+			hasPrev = reviewRepository.existsPrevReviewByPlaceId(place.getId(),
+				cursorReview.getUpdatedAt(),
+				cursorReview.getScore());
+		}
+
+		return CursorPaginationUtils.paginate(
+			total,
+			fetched,
+			limit,
+			Boolean.TRUE.equals(pageRequest.getPrev()),
+			cursor,
+			hasPrev,
+			hasNext,
+			Review::getId
+		);
 	}
 }

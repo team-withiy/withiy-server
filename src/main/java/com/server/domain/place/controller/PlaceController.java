@@ -14,6 +14,7 @@ import com.server.domain.place.dto.RegisterPlaceDto;
 import com.server.domain.place.dto.UpdatePlaceDto;
 import com.server.domain.place.service.PlaceFacade;
 import com.server.domain.place.service.PlaceService;
+import com.server.domain.review.dto.ReviewDto;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
 import com.server.global.pagination.dto.ApiCursorPaginationRequest;
@@ -175,5 +176,12 @@ public class PlaceController {
 		@PathVariable Long photoId) {
 		return ApiResponseDto.success(HttpStatus.OK.value(),
 			placeFacade.getPlacePhoto(placeId, photoId));
+	}
+
+	@GetMapping("/{placeId}/reviews")
+	public ApiCursorPaginationResponse<ReviewDto, Long> getPlaceReviews(@PathVariable Long placeId,
+		@ModelAttribute ApiCursorPaginationRequest pageRequest) {
+		return ApiCursorPaginationResponse.success(HttpStatus.OK.value(),
+			placeFacade.getPlaceReviews(placeId, pageRequest));
 	}
 }
