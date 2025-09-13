@@ -19,6 +19,7 @@ import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.place.dto.RegisterPhotoRequest;
 import com.server.domain.place.entity.Place;
 import com.server.domain.review.dto.ReviewDto;
+import com.server.domain.review.entity.Review;
 import com.server.domain.review.service.ReviewService;
 import com.server.domain.user.entity.User;
 import com.server.global.error.code.AlbumErrorCode;
@@ -28,6 +29,7 @@ import com.server.global.pagination.dto.CursorPageDto;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PlaceFacade {
 
 	private final static int PLACE_DEFAULT_PHOTO_LIMIT = 30;
+	private final static int PLACE_DEFAULT_REVIEW_LIMIT = 4;
 	private final PlaceService placeService;
 	private final AlbumService albumService;
 	private final CategoryService categoryService;
@@ -85,7 +88,8 @@ public class PlaceFacade {
 
 		Album album = albumService.getAlbumByPlaceId(place.getId());
 		int totalPhotoCount = photoService.getTotalPhotoCountByAlbum(album);
-		List<PhotoDto> photos = photoService.getLimitedPhotosByAlbum(album,
+		List<PhotoDto> photos = photoService.getTopPhotosByAlbum(
+				album,
 				PLACE_DEFAULT_PHOTO_LIMIT)
 			.stream()
 			.map(PhotoDto::from)
@@ -93,16 +97,20 @@ public class PlaceFacade {
 
 		boolean hasMorePhotos = totalPhotoCount > PLACE_DEFAULT_PHOTO_LIMIT;
 
-		List<ReviewDto> reviews = reviewService.getReviewsByPlace(place)
-			.stream()
+		// 리뷰는 최대 4개까지만 보여줌
+		List<Review> reviews = reviewService.getTopReviewsByPlace(place,
+			PLACE_DEFAULT_REVIEW_LIMIT);
+
+		// 리뷰에 달린 사진들을 한 번의 쿼리로 모두 가져오기
+		Map<Long, List<String>> reviewToPhotoUrls = photoService.getPhotosGroupedByReview(reviews,
+			album);
+
+		// Review -> ReviewDto 변환
+		List<ReviewDto> reviewSummaries = reviews.stream()
 			.map(review -> {
-				User reviewer = review.getUser();
-				List<String> reviewerImageUrls = photoService.getPhotosByAlbumAndUser(album,
-						reviewer)
-					.stream()
-					.map(photo -> photo.getImgUrl())
-					.toList();
-				return ReviewDto.of(review, reviewer, reviewerImageUrls, place.getName());
+				List<String> reviewerImageUrls = reviewToPhotoUrls.getOrDefault(review.getId(),
+					List.of());
+				return ReviewDto.of(review, review.getUser(), reviewerImageUrls, place.getName());
 			})
 			.toList();
 
@@ -116,7 +124,7 @@ public class PlaceFacade {
 			.photos(photos)
 			.totalPhotoCount(totalPhotoCount)
 			.hasMorePhotos(hasMorePhotos)
-			.reviews(reviews)
+			.reviews(reviewSummaries)
 			.build();
 	}
 
