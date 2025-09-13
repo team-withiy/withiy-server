@@ -42,4 +42,4 @@ secrets.yaml
 
 ### Etc ###
 .DS_Store
-/http/
+http/
