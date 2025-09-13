@@ -102,6 +102,7 @@ public class PlaceFacade {
 			PLACE_DEFAULT_REVIEW_LIMIT);
 
 		// 리뷰에 달린 사진들을 한 번의 쿼리로 모두 가져오기
+		// TODO: N+1 문제 해결 및 Review 엔티티에 Date 종속 추가하여 Date 기반으로 사진들을 가져오도록 변경
 		Map<Long, List<String>> reviewToPhotoUrls = photoService.getPhotosGroupedByReview(reviews,
 			album);
 
@@ -196,5 +197,27 @@ public class PlaceFacade {
 		}
 
 		return PhotoDto.from(photo);
+	}
+
+	@Transactional(readOnly = true)
+	public CursorPageDto<ReviewDto, Long> getPlaceReviews(Long placeId,
+		ApiCursorPaginationRequest pageRequest) {
+		// 장소 조회
+		Place place = placeService.getPlaceById(placeId);
+		// 장소 리뷰 커서 페이지 조회
+		CursorPageDto<Review, Long> page = reviewService.getReviewsByPlaceWithCursor(place,
+			pageRequest);
+		// Review -> ReviewDto 변환
+		List<Review> reviews = page.getData();
+		Album album = albumService.getAlbumByPlaceId(place.getId());
+		Map<Long, List<String>> reviewToPhotoUrls = photoService.getPhotosGroupedByReview(reviews,
+			album);
+
+		return page.map(review -> {
+				List<String> reviewerImageUrls = reviewToPhotoUrls.getOrDefault(review.getId(),
+					List.of());
+				return ReviewDto.of(review, review.getUser(), reviewerImageUrls, place.getName());
+			}
+		);
 	}
 }
