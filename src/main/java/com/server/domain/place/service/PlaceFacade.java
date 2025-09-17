@@ -1,6 +1,5 @@
 package com.server.domain.place.service;
 
-import com.server.domain.album.entity.Album;
 import com.server.domain.album.service.AlbumService;
 import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
@@ -86,14 +85,8 @@ public class PlaceFacade {
 			.region3depth(place.getRegion3depth())
 			.build();
 
-		Album album = albumService.getAlbumByPlaceId(place.getId());
-		int totalPhotoCount = photoService.getTotalPhotoCountByAlbum(album);
-		List<PhotoDto> photos = photoService.getTopPhotosByAlbum(
-				album,
-				PLACE_DEFAULT_PHOTO_LIMIT)
-			.stream()
-			.map(PhotoDto::from)
-			.toList();
+		long totalPhotoCount = photoService.getTotalPlacePhotoCountByPlace(place);
+		List<PhotoDto> photos = photoService.getPlaceTopPhotos(place, PLACE_DEFAULT_PHOTO_LIMIT);
 
 		boolean hasMorePhotos = totalPhotoCount > PLACE_DEFAULT_PHOTO_LIMIT;
 
@@ -104,7 +97,7 @@ public class PlaceFacade {
 		// 리뷰에 달린 사진들을 한 번의 쿼리로 모두 가져오기
 		// TODO: N+1 문제 해결 및 Review 엔티티에 Date 종속 추가하여 Date 기반으로 사진들을 가져오도록 변경
 		Map<Long, List<String>> reviewToPhotoUrls = photoService.getPhotosGroupedByReview(reviews,
-			album);
+			place);
 
 		// Review -> ReviewDto 변환
 		List<ReviewDto> reviewSummaries = reviews.stream()
@@ -172,8 +165,7 @@ public class PlaceFacade {
 	public CursorPageDto<PhotoDto, Long> getPlacePhotos(Long placeId,
 		ApiCursorPaginationRequest pageRequest) {
 		Place place = placeService.getPlaceById(placeId);
-		Album album = albumService.getAlbumByPlaceId(place.getId());
-		CursorPageDto<Photo, Long> page = photoService.getPhotosByAlbumWithCursor(album,
+		CursorPageDto<Photo, Long> page = photoService.getPhotosByPlaceWithCursor(place,
 			pageRequest);
 
 		// Photo -> PhotoDto 변환
@@ -183,16 +175,8 @@ public class PlaceFacade {
 	@Transactional(readOnly = true)
 	public PhotoDto getPlacePhoto(Long placeId, Long photoId) {
 		Photo photo = photoService.getPhotoById(photoId);
-		Album album = photo.getAlbum();
 
-		if (album == null) {
-			throw new BusinessException(AlbumErrorCode.ALBUM_NOT_FOUND);
-		}
-
-		Long albumId = album.getId();
-		Place place = albumService.getPlaceByAlbumId(albumId);
-
-		if (!place.getId().equals(placeId)) {
+		if (!photo.getPlace().getId().equals(placeId)) {
 			throw new BusinessException(AlbumErrorCode.PLACE_NOT_MATCHED);
 		}
 
@@ -209,9 +193,8 @@ public class PlaceFacade {
 			pageRequest);
 		// Review -> ReviewDto 변환
 		List<Review> reviews = page.getData();
-		Album album = albumService.getAlbumByPlaceId(place.getId());
 		Map<Long, List<String>> reviewToPhotoUrls = photoService.getPhotosGroupedByReview(reviews,
-			album);
+			place);
 
 		return page.map(review -> {
 				List<String> reviewerImageUrls = reviewToPhotoUrls.getOrDefault(review.getId(),
