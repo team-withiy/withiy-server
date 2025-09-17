@@ -1,7 +1,6 @@
 package com.server.domain.album.service;
 
 import com.server.domain.album.entity.Album;
-import com.server.domain.album.entity.PlaceAlbum;
 import com.server.domain.album.repository.AlbumRepository;
 import com.server.domain.place.entity.Place;
 import com.server.domain.place.repository.PlaceAlbumRepository;

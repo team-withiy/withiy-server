@@ -66,4 +66,15 @@ public class Photo {
 	@Column(name = "updated_at", nullable = false)
 	@LastModifiedDate
 	private LocalDateTime updatedAt;
+
+	public static Photo of(String imgUrl, Place place, DateSchedule dateSchedule, PhotoType type,
+		User user) {
+		return Photo.builder()
+			.imgUrl(imgUrl)
+			.place(place)
+			.dateSchedule(dateSchedule)
+			.type(type)
+			.user(user)
+			.build();
+	}
 }

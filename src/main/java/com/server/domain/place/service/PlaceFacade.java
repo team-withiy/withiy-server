@@ -10,6 +10,7 @@ import com.server.domain.folder.entity.FolderPlace;
 import com.server.domain.folder.service.FolderService;
 import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.photo.entity.Photo;
+import com.server.domain.photo.entity.PhotoType;
 import com.server.domain.photo.service.PhotoService;
 import com.server.domain.place.dto.CreatePlaceDto;
 import com.server.domain.place.dto.CreatePlaceResponse;
@@ -67,8 +68,7 @@ public class PlaceFacade {
 			.build();
 
 		Place savedPlace = placeService.save(place);
-		Album album = albumService.setDefaultAlbum(savedPlace, user);
-		photoService.uploadPhotos(album, user, createPlaceDto.getImageUrls());
+		photoService.uploadPhotos(user, place, createPlaceDto.getImageUrls(), PhotoType.PUBLIC);
 
 		return CreatePlaceResponse.from(savedPlace);
 	}
@@ -162,11 +162,11 @@ public class PlaceFacade {
 		return folderService.existsFolderByPlaceIdAndUserId(placeId, user.getId());
 	}
 
+	@Transactional
 	public String registerPhotos(User user, Long placeId, RegisterPhotoRequest request) {
 		Place place = placeService.getPlaceById(placeId);
-		Album album = albumService.getAlbumByPlaceId(place.getId());
-		photoService.uploadPhotos(album, user, request.getImageUrls());
-		return "Photos uploaded successfully.";
+		photoService.uploadPhotos(user, place, request.getImageUrls(), PhotoType.PUBLIC);
+		return "사진이 성공적으로 등록되었습니다.";
 	}
 
 	public CursorPageDto<PhotoDto, Long> getPlacePhotos(Long placeId,

@@ -2,7 +2,9 @@ package com.server.domain.photo.service;
 
 import com.server.domain.album.entity.Album;
 import com.server.domain.photo.entity.Photo;
+import com.server.domain.photo.entity.PhotoType;
 import com.server.domain.photo.repository.PhotoRepository;
+import com.server.domain.place.entity.Place;
 import com.server.domain.review.entity.Review;
 import com.server.domain.user.entity.User;
 import com.server.global.error.code.PhotoErrorCode;
@@ -42,16 +44,13 @@ public class PhotoService {
 			PageRequest.of(0, limit));
 	}
 
-	public void uploadPhotos(Album album, User uploader, List<String> imageUrls) {
+	public void uploadPhotos(User uploader, Place place, List<String> imageUrls, PhotoType type) {
 		if (imageUrls == null || imageUrls.isEmpty()) {
 			return;
 		}
+
 		List<Photo> photos = imageUrls.stream()
-			.map(imageUrl -> Photo.builder()
-				.imgUrl(imageUrl)
-				.album(album)
-				.user(uploader)
-				.build())
+			.map(imageUrl -> Photo.of(imageUrl, place, null, type, uploader))
 			.toList();
 		saveAll(photos);
 	}
