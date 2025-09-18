@@ -1,6 +1,6 @@
-package com.server.domain.course.dto;
+package com.server.domain.route.dto;
 
-import com.server.domain.course.entity.Course;
+import com.server.domain.route.entity.Route;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,9 +16,9 @@ public class CourseDto {
 
 	private String name;
 
-	public static CourseDto from(Course course) {
+	public static CourseDto from(Route route) {
 		return CourseDto.builder()
-			.name(course.getName())
+			.name(route.getName())
 			.build();
 	}
 }

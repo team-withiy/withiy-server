@@ -1,4 +1,4 @@
-package com.server.domain.course.dto;
+package com.server.domain.route.dto;
 
 
 import java.util.List;
@@ -12,11 +12,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CourseDetailDto {
+public class RouteDetailDto {
 
 	private String name;
 	private String thumbnail;
-	private List<CourseImageDto> courseImageDtos;
-
+	private List<RouteImageDto> routeImageDtos;
 
 }

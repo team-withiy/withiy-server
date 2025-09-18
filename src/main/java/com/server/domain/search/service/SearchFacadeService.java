@@ -1,9 +1,9 @@
 package com.server.domain.search.service;
 
-import com.server.domain.course.dto.CourseDto;
-import com.server.domain.course.service.CourseService;
 import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.service.PlaceService;
+import com.server.domain.route.dto.CourseDto;
+import com.server.domain.route.service.RouteService;
 import com.server.domain.search.dto.BookmarkedCourseDto;
 import com.server.domain.search.dto.BookmarkedPlaceDto;
 import com.server.domain.search.dto.SearchHistoryDto;
@@ -21,7 +21,7 @@ public class SearchFacadeService {
 
 	private final SearchService searchService;
 	private final PlaceService placeService;
-	private final CourseService courseService;
+    private final RouteService routeService;
 
 	public SearchResponseDto search(User user, SearchRequestDto searchRequestDto) {
 
@@ -40,7 +40,7 @@ public class SearchFacadeService {
 		SearchSource source = searchRequestDto.getSource();
 
 		List<PlaceDto> searchPlaces = placeService.searchPlacesByKeyword(source, keyword, user);
-		List<CourseDto> searchCourses = courseService.searchCoursesByKeyword(keyword, user);
+		List<CourseDto> searchCourses = routeService.searchCoursesByKeyword(keyword, user);
 		return SearchResponseDto.builder()
 			.searchPlaces(searchPlaces)
 			.searchCourses(searchCourses)
@@ -51,7 +51,7 @@ public class SearchFacadeService {
 		// 최근 검색어 조회
 		List<SearchHistoryDto> recentKeywords = searchService.getRecentSearchHistory(user);
 		List<BookmarkedPlaceDto> bookmarkedPlaces = placeService.getBookmarkedPlaces(user);
-		List<BookmarkedCourseDto> bookmarkedCourses = courseService.getBookmarkedCourses(user);
+		List<BookmarkedCourseDto> bookmarkedCourses = routeService.getBookmarkedCourses(user);
 
 		return SearchResponseDto.builder()
 			.recentKeywords(recentKeywords)

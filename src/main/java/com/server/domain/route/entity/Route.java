@@ -1,7 +1,8 @@
-package com.server.domain.course.entity;
+package com.server.domain.route.entity;
 
-import com.server.domain.course.dto.CourseStatus;
+import com.server.domain.route.dto.RouteStatus;
 import com.server.domain.user.entity.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -13,8 +14,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,8 +31,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "course")
-public class Course {
+@Table(name = "route")
+public class Route {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,7 +44,7 @@ public class Course {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status")
-	private CourseStatus status;
+	private RouteStatus status;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "created_by")
@@ -48,6 +52,10 @@ public class Course {
 
 	@Column(name = "score")
 	private Long score;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name ="route_type")
+    private RouteType routeType;
 
 	@Column(name = "deleted_at", nullable = true)
 	private LocalDateTime deletedAt;
@@ -60,10 +68,14 @@ public class Course {
 	@LastModifiedDate
 	private LocalDateTime updatedAt;
 
+    @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<RoutePlace> routePlaces = new ArrayList<>();
+
 	@Builder
-	public Course(String name, CourseStatus status, User createdBy) {
+	public Route(String name, RouteStatus status, User createdBy, RouteType routeType) {
 		this.name = name;
 		this.status = status;
 		this.createdBy = createdBy;
+        this.routeType = routeType;
 	}
 }
