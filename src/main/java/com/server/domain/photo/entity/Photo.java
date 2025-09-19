@@ -52,6 +52,7 @@ public class Photo {
 	private DateSchedule dateSchedule;
 
 	@Enumerated(EnumType.STRING)
+	@Column(name = "type")
 	private PhotoType type;
 
 	@ManyToOne(fetch = FetchType.LAZY)

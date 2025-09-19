@@ -13,7 +13,9 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 	@Query("SELECT p FROM Photo p JOIN FETCH p.place WHERE p.id = :id")
 	Optional<Photo> findById(Long id);
 
-	@Query("SELECT p FROM Photo p WHERE p.place.id = :placeId AND p.type = :type")
+	@Query("SELECT COUNT(p) FROM Photo p " +
+		"WHERE p.place.id = :placeId " +
+		"AND p.type = :type")
 	long countPhotosByPlaceIdAndType(Long placeId, PhotoType type);
 
 	@Query("SELECT p.imgUrl FROM Photo p " +
