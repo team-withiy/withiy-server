@@ -1,4 +1,4 @@
-package com.server.domain.course.dto;
+package com.server.domain.route.dto;
 
 import com.server.domain.category.dto.CategoryDto;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CoursePlaceDto {
+public class RoutePlaceDto {
 
 	private CategoryDto category;
 	private String address;

@@ -1,6 +1,6 @@
 package com.server.domain.search.dto;
 
-import com.server.domain.course.entity.Course;
+import com.server.domain.route.entity.Route;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,10 +14,10 @@ public class BookmarkedCourseDto {
 	@Schema(description = "코스 이름", example = "홍대 데이트 코스")
 	private String name;
 
-	public static BookmarkedCourseDto from(Course course) {
+	public static BookmarkedCourseDto from(Route route) {
 		return BookmarkedCourseDto.builder()
-			.id(course.getId())
-			.name(course.getName())
+			.id(route.getId())
+			.name(route.getName())
 			.build();
 	}
 }

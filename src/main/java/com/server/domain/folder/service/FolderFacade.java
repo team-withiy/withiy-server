@@ -1,12 +1,10 @@
 package com.server.domain.folder.service;
 
-import com.server.domain.album.entity.Album;
 import com.server.domain.album.service.AlbumService;
 import com.server.domain.folder.dto.FolderOptionDto;
 import com.server.domain.folder.dto.FolderSummaryDto;
 import com.server.domain.folder.dto.PlaceSummaryDto;
 import com.server.domain.folder.entity.Folder;
-import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.service.PhotoService;
 import com.server.domain.place.entity.Place;
 import com.server.domain.place.service.PlaceService;
@@ -17,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -124,24 +121,8 @@ public class FolderFacade {
 	private List<String> extractFirstThumbnails(List<Place> places) {
 		List<Long> placeIds = places.stream().map(Place::getId).toList();
 
-		// placeId → album
-		Map<Long, Album> albumMap = albumService.getAlbumsByPlaceIds(placeIds);
-
-		// albumId → 대표 photo
-		Map<Long, Photo> photoMap = photoService.getFirstPhotoByAlbumIds(
-			albumMap.values().stream().map(Album::getId).toList()
-		);
-
-		return places.stream()
-			.map(place -> {
-				Album album = albumMap.get(place.getId());
-				return (album != null && photoMap.containsKey(album.getId()))
-					? photoMap.get(album.getId()).getImgUrl()
-					: null;
-			})
-			.filter(Objects::nonNull)
-			.limit(4)
-			.toList();
+		return photoService.getLimitedPhotoUrlsByPlaceIds(placeIds,
+			DEFAULT_THUMBNAIL_LIMIT);
 	}
 
 	/**
@@ -149,15 +130,14 @@ public class FolderFacade {
 	 */
 	private CursorPageDto<PlaceSummaryDto, Long> mapToPlaceSummary(
 		CursorPageDto<Place, Long> page) {
+
 		List<Long> placeIds = page.getData().stream().map(Place::getId).toList();
-		Map<Long, Album> albumMap = albumService.getAlbumsByPlaceIds(placeIds);
+		Map<Long, List<String>> placePhotoUrlsMap = photoService.getPlacePhotoUrlsMap(placeIds);
 
 		return page.map(place -> {
-			Album album = albumMap.get(place.getId());
-			List<String> imageUrls = (album != null)
-				? photoService.getLimitedPhotoUrls(album, DEFAULT_THUMBNAIL_LIMIT)
-				: Collections.emptyList();
-			return PlaceSummaryDto.from(place, imageUrls);
+			List<String> photoUrls = placePhotoUrlsMap.getOrDefault(place.getId(),
+				Collections.emptyList());
+			return PlaceSummaryDto.from(place, photoUrls);
 		});
 	}
 }

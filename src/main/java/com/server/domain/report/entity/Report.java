@@ -5,6 +5,7 @@ import com.server.domain.place.entity.Place;
 import com.server.domain.report.dto.ReportReasonType;
 import com.server.domain.report.dto.ReportTargetType;
 import com.server.domain.user.entity.User;
+import com.server.global.common.BaseTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -22,16 +23,14 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+@Getter
 @Entity
+@Table(name = "report")
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter
-@Table(name = "report")
-public class Report {
+public class Report extends BaseTime {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -63,14 +62,6 @@ public class Report {
 
 	@Column(name = "contents", nullable = true, length = 500)
 	private String contents;
-
-	@Column(name = "created_at", nullable = false)
-	@CreationTimestamp
-	private LocalDateTime createdAt;
-
-	@Column(name = "updated_at", nullable = false)
-	@LastModifiedDate
-	private LocalDateTime updatedAt;
 
 	@Column(name = "deleted_at", nullable = true)
 	private LocalDateTime deletedAt;

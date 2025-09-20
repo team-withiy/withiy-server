@@ -1,7 +1,7 @@
 package com.server.domain.search.dto;
 
-import com.server.domain.course.dto.CourseDto;
 import com.server.domain.place.dto.PlaceDto;
+import com.server.domain.route.dto.CourseDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import lombok.Builder;

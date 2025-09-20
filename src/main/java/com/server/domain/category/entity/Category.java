@@ -17,16 +17,14 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@Entity
-@EntityListeners(AuditingEntityListener.class)
 @Getter
-@Setter
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "category")
+@EntityListeners(AuditingEntityListener.class)
 public class Category {
 
 	@Id
@@ -57,6 +55,8 @@ public class Category {
 	// 하위 카테고리 추가 메서드
 	public void addChildCategory(Category child) {
 		children.add(child);
-		child.setParent(this);
+        // TODO 아래와 같이 하면 순환참조 일어날 것 같음..?
+//		child.setParent(this);
 	}
+
 }

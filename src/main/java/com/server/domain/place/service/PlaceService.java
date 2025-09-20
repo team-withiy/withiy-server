@@ -1,25 +1,20 @@
 package com.server.domain.place.service;
 
-import com.server.domain.album.entity.Album;
 import com.server.domain.album.service.AlbumService;
 import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.service.CategoryService;
 import com.server.domain.folder.repository.FolderPlaceRepository;
-import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.service.PhotoService;
-import com.server.domain.place.dto.CreatePlaceByUserDto;
 import com.server.domain.place.dto.PlaceDetailDto;
 import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.dto.PlaceFocusDto;
 import com.server.domain.place.dto.PlaceStatus;
-import com.server.domain.place.dto.RegisterPlaceDto;
 import com.server.domain.place.dto.UpdatePlaceDto;
 import com.server.domain.place.entity.Place;
 import com.server.domain.place.entity.PlaceBookmark;
 import com.server.domain.place.repository.PlaceBookmarkRepository;
 import com.server.domain.place.repository.PlaceRepository;
-import com.server.domain.review.entity.Review;
 import com.server.domain.review.service.ReviewService;
 import com.server.domain.search.dto.BookmarkedPlaceDto;
 import com.server.domain.search.dto.SearchSource;
@@ -82,75 +77,6 @@ public class PlaceService {
 	public PlaceDto getPlaceSimpleDetail(Long placeId) {
 		Place place = placeRepository.findById(placeId)
 			.orElseThrow(() -> new BusinessException(PlaceErrorCode.NOT_FOUND));
-
-		return PlaceDto.from(place);
-	}
-
-	@Transactional
-	public PlaceDto createPlaceFirst(User user, CreatePlaceByUserDto createPlaceByUserDto) {
-
-		// 1. 카테고리 조회
-		Category category = categoryService.getCategoryByName(createPlaceByUserDto.getCategory());
-
-		// 2. 장소 생성
-		Place place = Place.builder()
-			.name(createPlaceByUserDto.getPlaceName())
-			.region1depth(createPlaceByUserDto.getRegion1depth())
-			.region2depth(createPlaceByUserDto.getRegion2depth())
-			.region3depth(createPlaceByUserDto.getRegion3depth())
-			.address(createPlaceByUserDto.getAddress())
-			.latitude(createPlaceByUserDto.getLatitude())
-			.longitude(createPlaceByUserDto.getLongitude())
-			.score(0L) // 초기값
-			.user(user) // 로그인 유저 등 적절한 User 객체
-			.category(category)
-			.status(PlaceStatus.ACTIVE) // 기본 상태
-			.build();
-
-		placeRepository.save(place);
-
-		// 3. 리뷰 저장
-		Review savedReview = reviewService.save(place, user, createPlaceByUserDto.getReview(),
-			createPlaceByUserDto.getScore());
-
-		// 4. 앨범 생성 및 저장
-		Album album = Album.builder()
-			.title(createPlaceByUserDto.getPlaceName())
-			.user(user)
-			.build();
-		Album savedAlbum = albumService.save(place, album); // 내부적으로 PlaceAlbum 생성 포함 가정
-
-		// 5. 사진 생성 및 저장
-		List<Photo> photos = createPlaceByUserDto.getPhotos().stream()
-			.map(photoDto -> Photo.builder()
-				.imgUrl(photoDto.getImageUrl())
-				.user(user)
-				.album(savedAlbum)
-				.build())
-			.toList();
-
-		photoService.saveAll(photos);
-
-		return PlaceDto.from(place);
-	}
-
-	@Transactional
-	public PlaceDto registerPlace(User user, RegisterPlaceDto registerPlaceDto) {
-		Place place = placeRepository.findById(registerPlaceDto.getPlaceId())
-			.orElseThrow(() -> new BusinessException(PlaceErrorCode.NOT_FOUND));
-		reviewService.save(place, user, registerPlaceDto.getReview(),
-			registerPlaceDto.getScore());
-		Album album = albumService.getAlbumByPlaceId(place.getId());
-
-		List<Photo> photos = registerPlaceDto.getPhotos().stream()
-			.map(photoDto -> Photo.builder()
-				.imgUrl(photoDto.getImageUrl())
-				.album(album)
-				.build())
-			.toList();
-
-		photoService.saveAll(photos);
-		placeRepository.save(place);
 
 		return PlaceDto.from(place);
 	}

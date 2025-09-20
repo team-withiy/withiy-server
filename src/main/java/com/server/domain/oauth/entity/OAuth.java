@@ -1,6 +1,7 @@
 package com.server.domain.oauth.entity;
 
 import com.server.domain.user.entity.User;
+import com.server.global.common.BaseTime;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,13 +21,13 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@Entity
-@EntityListeners(AuditingEntityListener.class)
 @Getter
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "oauth")
-public class OAuth {
+@EntityListeners(AuditingEntityListener.class)
+public class OAuth extends BaseTime {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,14 +53,6 @@ public class OAuth {
 	@ManyToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
-
-	@Column(name = "created_at", nullable = false)
-	@CreationTimestamp
-	private LocalDateTime createdAt;
-
-	@Column(name = "updated_at", nullable = false)
-	@LastModifiedDate
-	private LocalDateTime updatedAt;
 
 	@Builder
 	public OAuth(String provider, String providerId, String email, User user, String nickname,

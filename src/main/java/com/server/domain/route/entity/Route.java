@@ -1,7 +1,10 @@
-package com.server.domain.course.entity;
+package com.server.domain.route.entity;
 
-import com.server.domain.course.dto.CourseStatus;
+import com.server.domain.dateSchedule.entity.DateSchedule;
+import com.server.domain.route.dto.RouteStatus;
 import com.server.domain.user.entity.User;
+import com.server.global.common.BaseTime;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -13,22 +16,26 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @Getter
+@Table(name = "route")
+@EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "course")
-public class Course {
+public class Route extends BaseTime {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,7 +47,7 @@ public class Course {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status")
-	private CourseStatus status;
+	private RouteStatus status;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "created_by")
@@ -49,21 +56,26 @@ public class Course {
 	@Column(name = "score")
 	private Long score;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name ="route_type")
+    private RouteType routeType;
+
 	@Column(name = "deleted_at", nullable = true)
 	private LocalDateTime deletedAt;
 
-	@Column(name = "created_at", nullable = false)
-	@CreationTimestamp
-	private LocalDateTime createdAt;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dateSchedule_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private DateSchedule dateSchedule;
 
-	@Column(name = "updated_at", nullable = false)
-	@LastModifiedDate
-	private LocalDateTime updatedAt;
+    @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<RoutePlace> routePlaces = new ArrayList<>();
 
 	@Builder
-	public Course(String name, CourseStatus status, User createdBy) {
+	public Route(String name, RouteStatus status, User createdBy, RouteType routeType) {
 		this.name = name;
 		this.status = status;
 		this.createdBy = createdBy;
+        this.routeType = routeType;
 	}
 }

@@ -1,5 +1,6 @@
-package com.server.domain.course.entity;
+package com.server.domain.route.entity;
 
+import com.server.domain.place.entity.Place;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -10,7 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,26 +18,31 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@Entity
-@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
+@Entity
 @NoArgsConstructor
-@AllArgsConstructor
-@Table(name = "course_image")
-public class CourseImage {
+@Table(name = "route_place")
+@EntityListeners(AuditingEntityListener.class)
+public class RoutePlace {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private Long id;
 
-	@Column(name = "image_url")
-	private String imageUrl;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "route_id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	private Route route;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "course_id")
+	@JoinColumn(name = "place_id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
-	private Course course;
-}
+	private Place place;
 
+    public RoutePlace(Route route, Place place) {
+        this.route = route;
+        this.place = place;
+    }
+}

@@ -18,13 +18,13 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@Entity
-@EntityListeners(AuditingEntityListener.class)
 @Getter
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "term_agreement")
 @IdClass(TermAgreementId.class)
+@EntityListeners(AuditingEntityListener.class)
 public class TermAgreement {
 
 	@Id

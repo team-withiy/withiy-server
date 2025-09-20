@@ -1,8 +1,10 @@
 package com.server.domain.photo.service;
 
-import com.server.domain.album.entity.Album;
+import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.photo.entity.Photo;
+import com.server.domain.photo.entity.PhotoType;
 import com.server.domain.photo.repository.PhotoRepository;
+import com.server.domain.place.entity.Place;
 import com.server.domain.review.entity.Review;
 import com.server.domain.user.entity.User;
 import com.server.global.error.code.PhotoErrorCode;
@@ -31,48 +33,33 @@ public class PhotoService {
 		photoRepository.saveAll(photos);
 	}
 
-	// TODO: 페이징 처리 작업 시 삭제 예정
-	public List<String> getAllPhotoUrls(Album album) {
-
-		return photoRepository.findAllImageUrlByAlbum(album);
-	}
-
-	public List<String> getLimitedPhotoUrls(Album album, int limit) {
-		return photoRepository.findImageUrlsByAlbum(album,
-			PageRequest.of(0, limit));
-	}
-
-	public void uploadPhotos(Album album, User uploader, List<String> imageUrls) {
+	public void uploadPhotos(User uploader, Place place, List<String> imageUrls, PhotoType type) {
 		if (imageUrls == null || imageUrls.isEmpty()) {
 			return;
 		}
+
 		List<Photo> photos = imageUrls.stream()
-			.map(imageUrl -> Photo.builder()
-				.imgUrl(imageUrl)
-				.album(album)
-				.user(uploader)
-				.build())
+			.map(imageUrl -> Photo.of(imageUrl, place, type, uploader))
 			.toList();
 		saveAll(photos);
 	}
 
-	public List<Photo> getTopPhotosByAlbum(Album album, int limit) {
+	public List<PhotoDto> getPlaceTopPhotos(Place place, int limit) {
 		Pageable pageable = PageRequest.of(0, limit);
-		return photoRepository.findAllByAlbum(album, pageable);
-	}
+		List<Photo> photos = photoRepository.findTopPhotosByPlaceIdAndType(place.getId(),
+			PhotoType.PUBLIC,
+			pageable);
 
-	public Map<Long, Photo> getFirstPhotoByAlbumIds(List<Long> albumIds) {
-		List<Photo> photos = photoRepository.findAllByAlbumIds(albumIds);
 		return photos.stream()
-			.collect(Collectors.toMap(photo -> photo.getAlbum().getId(), photo -> photo,
-				(existing, replacement) -> existing));
+			.map(PhotoDto::from)
+			.collect(Collectors.toList());
 	}
 
-	public int getTotalPhotoCountByAlbum(Album album) {
-		return photoRepository.countPhotosByAlbum(album);
+	public long getTotalPlacePhotoCountByPlace(Place place) {
+		return photoRepository.countPhotosByPlaceIdAndType(place.getId(), PhotoType.PUBLIC);
 	}
 
-	public CursorPageDto<Photo, Long> getPhotosByAlbumWithCursor(Album album,
+	public CursorPageDto<Photo, Long> getPhotosByPlaceWithCursor(Place place,
 		ApiCursorPaginationRequest pageRequest) {
 		long total;
 		int limit = pageRequest.getLimit();
@@ -81,22 +68,27 @@ public class PhotoService {
 		boolean hasPrev = false;
 		Pageable pageable = PageRequest.of(0, limit + 1);
 		List<Photo> fetched;
-		total = photoRepository.countPhotosByAlbumId(album.getId());
+		total = photoRepository.countPhotosByPlaceIdAndType(place.getId(), PhotoType.PUBLIC);
 
 		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
 
-			fetched = photoRepository.findPrevPhotosByAlbumId(album.getId(), cursor,
+			fetched = photoRepository.findPrevPhotosByPlaceIdAndType(place.getId(),
+				PhotoType.PUBLIC, cursor,
 				pageable);
 			Collections.reverse(fetched);
 			boolean hasMore = fetched.size() > limit;
 			hasPrev = hasMore;
-			hasNext = photoRepository.existsNextPhotoByAlbumId(album.getId(), cursor);
+			hasNext = photoRepository.existsNextPhotoByPlaceIdAndType(place.getId(),
+				PhotoType.PUBLIC, cursor);
 		} else {
-			fetched = photoRepository.findNextPhotosByAlbumId(album.getId(), cursor,
+			fetched = photoRepository.findNextPhotosByPlaceIdAndType(place.getId(),
+				PhotoType.PUBLIC,
+				cursor,
 				pageable);
 			boolean hasMore = fetched.size() > limit;
 			hasNext = hasMore;
-			hasPrev = photoRepository.existsPrevPhotoByAlbumId(album.getId(), cursor);
+			hasPrev = photoRepository.existsPrevPhotoByPlaceIdAndType(place.getId(),
+				PhotoType.PUBLIC, cursor);
 		}
 
 		return CursorPaginationUtils.paginate(
@@ -117,20 +109,38 @@ public class PhotoService {
 	}
 
 	/**
-	 * 리뷰 목록과 앨범을 받아, 각 리뷰 작성자가 해당 앨범에 올린 사진 URL을 리뷰 ID 기준으로 매핑하여 반환
+	 * 리뷰 목록과 장소를 받아, 각 리뷰 작성자가 해당 앨범에 올린 사진 URL을 리뷰 ID 기준으로 매핑하여 반환
 	 *
 	 * @param reviews 리뷰 목록
-	 * @param album   앨범
+	 * @param place   장소
 	 * @return 리뷰 ID를 키로, 해당 리뷰 작성자가 앨범에 올린 사진 URL 목록을 값으로 하는 맵
 	 */
 	@Transactional(readOnly = true)
-	public Map<Long, List<String>> getPhotosGroupedByReview(List<Review> reviews, Album album) {
+	public Map<Long, List<String>> getPhotosGroupedByReview(List<Review> reviews, Place place) {
 		Pageable pageable = PageRequest.of(0, REVIEW_DEFAULT_PHOTO_LIMIT);
+
 		return reviews.stream()
 			.collect(Collectors.toMap(
 				review -> review.getId(),
-				review -> photoRepository.findImageUrlsByAlbumIdAndUserId(album.getId(),
-					review.getUser().getId(), pageable)
+				review -> photoRepository.findImageUrlsByPlaceIdAndType(place.getId(),
+					PhotoType.PUBLIC, pageable)
 			));
+	}
+
+	public List<String> getLimitedPhotoUrlsByPlaceIds(List<Long> placeIds, int limit) {
+		return photoRepository.findImageUrlsByPlaceIdsAndType(placeIds, PhotoType.PUBLIC,
+			PageRequest.of(0, limit));
+	}
+
+	public List<String> getLimitedPhotoUrlsByPlaceId(Long placeId, int limit) {
+		return photoRepository.findImageUrlsByPlaceIdAndType(placeId, PhotoType.PUBLIC,
+			PageRequest.of(0, limit));
+	}
+
+	public Map<Long, List<String>> getPlacePhotoUrlsMap(List<Long> placeIds) {
+		List<Photo> photos = photoRepository.findAllByPlaceIdsAndType(placeIds, PhotoType.PUBLIC);
+		return photos.stream()
+			.collect(Collectors.groupingBy(photo -> photo.getPlace().getId(),
+				Collectors.mapping(Photo::getImgUrl, Collectors.toList())));
 	}
 }

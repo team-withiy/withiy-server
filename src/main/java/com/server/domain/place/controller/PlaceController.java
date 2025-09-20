@@ -1,7 +1,6 @@
 package com.server.domain.place.controller;
 
 import com.server.domain.photo.dto.PhotoDto;
-import com.server.domain.place.dto.CreatePlaceByUserDto;
 import com.server.domain.place.dto.CreatePlaceDto;
 import com.server.domain.place.dto.CreatePlaceResponse;
 import com.server.domain.place.dto.FolderIdsRequest;
@@ -10,7 +9,6 @@ import com.server.domain.place.dto.PlaceDetailDto;
 import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.dto.PlaceFocusDto;
 import com.server.domain.place.dto.RegisterPhotoRequest;
-import com.server.domain.place.dto.RegisterPlaceDto;
 import com.server.domain.place.dto.UpdatePlaceDto;
 import com.server.domain.place.service.PlaceFacade;
 import com.server.domain.place.service.PlaceService;
@@ -59,27 +57,6 @@ public class PlaceController {
 		CreatePlaceResponse response = placeFacade.registerPlace(user, createPlaceDto);
 		return ApiResponseDto.success(HttpStatus.OK.value(), response);
 	}
-
-	@PreAuthorize("hasRole('USER')")
-	@ResponseStatus(HttpStatus.OK)
-	@PostMapping("/create")
-	@Operation(summary = "사용자 장소 최초 등록 api", description = "사용자가 처음으로 등록하는 장소 api")
-	public ApiResponseDto<PlaceDto> createPlaceFirst(@AuthenticationPrincipal User user,
-		@RequestBody CreatePlaceByUserDto createPlaceByUserDto) {
-		PlaceDto placeDto = placeService.createPlaceFirst(user, createPlaceByUserDto);
-		return ApiResponseDto.success(HttpStatus.OK.value(), placeDto);
-	}
-
-	@PreAuthorize("hasRole('USER')")
-	@ResponseStatus(HttpStatus.OK)
-	@PostMapping
-	@Operation(summary = "사용자 장소 등록 api", description = "등록되어 있는 장소에 대한 사진/리뷰 저장하는 api")
-	public ApiResponseDto<PlaceDto> registerPlace(@AuthenticationPrincipal User user,
-		@RequestBody RegisterPlaceDto registerPlaceDto) {
-		PlaceDto placeDto = placeService.registerPlace(user, registerPlaceDto);
-		return ApiResponseDto.success(HttpStatus.OK.value(), placeDto);
-	}
-
 
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/focus")
@@ -155,6 +132,7 @@ public class PlaceController {
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.OK)
 	@PostMapping("/{placeId}/photos")
+	@Operation(summary = "장소 전체 공개 사진 등록", description = "장소에 사진을 등록합니다. 사진은 전체 공개로 설정됩니다.")
 	public ApiResponseDto<String> registerPhotos(@AuthenticationPrincipal User user,
 		@PathVariable Long placeId, @RequestBody RegisterPhotoRequest request) {
 

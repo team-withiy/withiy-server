@@ -1,6 +1,5 @@
 package com.server.domain.folder.entity;
 
-
 import com.server.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,11 +22,11 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@Entity
-@EntityListeners(AuditingEntityListener.class)
 @Getter
+@Entity
 @NoArgsConstructor
 @Table(name = "folder")
+@EntityListeners(AuditingEntityListener.class)
 public class Folder {
 
 	@Id

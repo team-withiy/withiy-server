@@ -66,7 +66,7 @@ public class BadgeService {
 		// 1. 기존 메인 배지를 찾아서 메인 배지 설정을 해제합니다.
 		userBadgeRepository.findByUserAndIsMainTrue(user)
 			.ifPresent(mainBadge -> {
-				mainBadge.setIsMain(false);
+				mainBadge.updateMain(false);
 				userBadgeRepository.save(mainBadge);
 			});
 
@@ -75,8 +75,8 @@ public class BadgeService {
 			.orElseThrow(() -> new BusinessException(BadgeErrorCode.BADGE_NOT_CLAIMED));
 
 		// 3. 새로운 배지를 메인 배지로 설정합니다.
-		newMainUserBadge.setIsMain(true);
-		newMainUserBadge.setCharacterType(characterType);
+		newMainUserBadge.updateMain(true);
+		newMainUserBadge.updateCharacterType(characterType);
 	}
 
 	@Transactional(readOnly = true)
