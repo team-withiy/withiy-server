@@ -13,9 +13,11 @@ public class AlbumService {
 
 	private final AlbumRepository albumRepository;
 
+    // TODO
 	public Album getAlbumByPlaceId(Long placeId) {
-		return albumRepository.findByPlaceId(placeId)
-			.orElseThrow(() -> new BusinessException(AlbumErrorCode.ALBUM_NOT_FOUND));
+        return null;
+//		return albumRepository.findByPlaceId(placeId)
+//			.orElseThrow(() -> new BusinessException(AlbumErrorCode.ALBUM_NOT_FOUND));
 
 	}
 

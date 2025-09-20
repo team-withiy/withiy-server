@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface AlbumRepository extends JpaRepository<Album, Long> {
 
-	@Query("SELECT a FROM Album a WHERE a.place.id = :placeId")
-	Optional<Album> findByPlaceId(Long placeId);
+    // TODO
+//	@Query("SELECT a FROM Album a WHERE a.place.id = :placeId")
+//	Optional<Album> findByPlaceId(Long placeId);
 }

@@ -94,8 +94,9 @@ public class RouteService {
 
 		// 코스 이미지 엔티티 생성 및 저장
 		RouteImage routeImage = new RouteImage();
-		routeImage.setImageUrl(imageResponseDto.getImageUrl());
-		routeImage.setRoute(route);
+        // TODO
+//		routeImage.setImageUrl(imageResponseDto.getImageUrl());
+//		routeImage.setRoute(route);
 
 //                course.getCourseImages().add(courseImage);
 		routeRepository.save(route);

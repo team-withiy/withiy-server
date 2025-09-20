@@ -1,7 +1,9 @@
 package com.server.domain.route.entity;
 
+import com.server.domain.dateSchedule.entity.DateSchedule;
 import com.server.domain.route.dto.RouteStatus;
 import com.server.domain.user.entity.User;
+import com.server.global.common.BaseTime;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,16 +26,16 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "route")
-public class Route {
+@EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Route extends BaseTime {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -60,13 +63,10 @@ public class Route {
 	@Column(name = "deleted_at", nullable = true)
 	private LocalDateTime deletedAt;
 
-	@Column(name = "created_at", nullable = false)
-	@CreationTimestamp
-	private LocalDateTime createdAt;
-
-	@Column(name = "updated_at", nullable = false)
-	@LastModifiedDate
-	private LocalDateTime updatedAt;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dateSchedule_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private DateSchedule dateSchedule;
 
     @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<RoutePlace> routePlaces = new ArrayList<>();

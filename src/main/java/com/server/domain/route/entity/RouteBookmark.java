@@ -1,6 +1,7 @@
 package com.server.domain.route.entity;
 
 import com.server.domain.user.entity.User;
+import com.server.global.common.BaseTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -15,21 +16,17 @@ import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@Entity
-@EntityListeners(AuditingEntityListener.class)
 @Getter
-@Setter
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "route_bookmark")
-public class RouteBookmark {
+@EntityListeners(AuditingEntityListener.class)
+public class RouteBookmark extends BaseTime {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,13 +46,5 @@ public class RouteBookmark {
 
 	@Column(name = "deleted_at", nullable = true)
 	private LocalDateTime deletedAt;
-
-	@Column(name = "created_at", nullable = false)
-	@CreationTimestamp
-	private LocalDateTime createdAt;
-
-	@Column(name = "updated_at", nullable = false)
-	@LastModifiedDate
-	private LocalDateTime updatedAt;
 
 }

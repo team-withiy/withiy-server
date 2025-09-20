@@ -39,7 +39,7 @@ public class PhotoService {
 		}
 
 		List<Photo> photos = imageUrls.stream()
-			.map(imageUrl -> Photo.of(imageUrl, place, null, type, uploader))
+			.map(imageUrl -> Photo.of(imageUrl, place, type, uploader))
 			.toList();
 		saveAll(photos);
 	}
