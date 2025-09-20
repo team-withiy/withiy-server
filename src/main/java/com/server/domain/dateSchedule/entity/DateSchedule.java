@@ -12,20 +12,20 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
-@Setter
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "date_schedule")
 @EntityListeners(AuditingEntityListener.class)
 public class DateSchedule extends BaseTime {
@@ -41,21 +41,13 @@ public class DateSchedule extends BaseTime {
 	@Column(name = "schedule_at")
 	private LocalDate scheduleAt;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
-	@OnDelete(action = OnDeleteAction.CASCADE)
-	private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "route_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Route route;
 
-    @Builder
-    public DateSchedule(Route route, String name, LocalDate scheduleAt, User user) {
-        this.route = route;
-        this.name = name;
-        this.scheduleAt = scheduleAt;
-        this.user = user;
-    }
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	private User user;
 }
