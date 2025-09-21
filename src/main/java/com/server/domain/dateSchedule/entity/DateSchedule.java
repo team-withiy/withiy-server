@@ -1,6 +1,8 @@
 package com.server.domain.dateSchedule.entity;
 
+import com.server.domain.route.entity.Route;
 import com.server.domain.user.entity.User;
+import com.server.global.common.BaseTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -12,7 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,14 +22,13 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@Entity
-@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
+@Entity
 @NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "date_schedule")
-public class DateSchedule {
+@EntityListeners(AuditingEntityListener.class)
+public class DateSchedule extends BaseTime {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,4 +45,17 @@ public class DateSchedule {
 	@JoinColumn(name = "user_id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "route_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Route route;
+
+    @Builder
+    public DateSchedule(Route route, String name, LocalDate scheduleAt, User user) {
+        this.route = route;
+        this.name = name;
+        this.scheduleAt = scheduleAt;
+        this.user = user;
+    }
 }

@@ -54,6 +54,9 @@ public class Photo {
 	@Enumerated(EnumType.STRING)
 	private PhotoType type;
 
+    @Column(name = "order")
+    private int order;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	@OnDelete(action = OnDeleteAction.CASCADE)

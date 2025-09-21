@@ -37,4 +37,6 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
 
 	@Query("SELECT p FROM Place p WHERE p.id IN :ids")
 	List<Place> findPlacesByIds(List<Long> ids, Sort sort);
+
+    List<Place> findByUserAnd
 }
