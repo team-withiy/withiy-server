@@ -2,12 +2,12 @@ package com.server.domain.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.server.domain.album.entity.Album;
-import com.server.domain.course.entity.CourseBookmark;
 import com.server.domain.dateSchedule.entity.DateSchedule;
 import com.server.domain.folder.entity.Folder;
 import com.server.domain.oauth.entity.OAuth;
 import com.server.domain.place.entity.PlaceBookmark;
 import com.server.domain.review.entity.Review;
+import com.server.domain.route.entity.RouteBookmark;
 import com.server.domain.term.entity.Term;
 import com.server.domain.term.entity.TermAgreement;
 import jakarta.persistence.CascadeType;
@@ -99,7 +99,7 @@ public class User {
 
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<CourseBookmark> courseBookmarks = new ArrayList<>();
+	private List<RouteBookmark> courseBookmarks = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Review> reviews = new ArrayList<>();

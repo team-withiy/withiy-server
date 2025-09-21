@@ -1,15 +1,16 @@
-package com.server.domain.course.service;
+package com.server.domain.route.service;
 
-import com.server.domain.course.dto.CourseDto;
-import com.server.domain.course.dto.CourseImageDto;
-import com.server.domain.course.dto.CourseStatus;
-import com.server.domain.course.entity.Course;
-import com.server.domain.course.entity.CourseBookmark;
-import com.server.domain.course.entity.CourseImage;
-import com.server.domain.course.repository.CourseBookmarkRepository;
-import com.server.domain.course.repository.CoursePlaceRepository;
-import com.server.domain.course.repository.CourseRepository;
 import com.server.domain.place.entity.Place;
+import com.server.domain.route.dto.CourseDto;
+import com.server.domain.route.dto.RouteImageDto;
+import com.server.domain.route.dto.RouteStatus;
+import com.server.domain.route.entity.Route;
+import com.server.domain.route.entity.RouteBookmark;
+import com.server.domain.route.entity.RouteImage;
+import com.server.domain.route.entity.RoutePlace;
+import com.server.domain.route.repository.RouteBookmarkRepository;
+import com.server.domain.route.repository.RoutePlaceRepository;
+import com.server.domain.route.repository.RouteRepository;
 import com.server.domain.search.dto.BookmarkedCourseDto;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ImageResponseDto;
@@ -28,12 +29,20 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CourseService {
+public class RouteService {
 
-	private final CourseRepository courseRepository;
-	private final CourseBookmarkRepository courseBookmarkRepository;
-	private final CoursePlaceRepository coursePlaceRepository;
+	private final RouteRepository routeRepository;
+	private final RouteBookmarkRepository routeBookmarkRepository;
+	private final RoutePlaceRepository routePlaceRepository;
 	private final ImageService imageService;
+
+    public void saveRoute(Route route) {
+        routeRepository.save(route);
+    }
+
+    public void saveRoutePlace(RoutePlace routePlace) {
+        routePlaceRepository.save(routePlace);
+    }
 
 /*        @Transactional
         public CourseDetailDto getCourseDetail(Long courseId) {
@@ -75,8 +84,8 @@ public class CourseService {
 	 * @return 업로드된 이미지 정보
 	 */
 	@Transactional
-	public CourseImageDto uploadCourseImage(Long courseId, MultipartFile file) {
-		Course course = courseRepository.findById(courseId).orElseThrow(
+	public RouteImageDto uploadCourseImage(Long courseId, MultipartFile file) {
+		Route route = routeRepository.findById(courseId).orElseThrow(
 			() -> new BusinessException(CourseErrorCode.NOT_FOUND));
 
 		// 공통 이미지 서비스를 사용하여 이미지 업로드
@@ -84,23 +93,24 @@ public class CourseService {
 			imageService.uploadImage(file, "course", courseId);
 
 		// 코스 이미지 엔티티 생성 및 저장
-		CourseImage courseImage = new CourseImage();
-		courseImage.setImageUrl(imageResponseDto.getImageUrl());
-		courseImage.setCourse(course);
+		RouteImage routeImage = new RouteImage();
+        // TODO
+//		routeImage.setImageUrl(imageResponseDto.getImageUrl());
+//		routeImage.setRoute(route);
 
 //                course.getCourseImages().add(courseImage);
-		courseRepository.save(course);
+		routeRepository.save(route);
 
 		log.info("Course image uploaded for course ID {}: {}", courseId,
 			imageResponseDto.getImageUrl());
 
-		return CourseImageDto.builder().imageUrl(courseImage.getImageUrl()).build();
+		return RouteImageDto.builder().imageUrl(routeImage.getImageUrl()).build();
 	}
 
 	@Transactional
 	public List<BookmarkedCourseDto> getBookmarkedCourses(User user) {
-		return courseBookmarkRepository.findByUserWithCourse(user).stream()
-			.map(CourseBookmark::getCourse)
+		return routeBookmarkRepository.findByUserWithCourse(user).stream()
+			.map(RouteBookmark::getRoute)
 			.map(BookmarkedCourseDto::from)
 			.collect(Collectors.toList());
 	}
@@ -114,27 +124,27 @@ public class CourseService {
 	 */
 	@Transactional
 	public List<CourseDto> searchCoursesByKeyword(String keyword, User user) {
-		List<Course> courses = courseRepository.findByNameContainingIgnoreCase(keyword);
-		return courses.stream()
+		List<Route> cours = routeRepository.findByNameContainingIgnoreCase(keyword);
+		return cours.stream()
 			.map(CourseDto::from)
 			.collect(Collectors.toList());
 	}
 
-	public List<Course> getActiveCoursesByKeyword(String keyword) {
+	public List<Route> getActiveCoursesByKeyword(String keyword) {
 		if (keyword == null || keyword.isEmpty()) {
-			return courseRepository.findCoursesByStatus(CourseStatus.ACTIVE);
+			return routeRepository.findCoursesByStatus(RouteStatus.ACTIVE);
 		} else {
-			return courseRepository.findCoursesByStatusAndKeyword(CourseStatus.ACTIVE, keyword);
+			return routeRepository.findCoursesByStatusAndKeyword(RouteStatus.ACTIVE, keyword);
 		}
 	}
 
 	@Transactional
-	public long getBookmarkCount(Course course) {
-		return courseBookmarkRepository.countByCourseAndNotDeleted(course);
+	public long getBookmarkCount(Route route) {
+		return routeBookmarkRepository.countByRouteAndNotDeleted(route);
 	}
 
-	public List<Place> getPlacesInCourse(Course course) {
-		return coursePlaceRepository.findPlacesByCourse(course);
+	public List<Place> getPlacesInCourse(Route route) {
+		return routePlaceRepository.findPlacesByCourse(route);
 	}
 
 	/**

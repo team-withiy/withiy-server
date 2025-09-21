@@ -1,6 +1,7 @@
 package com.server.domain.badge.entity;
 
 import com.server.domain.user.entity.User;
+import com.server.global.common.BaseTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -12,24 +13,19 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@Entity
-@EntityListeners(AuditingEntityListener.class)
-@Builder
 @Getter
-@Setter
+@Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserBadge {
+@EntityListeners(AuditingEntityListener.class)
+public class UserBadge extends BaseTime {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,11 +47,11 @@ public class UserBadge {
 	@Builder.Default
 	private Boolean isMain = false;
 
-	@Column(name = "created_at", nullable = false)
-	@CreationTimestamp
-	private LocalDateTime createdAt;
+    public void updateMain(boolean b) {
+        this.isMain = b;
+    }
 
-	@Column(name = "updated_at", nullable = false)
-	@LastModifiedDate
-	private LocalDateTime updatedAt;
+    public void updateCharacterType(CharacterType characterType) {
+        this.characterType = characterType;
+    }
 }

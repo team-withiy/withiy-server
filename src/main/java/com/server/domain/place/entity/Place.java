@@ -4,6 +4,7 @@ import com.server.domain.category.entity.Category;
 import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.place.dto.UpdatePlaceDto;
 import com.server.domain.user.entity.User;
+import com.server.global.common.BaseTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -21,18 +22,16 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+@Getter
 @Entity
+@Table(name = "place")
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter
-@Table(name = "place")
-public class Place {
+public class Place extends BaseTime {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -64,7 +63,7 @@ public class Place {
 	private Long score;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id", nullable = false)
+	@JoinColumn(name = "user_id")
 	private User user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -78,14 +77,6 @@ public class Place {
 
 	@Column(name = "deleted_at", nullable = true)
 	private LocalDateTime deletedAt;
-
-	@Column(name = "created_at", nullable = false)
-	@CreationTimestamp
-	private LocalDateTime createdAt;
-
-	@Column(name = "updated_at", nullable = false)
-	@LastModifiedDate
-	private LocalDateTime updatedAt;
 
 	@Builder
 	public Place(String name, String region1depth, String region2depth, String region3depth,
@@ -107,7 +98,7 @@ public class Place {
 	public boolean isCreatedByAdmin() {
 		return user != null && user.isAdmin();
 	}
-	
+
 	public void update(UpdatePlaceDto dto, Category category) {
 		if (dto.getName() != null) {
 			this.name = dto.getName();

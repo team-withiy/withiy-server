@@ -28,6 +28,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 
@@ -78,12 +79,12 @@ public class BadgeServiceTest {
 		badge1 = Badge.builder()
 			.type(BadgeType.WITHIY_MEMORY)
 			.build();
-		badge1.setId(2L);
+		ReflectionTestUtils.setField(badge1, "id", 2L);
 		badges.add(badge1);
 		badge2 = Badge.builder()
 			.type(BadgeType.WITHIY_REGULAR)
 			.build();
-		badge2.setId(3L);
+		ReflectionTestUtils.setField(badge2, "id", 3L);
 		badges.add(badge2);
 	}
 

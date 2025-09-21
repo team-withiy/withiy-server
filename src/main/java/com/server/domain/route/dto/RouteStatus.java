@@ -1,6 +1,7 @@
-package com.server.domain.course.dto;
+package com.server.domain.route.dto;
 
-public enum CourseStatus {
+public enum RouteStatus {
+    REPORT,
 	ACTIVE,      // 운영 중
 	REPORTED,    // 신고 접수
 	DELETED      // 삭제 이력

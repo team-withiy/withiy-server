@@ -24,6 +24,7 @@ public class CreatePlaceByUserDto {
 	private String latitude;
 	private String longitude;
 	private String category;
+	private Long dateScheduleId;
 	private String review;
 	private Long score;
 

@@ -1,10 +1,13 @@
 package com.server.domain.photo.entity;
 
-import com.server.domain.album.entity.Album;
+import com.server.domain.place.entity.Place;
 import com.server.domain.user.entity.User;
+import com.server.global.common.BaseTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,22 +15,23 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@Entity
-@EntityListeners(AuditingEntityListener.class)
 @Getter
-@NoArgsConstructor
+@Entity
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Table(name = "photo")
-public class Photo {
+@EntityListeners(AuditingEntityListener.class)
+public class Photo extends BaseTime {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,27 +42,24 @@ public class Photo {
 	private String imgUrl;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "album_id")
-	@OnDelete(action = OnDeleteAction.CASCADE)
-	private Album album;
+	@JoinColumn(name = "place_id")
+	private Place place;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "type")
+	private PhotoType type;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private User user;
 
-	@Column(name = "created_at", nullable = false)
-	@CreationTimestamp
-	private LocalDateTime createdAt;
-
-	@Column(name = "updated_at", nullable = false)
-	@LastModifiedDate
-	private LocalDateTime updatedAt;
-
-	@Builder
-	public Photo(Album album, User user, String imgUrl) {
-		this.album = album;
-		this.user = user;
-		this.imgUrl = imgUrl;
+	public static Photo of(String imgUrl, Place place, PhotoType type, User user) {
+		return Photo.builder()
+			.imgUrl(imgUrl)
+			.place(place)
+			.type(type)
+			.user(user)
+			.build();
 	}
 }
