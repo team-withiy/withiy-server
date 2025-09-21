@@ -1,4 +1,4 @@
-package com.server.domain.route.controller;//package com.server.domain.course.controller;
+package com.server.domain.route.controller;
 //
 //import com.server.domain.course.dto.CourseDetailDto;
 //import com.server.domain.course.dto.CourseImageDto;
