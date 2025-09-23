@@ -22,7 +22,7 @@ public class PlaceDto {
 	private LocationDto location;
 	private CategoryDto category;
 	private boolean bookmarked;
-	private double score;
+	private Double score;
 	private List<String> photoUrls;
 
 	public static PlaceDto from(Place place) {
