@@ -15,8 +15,11 @@ import com.server.domain.place.dto.CreatePlaceDto;
 import com.server.domain.place.dto.CreatePlaceResponse;
 import com.server.domain.place.dto.GetPlaceDetailResponse;
 import com.server.domain.place.dto.LocationDto;
+import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.place.dto.RegisterPhotoRequest;
+import com.server.domain.place.dto.reqeust.NearbyPlaceRequest;
+import com.server.domain.place.dto.response.NearbyPlaceResponse;
 import com.server.domain.place.entity.Place;
 import com.server.domain.review.dto.ReviewDto;
 import com.server.domain.review.entity.Review;
@@ -31,6 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -202,5 +206,22 @@ public class PlaceFacade {
 				return ReviewDto.of(review, review.getUser(), reviewerImageUrls, place.getName());
 			}
 		);
+	}
+
+
+	public NearbyPlaceResponse getNearbyPlaces(NearbyPlaceRequest request) {
+		List<Place> places = placeService.getNearbyPlaces(
+			request.getLatitude(),
+			request.getLongitude(),
+			request.getRadius() // km 단위
+		);
+
+		List<PlaceDto> placeDtos = places.stream()
+			.map(PlaceDto::from)
+			.collect(Collectors.toList());
+
+		return NearbyPlaceResponse.builder()
+			.places(placeDtos)
+			.build();
 	}
 }

@@ -2,6 +2,7 @@ package com.server.domain.place.dto;
 
 import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.place.entity.Place;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,27 +19,19 @@ public class PlaceDto {
 	private Long id;
 	private String name;
 	private String address;
-	private String latitude;
-	private String longitude;
-	private String region1depth;
-	private String region2depth;
-	private String region3depth;
+	private LocationDto location;
 	private CategoryDto category;
-	private Long score;
+	private boolean bookmarked;
+	private double score;
+	private List<String> photoUrls;
 
 	public static PlaceDto from(Place place) {
-
 		return PlaceDto.builder()
 			.id(place.getId())
 			.name(place.getName())
 			.address(place.getAddress())
-			.latitude(place.getLatitude())
-			.longitude(place.getLongitude())
-			.region1depth(place.getRegion1depth())
-			.region2depth(place.getRegion2depth())
-			.region3depth(place.getRegion3depth())
+			.location(LocationDto.from(place))
 			.category(CategoryDto.from(place.getCategory()))
-			.score(place.getScore())
 			.build();
 	}
 }

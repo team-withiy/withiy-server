@@ -10,6 +10,8 @@ import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.dto.PlaceFocusDto;
 import com.server.domain.place.dto.RegisterPhotoRequest;
 import com.server.domain.place.dto.UpdatePlaceDto;
+import com.server.domain.place.dto.reqeust.NearbyPlaceRequest;
+import com.server.domain.place.dto.response.NearbyPlaceResponse;
 import com.server.domain.place.service.PlaceFacade;
 import com.server.domain.place.service.PlaceService;
 import com.server.domain.review.dto.ReviewDto;
@@ -161,5 +163,11 @@ public class PlaceController {
 		@ModelAttribute ApiCursorPaginationRequest pageRequest) {
 		return ApiCursorPaginationResponse.success(HttpStatus.OK.value(),
 			placeFacade.getPlaceReviews(placeId, pageRequest));
+	}
+
+	public ApiResponseDto<NearbyPlaceResponse> getNearbyPlaces(
+		@RequestBody NearbyPlaceRequest request) {
+		NearbyPlaceResponse response = placeFacade.getNearbyPlaces(request);
+		return ApiResponseDto.success(HttpStatus.OK.value(), response);
 	}
 }
