@@ -159,15 +159,19 @@ public class PlaceController {
 	}
 
 	@GetMapping("/{placeId}/reviews")
+	@ResponseStatus(HttpStatus.OK)
 	public ApiCursorPaginationResponse<ReviewDto, Long> getPlaceReviews(@PathVariable Long placeId,
 		@ModelAttribute ApiCursorPaginationRequest pageRequest) {
 		return ApiCursorPaginationResponse.success(HttpStatus.OK.value(),
 			placeFacade.getPlaceReviews(placeId, pageRequest));
 	}
 
-	public ApiResponseDto<NearbyPlaceResponse> getNearbyPlaces(
+	@GetMapping("/nearby")
+	@ResponseStatus(HttpStatus.OK)
+	@Operation(summary = "근처 장소 조회", description = "사용자의 현재 위치를 기반으로 근처 장소를 조회합니다.")
+	public ApiResponseDto<NearbyPlaceResponse> getNearbyPlaces(@AuthenticationPrincipal User user,
 		@RequestBody NearbyPlaceRequest request) {
-		NearbyPlaceResponse response = placeFacade.getNearbyPlaces(request);
+		NearbyPlaceResponse response = placeFacade.getNearbyPlaces(user, request);
 		return ApiResponseDto.success(HttpStatus.OK.value(), response);
 	}
 }

@@ -3,6 +3,7 @@ package com.server.domain.review.service;
 import com.server.domain.place.entity.Place;
 import com.server.domain.review.entity.Review;
 import com.server.domain.review.repository.ReviewRepository;
+import com.server.domain.review.repository.projection.PlaceScoreProjection;
 import com.server.domain.user.entity.User;
 import com.server.global.error.code.ReviewErrorCode;
 import com.server.global.error.exception.BusinessException;
@@ -11,6 +12,8 @@ import com.server.global.pagination.dto.CursorPageDto;
 import com.server.global.pagination.utils.CursorPaginationUtils;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewService {
 
 	private final ReviewRepository reviewRepository;
+	private final static int PLACE_DEFAULT_REVIEW_LIMIT = 4;
 
 	@Transactional
 	public Review save(Place place, User user, String contents, Long score) {
@@ -41,12 +45,11 @@ public class ReviewService {
 	 * 특정 장소에 대한 리뷰를 최신순, 평점순으로 정렬하여 limit 개수만큼 조회
 	 *
 	 * @param place
-	 * @param limit
 	 * @return
 	 */
 	@Transactional
-	public List<Review> getTopReviewsByPlace(Place place, int limit) {
-		Pageable pageable = PageRequest.of(0, limit);
+	public List<Review> getTopReviewsByPlace(Place place) {
+		Pageable pageable = PageRequest.of(0, PLACE_DEFAULT_REVIEW_LIMIT);
 		return reviewRepository.findByPlaceId(place.getId(), pageable);
 	}
 
@@ -100,5 +103,16 @@ public class ReviewService {
 			hasNext,
 			Review::getId
 		);
+	}
+
+	public Map<Long, Double> getScoreMapForPlaces(List<Long> placeIds) {
+		if (placeIds == null || placeIds.isEmpty()) {
+			return Collections.emptyMap();
+		}
+		return reviewRepository.findAvgScoreByPlaceIds(placeIds).stream()
+			.collect(Collectors.toMap(
+				PlaceScoreProjection::getPlaceId,
+				PlaceScoreProjection::getAvgScore
+			));
 	}
 }

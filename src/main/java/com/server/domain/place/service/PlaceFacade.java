@@ -1,6 +1,5 @@
 package com.server.domain.place.service;
 
-import com.server.domain.album.service.AlbumService;
 import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.service.CategoryService;
@@ -43,10 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PlaceFacade {
 
-	private final static int PLACE_DEFAULT_PHOTO_LIMIT = 30;
-	private final static int PLACE_DEFAULT_REVIEW_LIMIT = 4;
 	private final PlaceService placeService;
-	private final AlbumService albumService;
 	private final CategoryService categoryService;
 	private final PhotoService photoService;
 	private final ReviewService reviewService;
@@ -90,13 +86,9 @@ public class PlaceFacade {
 			.build();
 
 		long totalPhotoCount = photoService.getTotalPlacePhotoCountByPlace(place);
-		List<PhotoDto> photos = photoService.getPlaceTopPhotos(place, PLACE_DEFAULT_PHOTO_LIMIT);
+		List<PhotoDto> photos = photoService.getPlaceTopPhotos(place);
 
-		boolean hasMorePhotos = totalPhotoCount > PLACE_DEFAULT_PHOTO_LIMIT;
-
-		// 리뷰는 최대 4개까지만 보여줌
-		List<Review> reviews = reviewService.getTopReviewsByPlace(place,
-			PLACE_DEFAULT_REVIEW_LIMIT);
+		List<Review> reviews = reviewService.getTopReviewsByPlace(place);
 
 		// 리뷰에 달린 사진들을 한 번의 쿼리로 모두 가져오기
 		// TODO: N+1 문제 해결 및 Review 엔티티에 Date 종속 추가하여 Date 기반으로 사진들을 가져오도록 변경
@@ -121,7 +113,6 @@ public class PlaceFacade {
 			.score(place.getScore())
 			.photos(photos)
 			.totalPhotoCount(totalPhotoCount)
-			.hasMorePhotos(hasMorePhotos)
 			.reviews(reviewSummaries)
 			.build();
 	}
@@ -209,15 +200,33 @@ public class PlaceFacade {
 	}
 
 
-	public NearbyPlaceResponse getNearbyPlaces(NearbyPlaceRequest request) {
+	@Transactional(readOnly = true)
+	public NearbyPlaceResponse getNearbyPlaces(User user, NearbyPlaceRequest request) {
 		List<Place> places = placeService.getNearbyPlaces(
 			request.getLatitude(),
 			request.getLongitude(),
 			request.getRadius() // km 단위
 		);
 
+		List<Long> placeIds = places.stream()
+			.map(Place::getId)
+			.collect(Collectors.toList());
+
+		// 1. 장소별 평균 평점 조회
+		Map<Long, Double> placeScoreMap = reviewService.getScoreMapForPlaces(placeIds);
+		// 2. 장소별 북마크 여부 조회
+		Map<Long, Boolean> placeBookmarkMap = folderService.getBookmarkMapForPlaces(
+			placeIds, user.getId());
+		// 3. 장소별 사진 URL 조회
+		Map<Long, List<String>> placePhotoMap = photoService.getPlacePhotoUrlsMap(placeIds);
+		// 4. Place -> PlaceDto 변환
 		List<PlaceDto> placeDtos = places.stream()
-			.map(PlaceDto::from)
+			.map(place -> PlaceDto.from(
+				place,
+				placeBookmarkMap.get(place.getId()),
+				placeScoreMap.get(place.getId()),
+				placePhotoMap.get(place.getId())
+			))
 			.collect(Collectors.toList());
 
 		return NearbyPlaceResponse.builder()
