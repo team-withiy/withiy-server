@@ -175,4 +175,14 @@ public class FolderService {
 				PlaceBookmarkProjection::getBookmarked
 			));
 	}
+
+	/**
+	 * 사용자가 북마크한 장소 목록을 반환합니다.
+	 *
+	 * @param user 현재 사용자
+	 * @return 북마크된 장소 목록
+	 */
+	public List<Place> getBookmarkedPlaces(User user) {
+		return folderPlaceRepository.findBookmarkedPlacesByUserId(user.getId());
+	}
 }

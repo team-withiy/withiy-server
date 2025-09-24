@@ -2,6 +2,7 @@ package com.server.domain.folder.repository;
 
 import com.server.domain.folder.entity.FolderPlace;
 import com.server.domain.folder.repository.projection.PlaceBookmarkProjection;
+import com.server.domain.place.entity.Place;
 import java.util.List;
 import java.util.Set;
 import org.springframework.data.domain.Pageable;
@@ -108,4 +109,9 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		@Param("placeIds") List<Long> placeIds,
 		@Param("userId") Long userId
 	);
+
+	@Query("SELECT fp.place FROM FolderPlace fp " +
+		"JOIN fp.folder f " +
+		"WHERE f.user.id = :userId")
+	List<Place> findBookmarkedPlacesByUserId(@Param("userId") Long userId);
 }

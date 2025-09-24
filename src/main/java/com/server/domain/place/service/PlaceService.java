@@ -12,11 +12,9 @@ import com.server.domain.place.dto.PlaceFocusDto;
 import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.place.dto.UpdatePlaceDto;
 import com.server.domain.place.entity.Place;
-import com.server.domain.place.entity.PlaceBookmark;
 import com.server.domain.place.repository.PlaceBookmarkRepository;
 import com.server.domain.place.repository.PlaceRepository;
 import com.server.domain.review.service.ReviewService;
-import com.server.domain.search.dto.BookmarkedPlaceDto;
 import com.server.domain.search.dto.SearchSource;
 import com.server.domain.user.entity.User;
 import com.server.global.error.code.PlaceErrorCode;
@@ -98,23 +96,6 @@ public class PlaceService {
 		String result = place.getName();
 		placeRepository.delete(place);
 		return result + " delete.";
-	}
-
-	/**
-	 * 사용자가 북마크한 장소 목록을 조회합니다.
-	 *
-	 * @param user 인증된 사용자 정보
-	 * @return 사용자가 북마크한 장소 목록
-	 */
-	@Transactional
-	public List<BookmarkedPlaceDto> getBookmarkedPlaces(User user) {
-
-		List<PlaceBookmark> placeBookmarks = placeBookmarkRepository.findByUserWithPlace(user);
-
-		return placeBookmarks.stream()
-			.map(PlaceBookmark::getPlace)
-			.map(BookmarkedPlaceDto::from)
-			.collect(Collectors.toList());
 	}
 
 	/**
