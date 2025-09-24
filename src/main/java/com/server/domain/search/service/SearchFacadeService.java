@@ -10,6 +10,7 @@ import com.server.domain.search.dto.SearchHistoryDto;
 import com.server.domain.search.dto.SearchRequestDto;
 import com.server.domain.search.dto.SearchResponseDto;
 import com.server.domain.search.dto.SearchSource;
+import com.server.domain.search.dto.response.SearchInitResponse;
 import com.server.domain.user.entity.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class SearchFacadeService {
 
 	private final SearchService searchService;
 	private final PlaceService placeService;
-    private final RouteService routeService;
+	private final RouteService routeService;
 
 	public SearchResponseDto search(User user, SearchRequestDto searchRequestDto) {
 
@@ -54,6 +55,18 @@ public class SearchFacadeService {
 		List<BookmarkedCourseDto> bookmarkedCourses = routeService.getBookmarkedCourses(user);
 
 		return SearchResponseDto.builder()
+			.recentKeywords(recentKeywords)
+			.bookmarkedPlaces(bookmarkedPlaces)
+			.bookmarkedCourses(bookmarkedCourses)
+			.build();
+	}
+
+	public SearchInitResponse initSearch(User user) {
+		List<SearchHistoryDto> recentKeywords = searchService.getRecentSearchHistory(user);
+		List<BookmarkedPlaceDto> bookmarkedPlaces = placeService.getBookmarkedPlaces(user);
+		List<BookmarkedCourseDto> bookmarkedCourses = routeService.getBookmarkedCourses(user);
+
+		return SearchInitResponse.builder()
 			.recentKeywords(recentKeywords)
 			.bookmarkedPlaces(bookmarkedPlaces)
 			.bookmarkedCourses(bookmarkedCourses)
