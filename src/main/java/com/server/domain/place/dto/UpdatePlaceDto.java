@@ -18,8 +18,8 @@ public class UpdatePlaceDto {
 	private String region1depth;
 	private String region2depth;
 	private String region3depth;
-	private String latitude;
-	private String longitude;
+	private Double latitude;
+	private Double longitude;
 	private Long score;
 	private String category;
 }

@@ -1,6 +1,5 @@
 package com.server.domain.folder.service;
 
-import com.server.domain.album.service.AlbumService;
 import com.server.domain.folder.dto.FolderOptionDto;
 import com.server.domain.folder.dto.FolderSummaryDto;
 import com.server.domain.folder.dto.PlaceSummaryDto;
@@ -27,7 +26,6 @@ public class FolderFacade {
 	private static final int DEFAULT_THUMBNAIL_LIMIT = 4;
 	private final FolderService folderService;
 	private final PlaceService placeService;
-	private final AlbumService albumService;
 	private final PhotoService photoService;
 
 	@Transactional(readOnly = true)

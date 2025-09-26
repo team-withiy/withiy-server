@@ -29,15 +29,13 @@ public class GetPlaceDetailResponse {
 	private List<PhotoDto> photos;
 	@Schema(description = "장소 사진 총 개수", example = "100")
 	private long totalPhotoCount;
-	@Schema(description = "더보기 필요 여부 (total > 30)", example = "true")
-	private boolean hasMorePhotos;
 	@Schema(description = "장소 리뷰 목록")
 	private List<ReviewDto> reviews;
 
 	@Builder
 	public GetPlaceDetailResponse(Long placeId, String placeName, CategoryDto category,
 		String address, LocationDto location, Long score, List<PhotoDto> photos,
-		long totalPhotoCount, boolean hasMorePhotos, List<ReviewDto> reviews) {
+		long totalPhotoCount, List<ReviewDto> reviews) {
 		this.placeId = placeId;
 		this.placeName = placeName;
 		this.category = category;
@@ -46,7 +44,6 @@ public class GetPlaceDetailResponse {
 		this.score = score;
 		this.photos = photos;
 		this.totalPhotoCount = totalPhotoCount;
-		this.hasMorePhotos = hasMorePhotos;
 		this.reviews = reviews;
 	}
 }

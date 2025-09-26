@@ -37,4 +37,27 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
 
 	@Query("SELECT p FROM Place p WHERE p.id IN :ids")
 	List<Place> findPlacesByIds(List<Long> ids, Sort sort);
+
+	/**
+	 * Haversine 공식을 이용해 각 장소와 기준 좌표 간 거리를 계산
+	 *
+	 * @param latitude
+	 * @param longitude
+	 * @param radiusKm
+	 * @return
+	 */
+	@Query(value =
+		"SELECT p.*, " +
+			"       (6371 * acos(cos(radians(:lat)) * cos(radians(p.latitude)) " +
+			"       * cos(radians(p.longitude) - radians(:lng)) + sin(radians(:lat)) " +
+			"       * sin(radians(p.latitude)))) AS distance " +
+			"FROM place p " +
+			"HAVING distance < :radius " +
+			"ORDER BY distance ASC",
+		nativeQuery = true)
+	List<Place> findNearbyPlaces(
+		@Param("lat") double latitude,
+		@Param("lng") double longitude,
+		@Param("radius") double radiusKm
+	);
 }

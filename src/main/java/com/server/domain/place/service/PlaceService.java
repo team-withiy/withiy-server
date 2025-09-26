@@ -234,4 +234,12 @@ public class PlaceService {
 			Place::getId // 커서 기준 값 추출 방법 전달
 		);
 	}
+
+	public List<Place> getNearbyPlaces(double latitude, double longitude, double radius) {
+		return placeRepository.findNearbyPlaces(
+			latitude,
+			longitude,
+			radius // km 단위
+		);
+	}
 }
