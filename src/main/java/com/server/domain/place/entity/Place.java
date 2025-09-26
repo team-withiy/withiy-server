@@ -54,10 +54,10 @@ public class Place extends BaseTime {
 	private String address;
 
 	@Column(name = "latitude")
-	private String latitude;
+	private Double latitude;
 
 	@Column(name = "longitude")
-	private String longitude;
+	private Double longitude;
 
 	@Column(name = "score")
 	private Long score;
@@ -66,7 +66,7 @@ public class Place extends BaseTime {
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "category_id")
 	@OnDelete(action = OnDeleteAction.SET_NULL)
 	private Category category;
@@ -80,7 +80,7 @@ public class Place extends BaseTime {
 
 	@Builder
 	public Place(String name, String region1depth, String region2depth, String region3depth,
-		String address, String latitude, String longitude, Long score,
+		String address, Double latitude, Double longitude, Long score,
 		User user, Category category, PlaceStatus status) {
 		this.name = name;
 		this.region1depth = region1depth;

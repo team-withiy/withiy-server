@@ -18,8 +18,8 @@ public class PlaceDetailDto {
 	private Long id;
 	private String name;
 	private String address;
-	private String latitude;
-	private String longitude;
+	private Double latitude;
+	private Double longitude;
 	private String region1depth;
 	private String region2depth;
 	private String region3depth;

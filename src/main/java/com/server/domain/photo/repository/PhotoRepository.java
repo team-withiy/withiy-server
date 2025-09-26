@@ -36,7 +36,7 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 		"WHERE p.place.id IN :placeIds " +
 		"AND p.type = :type " +
 		"ORDER BY p.createdAt DESC")
-	List<Photo> findAllByPlaceIdsAndType(List<Long> placeIds, PhotoType type);
+	List<Photo> findByPlaceIdInAndType(List<Long> placeIds, PhotoType type);
 
 
 	@Query("SELECT p FROM Photo p " +

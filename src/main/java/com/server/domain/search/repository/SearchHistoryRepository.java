@@ -1,13 +1,17 @@
 package com.server.domain.search.repository;
 
 import com.server.domain.search.entity.SearchHistory;
-import com.server.domain.user.entity.User;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SearchHistoryRepository extends JpaRepository<SearchHistory, Long> {
 
-	List<SearchHistory> findTop10ByUserOrderByCreatedAtDesc(User user);
+	@Query("SELECT sh FROM SearchHistory sh WHERE sh.user.id = :userId ORDER BY sh.createdAt DESC")
+	List<SearchHistory> findByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId,
+		Pageable pageable);
 }

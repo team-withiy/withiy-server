@@ -1,6 +1,7 @@
 package com.server.domain.review.repository;
 
 import com.server.domain.review.entity.Review;
+import com.server.domain.review.repository.projection.PlaceScoreProjection;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
@@ -54,4 +55,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 	boolean existsPrevReviewByPlaceId(@Param("placeId") Long placeId,
 		@Param("cursorUpdatedAt") LocalDateTime cursorUpdatedAt,
 		@Param("cursorScore") Long cursorScore);
+
+	@Query("SELECT r.place.id AS placeId, AVG(r.score) AS avgScore " +
+		"FROM Review r WHERE r.place.id IN :placeIds GROUP BY r.place.id")
+	List<PlaceScoreProjection> findAvgScoreByPlaceIds(@Param("placeIds") List<Long> placeIds);
 }

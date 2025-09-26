@@ -1,6 +1,8 @@
 package com.server.domain.folder.repository;
 
 import com.server.domain.folder.entity.FolderPlace;
+import com.server.domain.folder.repository.projection.PlaceBookmarkProjection;
+import com.server.domain.place.entity.Place;
 import java.util.List;
 import java.util.Set;
 import org.springframework.data.domain.Pageable;
@@ -95,4 +97,21 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		"JOIN fp.folder f " +
 		"WHERE f.user.id = :userId AND fp.place.id > :cursor")
 	boolean existsPrevPlaceByUser(Long userId, Long cursor);
+
+	@Query("SELECT p.id AS placeId, " +
+		"CASE WHEN EXISTS (" +
+		"   SELECT 1 FROM FolderPlace fp " +
+		"   WHERE fp.place.id = p.id AND fp.folder.user.id = :userId" +
+		") THEN true ELSE false END AS bookmarked " +
+		"FROM Place p " +
+		"WHERE p.id IN :placeIds")
+	List<PlaceBookmarkProjection> findPlaceBookmarks(
+		@Param("placeIds") List<Long> placeIds,
+		@Param("userId") Long userId
+	);
+
+	@Query("SELECT fp.place FROM FolderPlace fp " +
+		"JOIN fp.folder f " +
+		"WHERE f.user.id = :userId")
+	List<Place> findBookmarkedPlacesByUserId(@Param("userId") Long userId);
 }
