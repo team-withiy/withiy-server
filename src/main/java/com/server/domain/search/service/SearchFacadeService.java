@@ -31,6 +31,8 @@ public class SearchFacadeService {
 	private final RouteService routeService;
 
 	/**
+	 * 키워드, 필터, 정렬 기준에 따른 장소 및 코스 검색
+	 *
 	 * @param user
 	 * @param searchRequestDto
 	 * @return
@@ -50,6 +52,17 @@ public class SearchFacadeService {
 
 	@Transactional(readOnly = true)
 	public SearchInitResponse initSearch(User user) {
+
+		// 0. 비회원인 경우 빈 리스트 반환
+		if (user == null) {
+			// 비회원인 경우 빈 리스트 반환
+			return SearchInitResponse.builder()
+				.recentKeywords(List.of())
+				.bookmarkedPlaces(List.of())
+				.bookmarkedCourses(List.of())
+				.build();
+		}
+
 		// 1. 최근 검색어 조회
 		List<SearchHistoryDto> recentKeywords = searchService.getRecentSearchHistory(user);
 
@@ -58,7 +71,8 @@ public class SearchFacadeService {
 		List<Long> placeIds = places.stream().map(Place::getId).toList();
 		Map<Long, Double> placeScoreMap = reviewService.getScoreMapForPlaces(placeIds);
 		List<BookmarkedPlaceDto> bookmarkedPlaces = places.stream()
-			.map(place -> BookmarkedPlaceDto.of(place, placeScoreMap.get(place.getId())))
+			.map(place -> BookmarkedPlaceDto.of(place,
+				placeScoreMap.getOrDefault(place.getId(), 0.0)))
 			.toList();
 
 		// TODO 3. 북마크된 코스 조회 (추후 구현 예정)

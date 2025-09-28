@@ -66,7 +66,7 @@ public class Place extends BaseTime {
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "category_id")
 	@OnDelete(action = OnDeleteAction.SET_NULL)
 	private Category category;

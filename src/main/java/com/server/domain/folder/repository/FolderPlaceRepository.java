@@ -110,7 +110,7 @@ public interface FolderPlaceRepository extends JpaRepository<FolderPlace, Long> 
 		@Param("userId") Long userId
 	);
 
-	@Query("SELECT fp.place FROM FolderPlace fp " +
+	@Query("SELECT DISTINCT fp.place FROM FolderPlace fp " +
 		"JOIN fp.folder f " +
 		"WHERE f.user.id = :userId")
 	List<Place> findBookmarkedPlacesByUserId(@Param("userId") Long userId);

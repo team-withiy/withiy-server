@@ -19,7 +19,7 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
 	List<Place> findByLatitudeBetweenAndLongitudeBetween(
 		@Param("minLat") String minLat, @Param("maxLat") String maxLat,
 		@Param("minLng") String minLng, @Param("maxLng") String maxLng);
-	
+
 	List<Place> findByNameContainingIgnoreCase(String keyword);
 
 	@Query("SELECT p FROM Place p " +
@@ -51,7 +51,7 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
 			"       (6371 * acos(cos(radians(:lat)) * cos(radians(p.latitude)) " +
 			"       * cos(radians(p.longitude) - radians(:lng)) + sin(radians(:lat)) " +
 			"       * sin(radians(p.latitude)))) AS distance " +
-			"FROM place p " +
+			"FROM place p WHERE p.status = 'ACTIVE'" +
 			"HAVING distance < :radius " +
 			"ORDER BY distance ASC",
 		nativeQuery = true)

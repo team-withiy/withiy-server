@@ -17,7 +17,7 @@ import com.server.domain.place.dto.LocationDto;
 import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.place.dto.RegisterPhotoRequest;
-import com.server.domain.place.dto.reqeust.NearbyPlaceRequest;
+import com.server.domain.place.dto.request.NearbyPlaceRequest;
 import com.server.domain.place.dto.response.NearbyPlaceResponse;
 import com.server.domain.place.entity.Place;
 import com.server.domain.review.dto.ReviewDto;
@@ -223,8 +223,8 @@ public class PlaceFacade {
 		List<PlaceDto> placeDtos = places.stream()
 			.map(place -> PlaceDto.from(
 				place,
-				placeBookmarkMap.get(place.getId()),
-				placeScoreMap.get(place.getId()),
+				placeBookmarkMap.getOrDefault(place.getId(), false),
+				placeScoreMap.getOrDefault(place.getId(), 0.0),
 				placePhotoMap.get(place.getId())
 			))
 			.collect(Collectors.toList());

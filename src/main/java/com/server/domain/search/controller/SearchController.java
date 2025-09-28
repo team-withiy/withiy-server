@@ -12,8 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,7 +29,7 @@ public class SearchController {
 	@ResponseStatus(HttpStatus.OK)
 	@Operation(summary = "검색 결과 반환", description = "키워드, 필터, 정렬 기준에 따른 장소 및 코스 검색 결과를 반환합니다.")
 	public ApiResponseDto<SearchResultResponse> getSearchResults(@AuthenticationPrincipal User user,
-		@RequestParam SearchResultRequest request) {
+		@ModelAttribute SearchResultRequest request) {
 
 		SearchResultResponse searchResponseDto = searchFacadeService.search(user,
 			request);

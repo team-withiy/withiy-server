@@ -10,7 +10,7 @@ import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.dto.PlaceFocusDto;
 import com.server.domain.place.dto.RegisterPhotoRequest;
 import com.server.domain.place.dto.UpdatePlaceDto;
-import com.server.domain.place.dto.reqeust.NearbyPlaceRequest;
+import com.server.domain.place.dto.request.NearbyPlaceRequest;
 import com.server.domain.place.dto.response.NearbyPlaceResponse;
 import com.server.domain.place.service.PlaceFacade;
 import com.server.domain.place.service.PlaceService;
@@ -170,7 +170,7 @@ public class PlaceController {
 	@ResponseStatus(HttpStatus.OK)
 	@Operation(summary = "근처 장소 조회", description = "사용자의 현재 위치를 기반으로 근처 장소를 조회합니다.")
 	public ApiResponseDto<NearbyPlaceResponse> getNearbyPlaces(@AuthenticationPrincipal User user,
-		@RequestBody NearbyPlaceRequest request) {
+		@ModelAttribute NearbyPlaceRequest request) {
 		NearbyPlaceResponse response = placeFacade.getNearbyPlaces(user, request);
 		return ApiResponseDto.success(HttpStatus.OK.value(), response);
 	}
