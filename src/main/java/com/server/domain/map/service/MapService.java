@@ -2,7 +2,7 @@ package com.server.domain.map.service;
 
 import com.server.domain.map.dto.AddressDto;
 import com.server.domain.map.dto.CoordinateDto;
-import com.server.domain.map.dto.PlaceDto;
+import com.server.domain.map.dto.MapPlaceDto;
 import com.server.domain.map.dto.RegionDto;
 import com.server.domain.map.dto.request.AddressToCoordRequest;
 import com.server.domain.map.dto.request.CategorySearchRequest;
@@ -172,7 +172,7 @@ public class MapService {
 	 */
 	@Cacheable(value = "keywordSearch",
 		key = "#request.query + '-' + #request.categoryGroupCode + '-' + #request.x + '-' + #request.y + '-' + #request.radius")
-	public List<PlaceDto> searchByKeyword(KeywordSearchRequest request) {
+	public List<MapPlaceDto> searchByKeyword(KeywordSearchRequest request) {
 		try {
 			// URI 템플릿 방식으로 변경하여 자동 인코딩 방지
 			String uri = KEYWORD_SEARCH_PATH;
@@ -252,7 +252,7 @@ public class MapService {
 	 */
 	@Cacheable(value = "categorySearch",
 		key = "#request.categoryGroupCode + '-' + #request.x + '-' + #request.y + '-' + #request.radius")
-	public List<PlaceDto> searchByCategory(CategorySearchRequest request) {
+	public List<MapPlaceDto> searchByCategory(CategorySearchRequest request) {
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath(CATEGORY_SEARCH_PATH)
 			.queryParam("category_group_code", request.getCategoryGroupCode());
 

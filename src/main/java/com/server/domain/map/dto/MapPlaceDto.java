@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PlaceDto {
+public class MapPlaceDto {
 
 	private String id; // 장소 ID
 	private String placeName; // 장소명
