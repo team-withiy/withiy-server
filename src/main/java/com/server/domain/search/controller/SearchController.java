@@ -3,7 +3,7 @@ package com.server.domain.search.controller;
 import com.server.domain.search.dto.SearchResultResponse;
 import com.server.domain.search.dto.request.SearchResultRequest;
 import com.server.domain.search.dto.response.SearchInitResponse;
-import com.server.domain.search.service.SearchFacadeService;
+import com.server.domain.search.service.SearchFacade;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Search", description = "검색 관련 API")
 public class SearchController {
 
-	private final SearchFacadeService searchFacadeService;
+	private final SearchFacade searchFacade;
 
 	@GetMapping("/results")
 	@ResponseStatus(HttpStatus.OK)
@@ -31,7 +31,7 @@ public class SearchController {
 	public ApiResponseDto<SearchResultResponse> getSearchResults(@AuthenticationPrincipal User user,
 		@ModelAttribute SearchResultRequest request) {
 
-		SearchResultResponse searchResponseDto = searchFacadeService.search(user,
+		SearchResultResponse searchResponseDto = searchFacade.search(user,
 			request);
 		return ApiResponseDto.success(HttpStatus.OK.value(), searchResponseDto);
 	}
@@ -40,6 +40,6 @@ public class SearchController {
 	@ResponseStatus(HttpStatus.OK)
 	@Operation(summary = "검색 페이지 진입 시 초기 데이터 반환", description = "최근 검색어, 북마크된 장소/코스 목록을 반환합니다.")
 	public ApiResponseDto<SearchInitResponse> initSearch(@AuthenticationPrincipal User user) {
-		return ApiResponseDto.success(HttpStatus.OK.value(), searchFacadeService.initSearch(user));
+		return ApiResponseDto.success(HttpStatus.OK.value(), searchFacade.initSearch(user));
 	}
 }
