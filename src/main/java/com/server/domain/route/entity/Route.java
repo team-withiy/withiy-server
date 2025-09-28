@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @Table(name = "route")
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -68,14 +71,13 @@ public class Route extends BaseTime {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private DateSchedule dateSchedule;
 
+    @OneToMany(mappedBy = "route", fetch = FetchType.LAZY)
+    private List<DateSchedule> dateSchedules = new ArrayList<>();
+
     @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<RoutePlace> routePlaces = new ArrayList<>();
 
-	@Builder
-	public Route(String name, RouteStatus status, User createdBy, RouteType routeType) {
-		this.name = name;
-		this.status = status;
-		this.createdBy = createdBy;
-        this.routeType = routeType;
-	}
+    public void updateStatus(RouteStatus routeStatus) {
+        this.status = routeStatus;
+    }
 }

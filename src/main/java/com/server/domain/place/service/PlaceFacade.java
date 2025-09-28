@@ -4,6 +4,8 @@ import com.server.domain.album.service.AlbumService;
 import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.service.CategoryService;
+import com.server.domain.dateSchedule.entity.DateSchedule;
+import com.server.domain.dateSchedule.service.DateSchedService;
 import com.server.domain.folder.entity.Folder;
 import com.server.domain.folder.entity.FolderPlace;
 import com.server.domain.folder.service.FolderService;
@@ -11,6 +13,7 @@ import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.entity.PhotoType;
 import com.server.domain.photo.service.PhotoService;
+import com.server.domain.place.dto.CreatePlaceByUserDto;
 import com.server.domain.place.dto.CreatePlaceDto;
 import com.server.domain.place.dto.CreatePlaceResponse;
 import com.server.domain.place.dto.GetPlaceDetailResponse;
@@ -42,11 +45,11 @@ public class PlaceFacade {
 	private final static int PLACE_DEFAULT_PHOTO_LIMIT = 30;
 	private final static int PLACE_DEFAULT_REVIEW_LIMIT = 4;
 	private final PlaceService placeService;
-	private final AlbumService albumService;
 	private final CategoryService categoryService;
 	private final PhotoService photoService;
 	private final ReviewService reviewService;
 	private final FolderService folderService;
+    private final DateSchedService dateSchedService;
 
 
 	@Transactional
@@ -121,6 +124,13 @@ public class PlaceFacade {
 			.reviews(reviewSummaries)
 			.build();
 	}
+
+    public CreatePlaceResponse createPlaceOnSchedule(User user, CreatePlaceByUserDto request) {
+        DateSchedule dateSchedule = dateSchedService.findByUserAndId(user, request.getDateScheduleId());
+
+
+        return null;
+    }
 
 	@Transactional
 	public String updatePlaceFolders(Set<Long> targetFolderIds, Long placeId, User user) {

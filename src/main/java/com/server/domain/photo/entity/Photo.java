@@ -1,8 +1,10 @@
 package com.server.domain.photo.entity;
 
+import com.server.domain.album.entity.AlbumPhoto;
 import com.server.domain.place.entity.Place;
 import com.server.domain.user.entity.User;
 import com.server.global.common.BaseTime;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -14,7 +16,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -48,10 +53,17 @@ public class Photo extends BaseTime {
 	@Column(name = "type")
 	private PhotoType type;
 
+    @Column(name = "photo_order")
+    private int photoOrder;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private User user;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "photo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AlbumPhoto> albumPhotos = new ArrayList<>();
 
 	public static Photo of(String imgUrl, Place place, PhotoType type, User user) {
 		return Photo.builder()

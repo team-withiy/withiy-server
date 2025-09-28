@@ -1,5 +1,6 @@
 package com.server.domain.dateSchedule.entity;
 
+import com.server.domain.album.entity.Album;
 import com.server.domain.route.entity.Route;
 import com.server.domain.user.entity.User;
 import com.server.global.common.BaseTime;
@@ -16,6 +17,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
@@ -24,6 +26,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
 @Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "date_schedule")
@@ -41,13 +44,19 @@ public class DateSchedule extends BaseTime {
 	@Column(name = "schedule_at")
 	private LocalDate scheduleAt;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "route_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Route route;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private User user;
+
+    @OneToOne(mappedBy = "dateSchedule", fetch = FetchType.LAZY)
+    private Album album;
+
+    public void updateAlbum(Album album) {
+        this.album = album;
+    }
 }
