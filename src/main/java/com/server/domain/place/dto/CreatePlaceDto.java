@@ -26,9 +26,9 @@ public class CreatePlaceDto {
 	@Schema(description = "장소 지역 3단계", example = "서울숲동")
 	private String region3depth;
 	@Schema(description = "장소 위도", example = "37.5432")
-	private String latitude;
+	private Double latitude;
 	@Schema(description = "장소 경도", example = "127.0423")
-	private String longitude;
+	private Double longitude;
 	@Schema(description = "장소 카테고리 이름", example = "데이트 코스")
 	private String categoryName;
 	@Schema(description = "장소 이미지 URL 목록", example = "[\"https://example.com/image1.jpg\", \"https://example.com/image2.jpg\"]")

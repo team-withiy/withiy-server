@@ -28,6 +28,7 @@ public class PhotoService {
 
 	private final PhotoRepository photoRepository;
 	private final static int REVIEW_DEFAULT_PHOTO_LIMIT = 4;
+	private final static int PLACE_DEFAULT_PHOTO_LIMIT = 30;
 
 	public void saveAll(List<Photo> photos) {
 		photoRepository.saveAll(photos);
@@ -44,8 +45,8 @@ public class PhotoService {
 		saveAll(photos);
 	}
 
-	public List<PhotoDto> getPlaceTopPhotos(Place place, int limit) {
-		Pageable pageable = PageRequest.of(0, limit);
+	public List<PhotoDto> getPlaceTopPhotos(Place place) {
+		Pageable pageable = PageRequest.of(0, PLACE_DEFAULT_PHOTO_LIMIT);
 		List<Photo> photos = photoRepository.findTopPhotosByPlaceIdAndType(place.getId(),
 			PhotoType.PUBLIC,
 			pageable);
@@ -138,9 +139,20 @@ public class PhotoService {
 	}
 
 	public Map<Long, List<String>> getPlacePhotoUrlsMap(List<Long> placeIds) {
-		List<Photo> photos = photoRepository.findAllByPlaceIdsAndType(placeIds, PhotoType.PUBLIC);
-		return photos.stream()
-			.collect(Collectors.groupingBy(photo -> photo.getPlace().getId(),
-				Collectors.mapping(Photo::getImgUrl, Collectors.toList())));
+		List<Photo> photos = photoRepository.findByPlaceIdInAndType(placeIds,
+			PhotoType.PUBLIC);
+
+		Map<Long, List<String>> placeIdToUrls = photos.stream()
+			.collect(Collectors.groupingBy(
+				photo -> photo.getPlace().getId(),
+				Collectors.mapping(Photo::getImgUrl, Collectors.toList())
+			));
+
+		// 각 장소별로 최대 PLACE_DEFAULT_PHOTO_LIMIT 개의 사진 URL만 유지
+		placeIdToUrls.replaceAll((placeId, urls) ->
+			urls.stream().limit(PLACE_DEFAULT_PHOTO_LIMIT).toList()
+		);
+
+		return placeIdToUrls;
 	}
 }
