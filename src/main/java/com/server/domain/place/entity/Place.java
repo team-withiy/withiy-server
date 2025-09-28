@@ -1,12 +1,10 @@
 package com.server.domain.place.entity;
 
 import com.server.domain.category.entity.Category;
-import com.server.domain.photo.entity.Photo;
 import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.place.dto.UpdatePlaceDto;
 import com.server.domain.user.entity.User;
 import com.server.global.common.BaseTime;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -18,11 +16,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -62,10 +57,10 @@ public class Place extends BaseTime {
 	private String address;
 
 	@Column(name = "latitude")
-	private String latitude;
+	private Double latitude;
 
 	@Column(name = "longitude")
-	private String longitude;
+	private Double longitude;
 
 	@Column(name = "score")
 	private Long score;
@@ -74,7 +69,7 @@ public class Place extends BaseTime {
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "category_id")
 	@OnDelete(action = OnDeleteAction.SET_NULL)
 	private Category category;
@@ -86,16 +81,16 @@ public class Place extends BaseTime {
 	@Column(name = "deleted_at", nullable = true)
 	private LocalDateTime deletedAt;
 
-    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Photo> photos = new ArrayList<>();
+  @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Photo> photos = new ArrayList<>();
 
-    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlaceReview> placeReviews = new ArrayList<>();
+  @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<PlaceReview> placeReviews = new ArrayList<>();
 
 	public boolean isCreatedByAdmin() {
 		return user != null && user.isAdmin();
 	}
-	
+
 	public void update(UpdatePlaceDto dto, Category category) {
 		if (dto.getName() != null) {
 			this.name = dto.getName();

@@ -10,10 +10,12 @@ import com.server.domain.folder.entity.FolderPlace;
 import com.server.domain.folder.entity.FolderType;
 import com.server.domain.folder.repository.FolderPlaceRepository;
 import com.server.domain.folder.repository.FolderRepository;
+import com.server.domain.folder.repository.projection.PlaceBookmarkProjection;
 import com.server.domain.place.entity.Place;
 import com.server.domain.user.entity.User;
 import com.server.global.error.code.FolderErrorCode;
 import com.server.global.error.exception.BusinessException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -161,5 +163,26 @@ public class FolderService {
 
 	public void deletePlaceInFolders(Set<Long> folderIds, Long placeId, Long userId) {
 		folderPlaceRepository.deleteByFolderIdsAndPlaceIdAndOwner(folderIds, placeId, userId);
+	}
+
+	public Map<Long, Boolean> getBookmarkMapForPlaces(List<Long> placeIds, Long userId) {
+		if (placeIds == null || placeIds.isEmpty()) {
+			return Collections.emptyMap();
+		}
+		return folderPlaceRepository.findPlaceBookmarks(placeIds, userId).stream()
+			.collect(Collectors.toMap(
+				PlaceBookmarkProjection::getPlaceId,
+				PlaceBookmarkProjection::getBookmarked
+			));
+	}
+
+	/**
+	 * 사용자가 북마크한 장소 목록을 반환합니다.
+	 *
+	 * @param user 현재 사용자
+	 * @return 북마크된 장소 목록
+	 */
+	public List<Place> getBookmarkedPlaces(User user) {
+		return folderPlaceRepository.findBookmarkedPlacesByUserId(user.getId());
 	}
 }

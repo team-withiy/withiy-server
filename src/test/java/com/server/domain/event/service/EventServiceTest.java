@@ -35,6 +35,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -53,25 +54,27 @@ public class EventServiceTest {
 
 		sampleEvents = new ArrayList<>();
 
-		Event event1 = new Event();
-		event1.setId(1L);
-		event1.setRanking(1);
-		event1.setGenre("콘서트");
-		event1.setTitle("Sample Concert");
-		event1.setPlace("Seoul Arena");
-		event1.setStartDate(LocalDate.of(2025, 5, 1));
-		event1.setEndDate(LocalDate.of(2025, 6, 1));
-		event1.setThumbnail("http://example.com/image.jpg");
+		Event event1 = Event.builder()
+			.ranking(1)
+			.genre("콘서트")
+			.title("Sample Concert")
+			.place("Seoul Arena")
+			.startDate(LocalDate.of(2025, 5, 1))
+			.endDate(LocalDate.of(2025, 6, 1))
+			.thumbnail("http://example.com/image.jpg")
+			.build();
+		ReflectionTestUtils.setField(event1, "id", 1L);
 
-		Event event2 = new Event();
-		event2.setId(2L);
-		event2.setRanking(2);
-		event2.setGenre("뮤지컬");
-		event2.setTitle("Sample Musical");
-		event2.setPlace("LG Arts Center");
-		event2.setStartDate(LocalDate.of(2025, 5, 15));
-		event2.setEndDate(LocalDate.of(2025, 7, 15));
-		event2.setThumbnail("http://example.com/musical.jpg");
+		Event event2 = Event.builder()
+			.ranking(2)
+			.genre("뮤지컬")
+			.title("Sample Musical")
+			.place("LG Arts Center")
+			.startDate(LocalDate.of(2025, 5, 15))
+			.endDate(LocalDate.of(2025, 7, 15))
+			.thumbnail("http://example.com/musical.jpg")
+			.build();
+		ReflectionTestUtils.setField(event2, "id", 2L);
 
 		sampleEvents.add(event1);
 		sampleEvents.add(event2);
@@ -226,7 +229,7 @@ public class EventServiceTest {
 
 		when(eventRepository.save(any(Event.class))).thenAnswer(invocation -> {
 			Event savedEvent = invocation.getArgument(0);
-			savedEvent.setId(1L); // DB에서 ID 할당 시뮬레이션
+			ReflectionTestUtils.setField(savedEvent, "id", 1L); // DB에서 ID 할당 시뮬레이션
 			return savedEvent;
 		});
 
@@ -249,15 +252,16 @@ public class EventServiceTest {
 		List<Event> concertEvents = new ArrayList<>();
 
 		// 이벤트 샘플 추가 (콘서트 장르)
-		Event event1 = new Event();
-		event1.setId(1L);
-		event1.setRanking(1);
-		event1.setGenre("콘서트");
-		event1.setTitle("Sample Concert");
-		event1.setPlace("Seoul Arena");
-		event1.setStartDate(LocalDate.of(2025, 5, 1));
-		event1.setEndDate(LocalDate.of(2025, 6, 1));
-		event1.setThumbnail("http://example.com/image.jpg");
+		Event event1 = Event.builder()
+			.id(1L)
+			.ranking(1)
+			.genre("콘서트")
+			.title("Sample Concert")
+			.place("Seoul Arena")
+			.startDate(LocalDate.of(2025, 5, 1))
+			.endDate(LocalDate.of(2025, 6, 1))
+			.thumbnail("http://example.com/image.jpg")
+			.build();
 
 		concertEvents.add(event1);
 
@@ -342,19 +346,19 @@ public class EventServiceTest {
 
 				while (iter.hasNext()) {
 					JsonNode node = iter.next();
-					Event event = new Event();
 
-					event.setRanking(node.get("ranking").asInt());
-					event.setGenre(node.get("genre").asText());
-					event.setTitle(node.get("title").asText());
-					event.setPlace(node.get("place").asText());
-					event.setThumbnail(node.get("image").asText());
-
-					// 날짜 파싱
 					String dateStr = node.get("date").asText();
 					LocalDate[] dates = parseDateRange(dateStr);
-					event.setStartDate(dates[0]);
-					event.setEndDate(dates[1]);
+
+					Event event = Event.builder()
+						.ranking(node.get("ranking").asInt())
+						.genre(node.get("genre").asText())
+						.title(node.get("title").asText())
+						.place(node.get("place").asText())
+						.thumbnail(node.get("image").asText())
+						.startDate(dates[0])
+						.endDate(dates[1])
+						.build();
 
 					eventRepository.save(event);
 					eventDtos.add(EventDto.from(event));
