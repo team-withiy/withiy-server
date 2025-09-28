@@ -1,19 +1,24 @@
 package com.server.domain.search.service;
 
+import com.server.domain.folder.service.FolderService;
 import com.server.domain.place.dto.PlaceDto;
+import com.server.domain.place.entity.Place;
 import com.server.domain.place.service.PlaceService;
+import com.server.domain.review.service.ReviewService;
 import com.server.domain.route.dto.CourseDto;
 import com.server.domain.route.service.RouteService;
-import com.server.domain.search.dto.BookmarkedCourseDto;
 import com.server.domain.search.dto.BookmarkedPlaceDto;
 import com.server.domain.search.dto.SearchHistoryDto;
-import com.server.domain.search.dto.SearchRequestDto;
-import com.server.domain.search.dto.SearchResponseDto;
+import com.server.domain.search.dto.SearchResultResponse;
 import com.server.domain.search.dto.SearchSource;
+import com.server.domain.search.dto.request.SearchResultRequest;
+import com.server.domain.search.dto.response.SearchInitResponse;
 import com.server.domain.user.entity.User;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,42 +26,46 @@ public class SearchFacadeService {
 
 	private final SearchService searchService;
 	private final PlaceService placeService;
-    private final RouteService routeService;
+	private final FolderService folderService;
+	private final ReviewService reviewService;
+	private final RouteService routeService;
 
-	public SearchResponseDto search(User user, SearchRequestDto searchRequestDto) {
+	/**
+	 * @param user
+	 * @param searchRequestDto
+	 * @return
+	 */
+	public SearchResultResponse search(User user, SearchResultRequest searchRequestDto) {
 
-		String keyword = searchRequestDto.getKeyword();
-
-		if (keyword == null || keyword.isBlank()) { // 검색어가 비어있을 경우 최근 검색어, 저장된 장소, 저장된 코스 반환
-			return searchIfKeywordIsBlank(user);
-		} else { // 검색어가 비어있지 않을 경우,
-			return searchIfKeywordIsNotBlank(user, searchRequestDto);
-		}
-	}
-
-	private SearchResponseDto searchIfKeywordIsNotBlank(User user,
-		SearchRequestDto searchRequestDto) {
 		String keyword = searchRequestDto.getKeyword();
 		SearchSource source = searchRequestDto.getSource();
 
-		List<PlaceDto> searchPlaces = placeService.searchPlacesByKeyword(source, keyword, user);
-		List<CourseDto> searchCourses = routeService.searchCoursesByKeyword(keyword, user);
-		return SearchResponseDto.builder()
+		List<PlaceDto> searchPlaces = placeService.searchPlacesByKeyword(source, keyword);
+		List<CourseDto> searchCourses = routeService.searchCoursesByKeyword(keyword);
+		return SearchResultResponse.builder()
 			.searchPlaces(searchPlaces)
 			.searchCourses(searchCourses)
 			.build();
 	}
 
-	private SearchResponseDto searchIfKeywordIsBlank(User user) {
-		// 최근 검색어 조회
+	@Transactional(readOnly = true)
+	public SearchInitResponse initSearch(User user) {
+		// 1. 최근 검색어 조회
 		List<SearchHistoryDto> recentKeywords = searchService.getRecentSearchHistory(user);
-		List<BookmarkedPlaceDto> bookmarkedPlaces = placeService.getBookmarkedPlaces(user);
-		List<BookmarkedCourseDto> bookmarkedCourses = routeService.getBookmarkedCourses(user);
 
-		return SearchResponseDto.builder()
+		// 2. 북마크된 장소 조회
+		List<Place> places = folderService.getBookmarkedPlaces(user);
+		List<Long> placeIds = places.stream().map(Place::getId).toList();
+		Map<Long, Double> placeScoreMap = reviewService.getScoreMapForPlaces(placeIds);
+		List<BookmarkedPlaceDto> bookmarkedPlaces = places.stream()
+			.map(place -> BookmarkedPlaceDto.of(place, placeScoreMap.get(place.getId())))
+			.toList();
+
+		// TODO 3. 북마크된 코스 조회 (추후 구현 예정)
+		return SearchInitResponse.builder()
 			.recentKeywords(recentKeywords)
 			.bookmarkedPlaces(bookmarkedPlaces)
-			.bookmarkedCourses(bookmarkedCourses)
+			.bookmarkedCourses(null)
 			.build();
 	}
 }

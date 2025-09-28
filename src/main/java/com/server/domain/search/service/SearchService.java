@@ -7,6 +7,8 @@ import com.server.domain.user.entity.User;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class SearchService {
 
 	private final SearchHistoryRepository searchRepository;
+	private static final int MAX_HISTORY_SIZE = 10;
 
 	/**
 	 * 최근 검색어 조회
@@ -24,8 +27,10 @@ public class SearchService {
 	 */
 	@Transactional
 	public List<SearchHistoryDto> getRecentSearchHistory(User user) {
-		List<SearchHistory> searchHistories = searchRepository.findTop10ByUserOrderByCreatedAtDesc(
-			user);
+		// 사용자에 대한 최근 검색어 10개 조회
+		Pageable pageable = PageRequest.of(0, MAX_HISTORY_SIZE);
+		List<SearchHistory> searchHistories = searchRepository.findByUserIdOrderByCreatedAtDesc(
+			user.getId(), pageable);
 
 		return searchHistories.stream()
 			.map(SearchHistoryDto::from)

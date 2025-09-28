@@ -36,13 +36,13 @@ public class RouteService {
 	private final RoutePlaceRepository routePlaceRepository;
 	private final ImageService imageService;
 
-    public void saveRoute(Route route) {
-        routeRepository.save(route);
-    }
+	public void saveRoute(Route route) {
+		routeRepository.save(route);
+	}
 
-    public void saveRoutePlace(RoutePlace routePlace) {
-        routePlaceRepository.save(routePlace);
-    }
+	public void saveRoutePlace(RoutePlace routePlace) {
+		routePlaceRepository.save(routePlace);
+	}
 
 /*        @Transactional
         public CourseDetailDto getCourseDetail(Long courseId) {
@@ -94,7 +94,7 @@ public class RouteService {
 
 		// 코스 이미지 엔티티 생성 및 저장
 		RouteImage routeImage = new RouteImage();
-        // TODO
+		// TODO
 //		routeImage.setImageUrl(imageResponseDto.getImageUrl());
 //		routeImage.setRoute(route);
 
@@ -119,13 +119,12 @@ public class RouteService {
 	 * 코스 검색
 	 *
 	 * @param keyword 검색 키워드
-	 * @param user    사용자 정보
 	 * @return 검색된 코스 목록
 	 */
 	@Transactional
-	public List<CourseDto> searchCoursesByKeyword(String keyword, User user) {
-		List<Route> cours = routeRepository.findByNameContainingIgnoreCase(keyword);
-		return cours.stream()
+	public List<CourseDto> searchCoursesByKeyword(String keyword) {
+		List<Route> courses = routeRepository.findByNameContainingIgnoreCase(keyword);
+		return courses.stream()
 			.map(CourseDto::from)
 			.collect(Collectors.toList());
 	}
