@@ -35,9 +35,9 @@ public class DateSchedPlaceDto {
 
     @NotEmpty(message = "latitude : 위도는 필수 입니다.")
     @Schema(description = "장소 위도", example = "37.5432")
-    private String latitude;
+    private Double latitude;
 
     @NotEmpty(message = "longitude : 경도는 필수 입니다.")
     @Schema(description = "장소 경도", example = "127.0423")
-    private String longitude;
+    private Double longitude;
 }

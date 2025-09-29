@@ -1,10 +1,12 @@
 package com.server.domain.place.entity;
 
 import com.server.domain.category.entity.Category;
+import com.server.domain.photo.entity.Photo;
 import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.place.dto.UpdatePlaceDto;
 import com.server.domain.user.entity.User;
 import com.server.global.common.BaseTime;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -16,8 +18,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -81,11 +86,11 @@ public class Place extends BaseTime {
 	@Column(name = "deleted_at", nullable = true)
 	private LocalDateTime deletedAt;
 
-  @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<Photo> photos = new ArrayList<>();
+    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Photo> photos = new ArrayList<>();
 
-  @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<PlaceReview> placeReviews = new ArrayList<>();
+    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlaceReview> placeReviews = new ArrayList<>();
 
 	public boolean isCreatedByAdmin() {
 		return user != null && user.isAdmin();
