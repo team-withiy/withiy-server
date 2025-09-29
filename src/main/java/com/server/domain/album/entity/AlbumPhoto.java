@@ -41,4 +41,8 @@ public class AlbumPhoto extends BaseTime {
 	@JoinColumn(name = "photo_id")
 	private Photo photo;
 
+    public AlbumPhoto(Album album, Photo photo) {
+        this.album = album;
+        this.photo = photo;
+    }
 }

@@ -30,6 +30,10 @@ public class PhotoService {
 	private final static int REVIEW_DEFAULT_PHOTO_LIMIT = 4;
 	private final static int PLACE_DEFAULT_PHOTO_LIMIT = 30;
 
+    public void save(Photo photo) {
+        photoRepository.save(photo);
+    }
+
 	public void saveAll(List<Photo> photos) {
 		photoRepository.saveAll(photos);
 	}

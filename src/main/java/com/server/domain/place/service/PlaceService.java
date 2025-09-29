@@ -40,9 +40,6 @@ public class PlaceService {
 	private final PlaceRepository placeRepository;
 	private final PlaceBookmarkRepository placeBookmarkRepository;
 	private final FolderPlaceRepository folderPlaceRepository;
-	private final ReviewService reviewService;
-	private final AlbumService albumService;
-	private final PhotoService photoService;
 	private final CategoryService categoryService;
 
 	public Place save(Place place) {
@@ -50,8 +47,16 @@ public class PlaceService {
 	}
 
 	public Place getPlaceById(Long placeId) {
-		return placeRepository.findById(placeId)
-			.orElseThrow(() -> new BusinessException(PlaceErrorCode.NOT_FOUND));
+		Place place = placeRepository.findById(placeId)
+                .orElseThrow(() -> {
+                    System.out.println("@@@@");
+                    log.warn("Place not found. id={}", placeId);  // ← 여긴 반드시 찍힘
+                    return new BusinessException(PlaceErrorCode.NOT_FOUND);
+                });
+
+        System.out.println("!!!");
+        log.info("place : {} ", place);
+        return place;
 	}
 
 	@Transactional

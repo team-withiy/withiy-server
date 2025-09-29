@@ -18,7 +18,6 @@ public class CategoryService {
 
 	private final CategoryRepository categoryRepository;
 
-
 	@Transactional
 	public CategoryDto createCategory(CreateCategoryDto createCategoryDto) {
 		Category category = new Category(createCategoryDto.getName(), createCategoryDto.getIcon());
@@ -39,9 +38,13 @@ public class CategoryService {
 		return categoryDtos;
 	}
 
-
 	public Category getCategoryByName(String name) {
 		return categoryRepository.findByName(name)
 			.orElseThrow(() -> new BusinessException(CategoryErrorCode.NOT_FOUND));
 	}
+
+    public Category findById(Long categoryId) {
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new BusinessException(CategoryErrorCode.NOT_FOUND));
+    }
 }
