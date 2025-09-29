@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/date-scheduler")
+@RequestMapping("/api/date-schedule")
 public class DateScheduleController {
     private final DateSchedFacade dateSchedFacade;
 
