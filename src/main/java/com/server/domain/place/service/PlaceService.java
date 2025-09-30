@@ -1,16 +1,13 @@
 package com.server.domain.place.service;
 
-import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.service.CategoryService;
 import com.server.domain.folder.repository.FolderPlaceRepository;
 import com.server.domain.place.dto.PlaceDetailDto;
 import com.server.domain.place.dto.PlaceDto;
-import com.server.domain.place.dto.PlaceFocusDto;
 import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.place.dto.UpdatePlaceDto;
 import com.server.domain.place.entity.Place;
-import com.server.domain.place.repository.PlaceBookmarkRepository;
 import com.server.domain.place.repository.PlaceRepository;
 import com.server.global.error.code.PlaceErrorCode;
 import com.server.global.error.exception.BusinessException;
@@ -34,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class PlaceService {
 
 	private final PlaceRepository placeRepository;
-	private final PlaceBookmarkRepository placeBookmarkRepository;
 	private final FolderPlaceRepository folderPlaceRepository;
 	private final CategoryService categoryService;
 
@@ -44,31 +40,15 @@ public class PlaceService {
 
 	public Place getPlaceById(Long placeId) {
 		Place place = placeRepository.findById(placeId)
-                .orElseThrow(() -> {
-                    System.out.println("@@@@");
-                    log.warn("Place not found. id={}", placeId);  // ← 여긴 반드시 찍힘
-                    return new BusinessException(PlaceErrorCode.NOT_FOUND);
-                });
+			.orElseThrow(() -> {
+				System.out.println("@@@@");
+				log.warn("Place not found. id={}", placeId);  // ← 여긴 반드시 찍힘
+				return new BusinessException(PlaceErrorCode.NOT_FOUND);
+			});
 
-        System.out.println("!!!");
-        log.info("place : {} ", place);
-        return place;
-	}
-
-	@Transactional
-	public List<PlaceFocusDto> getMapFocusPlaces(String swLat, String swLng, String neLat,
-		String neLng) {
-
-		List<Place> places = placeRepository.findByLatitudeBetweenAndLongitudeBetween(swLat, neLat,
-			swLng, neLng);
-
-		return places.stream().map(place ->
-			PlaceFocusDto.builder()
-				.id(place.getId())
-				.name(place.getName())
-				.category(CategoryDto.from(place.getCategory()))
-				.build()
-		).collect(Collectors.toList());
+		System.out.println("!!!");
+		log.info("place : {} ", place);
+		return place;
 	}
 
 	@Transactional
@@ -108,7 +88,7 @@ public class PlaceService {
 	public List<PlaceDto> searchByKeyword(String keyword) {
 
 		List<Place> places = placeRepository.findByNameContainingIgnoreCase(keyword);
-		
+
 		return places.stream()
 			.map(PlaceDto::from)
 			.collect(Collectors.toList());
@@ -120,10 +100,6 @@ public class PlaceService {
 		}
 		return placeRepository.findPlacesByStatusAndCategoryAndKeyword(PlaceStatus.ACTIVE, category,
 			keyword);
-	}
-
-	public long getBookmarkCount(Place place) {
-		return placeBookmarkRepository.countByPlaceAndNotDeleted(place);
 	}
 
 	public CursorPageDto<Place, Long> getPlacesByFolder(Long folderId,
@@ -211,8 +187,8 @@ public class PlaceService {
 		);
 	}
 
-	public List<Place> getNearbyPlaces(double latitude, double longitude, double radius) {
-		return placeRepository.findNearbyPlaces(
+	public List<Place> getFocusPlaces(double latitude, double longitude, double radius) {
+		return placeRepository.findFocusPlaces(
 			latitude,
 			longitude,
 			radius // km 단위

@@ -1,17 +1,14 @@
 package com.server.domain.place.controller;
 
 import com.server.domain.photo.dto.PhotoDto;
-import com.server.domain.place.dto.CreatePlaceDto;
-import com.server.domain.place.dto.CreatePlaceResponse;
 import com.server.domain.place.dto.FolderIdsRequest;
 import com.server.domain.place.dto.GetPlaceDetailResponse;
 import com.server.domain.place.dto.PlaceDetailDto;
 import com.server.domain.place.dto.PlaceDto;
-import com.server.domain.place.dto.PlaceFocusDto;
 import com.server.domain.place.dto.RegisterPhotoRequest;
 import com.server.domain.place.dto.UpdatePlaceDto;
-import com.server.domain.place.dto.request.NearbyPlaceRequest;
-import com.server.domain.place.dto.response.NearbyPlaceResponse;
+import com.server.domain.place.dto.request.PlaceFocusRequest;
+import com.server.domain.place.dto.response.PlaceFocusResponse;
 import com.server.domain.place.service.PlaceFacade;
 import com.server.domain.place.service.PlaceService;
 import com.server.domain.review.dto.ReviewDto;
@@ -21,7 +18,6 @@ import com.server.global.pagination.dto.ApiCursorPaginationRequest;
 import com.server.global.pagination.dto.ApiCursorPaginationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -36,7 +32,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -48,28 +43,6 @@ public class PlaceController {
 
 	private final PlaceService placeService;
 	private final PlaceFacade placeFacade;
-
-	// TODO: 현재는 USER와 ADMIN 권한을 모두 허용 중이며, 운영 환경에서는 ADMIN 권한만 허용하도록 변경 예정
-	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-	@ResponseStatus(HttpStatus.OK)
-	@PostMapping("/admin")
-	@Operation(summary = "장소 생성 api", description = "관리자가 장소 등록할 수 있는 api, 하위카테고리 선택")
-	public ApiResponseDto<CreatePlaceResponse> createPlace(@AuthenticationPrincipal User user,
-		@RequestBody CreatePlaceDto createPlaceDto) {
-		CreatePlaceResponse response = placeFacade.registerPlace(user, createPlaceDto);
-		return ApiResponseDto.success(HttpStatus.OK.value(), response);
-	}
-
-	@ResponseStatus(HttpStatus.OK)
-	@GetMapping("/focus")
-	@Operation(summary = "지도 위 포커스 화면 장소 조회", description = "sw(남서쪽), ne(북동쪽) longitude, latitude 정보를 받아 그 사이에 있는 장소 정보 조회")
-	public ApiResponseDto<List<PlaceFocusDto>> getMapFocusPlaces(@RequestParam String swLat,
-		@RequestParam String swLng, @RequestParam String neLat, @RequestParam String neLng) {
-		List<PlaceFocusDto> placeFocusDtos = placeService.getMapFocusPlaces(swLat, swLng, neLat,
-			neLng);
-		return ApiResponseDto.success(HttpStatus.OK.value(), placeFocusDtos);
-	}
-
 
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/{placeId}")
@@ -166,12 +139,12 @@ public class PlaceController {
 			placeFacade.getPlaceReviews(placeId, pageRequest));
 	}
 
-	@GetMapping("/nearby")
+	@GetMapping("/focus")
 	@ResponseStatus(HttpStatus.OK)
-	@Operation(summary = "근처 장소 조회", description = "사용자의 현재 위치를 기반으로 근처 장소를 조회합니다.")
-	public ApiResponseDto<NearbyPlaceResponse> getNearbyPlaces(@AuthenticationPrincipal User user,
-		@ModelAttribute NearbyPlaceRequest request) {
-		NearbyPlaceResponse response = placeFacade.getNearbyPlaces(user, request);
+	@Operation(summary = "지도 위 포커스 화면 장소 조회", description = "사용자의 현재 위치를 기반으로 근처 장소를 조회합니다.")
+	public ApiResponseDto<PlaceFocusResponse> getFocusPlaces(@AuthenticationPrincipal User user,
+		@ModelAttribute PlaceFocusRequest request) {
+		PlaceFocusResponse response = placeFacade.getFocusPlaces(user, request);
 		return ApiResponseDto.success(HttpStatus.OK.value(), response);
 	}
 }

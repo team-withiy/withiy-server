@@ -9,14 +9,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LocationDto {
 
-	private String latitude;
-	private String longitude;
+	private Double latitude;
+	private Double longitude;
 	private String region1depth;
 	private String region2depth;
 	private String region3depth;
 
 	@Builder
-	public LocationDto(String latitude, String longitude, String region1depth, String region2depth,
+	public LocationDto(Double latitude, Double longitude, String region1depth, String region2depth,
 		String region3depth) {
 		this.latitude = latitude;
 		this.longitude = longitude;
@@ -27,8 +27,8 @@ public class LocationDto {
 
 	public static LocationDto from(Place place) {
 		return LocationDto.builder()
-			.latitude(Double.toString(place.getLatitude()))
-			.longitude(Double.toString(place.getLongitude()))
+			.latitude(place.getLatitude())
+			.longitude(place.getLongitude())
 			.region1depth(place.getRegion1depth())
 			.region2depth(place.getRegion2depth())
 			.region3depth(place.getRegion3depth())
