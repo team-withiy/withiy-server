@@ -8,7 +8,6 @@ import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.place.dto.UpdatePlaceDto;
 import com.server.domain.place.entity.Place;
-import com.server.domain.place.repository.PlaceBookmarkRepository;
 import com.server.domain.place.repository.PlaceRepository;
 import com.server.global.error.code.PlaceErrorCode;
 import com.server.global.error.exception.BusinessException;
@@ -32,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class PlaceService {
 
 	private final PlaceRepository placeRepository;
-	private final PlaceBookmarkRepository placeBookmarkRepository;
 	private final FolderPlaceRepository folderPlaceRepository;
 	private final CategoryService categoryService;
 
@@ -102,10 +100,6 @@ public class PlaceService {
 		}
 		return placeRepository.findPlacesByStatusAndCategoryAndKeyword(PlaceStatus.ACTIVE, category,
 			keyword);
-	}
-
-	public long getBookmarkCount(Place place) {
-		return placeBookmarkRepository.countByPlaceAndNotDeleted(place);
 	}
 
 	public CursorPageDto<Place, Long> getPlacesByFolder(Long folderId,

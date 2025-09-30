@@ -5,9 +5,7 @@ import com.server.domain.album.entity.Album;
 import com.server.domain.dateSchedule.entity.DateSchedule;
 import com.server.domain.folder.entity.Folder;
 import com.server.domain.oauth.entity.OAuth;
-import com.server.domain.place.entity.PlaceBookmark;
 import com.server.domain.review.entity.Review;
-import com.server.domain.route.entity.RouteBookmark;
 import com.server.domain.term.entity.Term;
 import com.server.domain.term.entity.TermAgreement;
 import jakarta.persistence.CascadeType;
@@ -93,13 +91,6 @@ public class User {
 	@OneToOne(mappedBy = "user2", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JsonIgnore
 	private Couple coupleAsUser2;
-
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<PlaceBookmark> placeBookmarks = new ArrayList<>();
-
-
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<RouteBookmark> courseBookmarks = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Review> reviews = new ArrayList<>();

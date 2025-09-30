@@ -29,7 +29,7 @@ public class AdminFacade {
 	private final CategoryService categoryService;
 	private final AlbumService albumService;
 	private final PhotoService photoService;
-    private final RouteService routeService;
+	private final RouteService routeService;
 	private final static int PLACE_DEFAULT_PHOTO_LIMIT = 30;
 
 	@Transactional(readOnly = true)
@@ -55,24 +55,24 @@ public class AdminFacade {
 	}
 
 	private List<ActiveCourseDto> getActiveCourses(String keyword) {
-        return routeService.getActiveCoursesByKeyword(keyword)
+		return routeService.getActiveCoursesByKeyword(keyword)
 			.stream()
 			.map(this::convertToActiveCourseDto)
 			.toList();
 	}
 
-    private ActiveCourseDto convertToActiveCourseDto(Route route) {
-        List<Place> places = routeService.getPlacesInCourse(route);
+	private ActiveCourseDto convertToActiveCourseDto(Route route) {
+		List<Place> places = routeService.getPlacesInCourse(route);
 		List<String> placeNames = places.stream().map(Place::getName).collect(Collectors.toList());
 		List<Long> placeIds = places.stream().map(Place::getId).collect(Collectors.toList());
 		List<String> photoUrls = photoService.getLimitedPhotoUrlsByPlaceIds(placeIds,
 			PLACE_DEFAULT_PHOTO_LIMIT);
 
 		return ActiveCourseDto.builder()
-            .courseId(route.getId())
-            .courseName(route.getName())
+			.courseId(route.getId())
+			.courseName(route.getName())
 			.placeNames(placeNames)
-            .bookmarkCount(routeService.getBookmarkCount(route))
+			.bookmarkCount(routeService.getBookmarkCount(route))
 			.photoUrls(photoUrls)
 			.build();
 	}
@@ -81,7 +81,6 @@ public class AdminFacade {
 		// 각 Place에 대해 북마크 수, 좋아요 수, 이미지 URL 목록을 조회하여 ActivePlaceDto 생성
 		List<ActivePlaceDto> activePlaces = new ArrayList<>();
 		for (Place place : places) {
-			long bookmarkCount = placeService.getBookmarkCount(place);
 			long score = place.getScore();
 
 			// 사진 URL 목록 조회
@@ -93,7 +92,7 @@ public class AdminFacade {
 				.placeName(place.getName())
 				.placeAddress(place.getAddress())
 				.createdByAdmin(place.isCreatedByAdmin())
-				.bookmarkCount(bookmarkCount)
+				.bookmarkCount(0L)
 				.score(score)
 				.photoUrls(photoUrls)
 				.placeCategory(CategoryDto.from(category))
