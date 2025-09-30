@@ -7,11 +7,16 @@ import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.service.CategoryService;
 import com.server.domain.folder.service.FolderService;
+import com.server.domain.photo.entity.PhotoType;
 import com.server.domain.photo.service.PhotoService;
+import com.server.domain.place.dto.CreatePlaceDto;
+import com.server.domain.place.dto.CreatePlaceResponse;
+import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.place.entity.Place;
 import com.server.domain.place.service.PlaceService;
 import com.server.domain.route.entity.Route;
 import com.server.domain.route.service.RouteService;
+import com.server.domain.user.entity.User;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -101,5 +106,28 @@ public class AdminFacade {
 				.build());
 		}
 		return activePlaces;
+	}
+
+	@Transactional
+	public CreatePlaceResponse registerPlace(User user, CreatePlaceDto createPlaceDto) {
+		Category category = categoryService.getCategoryByName(createPlaceDto.getCategoryName());
+		Place place = Place.builder()
+			.name(createPlaceDto.getName())
+			.region1depth(createPlaceDto.getRegion1depth())
+			.region2depth(createPlaceDto.getRegion2depth())
+			.region3depth(createPlaceDto.getRegion3depth())
+			.address(createPlaceDto.getAddress())
+			.latitude(createPlaceDto.getLatitude())
+			.longitude(createPlaceDto.getLongitude())
+			.score(0L)
+			.user(user)
+			.category(category)
+			.status(PlaceStatus.ACTIVE)
+			.build();
+
+		Place savedPlace = placeService.save(place);
+		photoService.uploadPhotos(user, place, createPlaceDto.getImageUrls(), PhotoType.PUBLIC);
+
+		return CreatePlaceResponse.from(savedPlace);
 	}
 }

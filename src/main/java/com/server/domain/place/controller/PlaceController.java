@@ -1,8 +1,6 @@
 package com.server.domain.place.controller;
 
 import com.server.domain.photo.dto.PhotoDto;
-import com.server.domain.place.dto.CreatePlaceDto;
-import com.server.domain.place.dto.CreatePlaceResponse;
 import com.server.domain.place.dto.FolderIdsRequest;
 import com.server.domain.place.dto.GetPlaceDetailResponse;
 import com.server.domain.place.dto.PlaceDetailDto;
@@ -45,17 +43,6 @@ public class PlaceController {
 
 	private final PlaceService placeService;
 	private final PlaceFacade placeFacade;
-
-	// TODO: 현재는 USER와 ADMIN 권한을 모두 허용 중이며, 운영 환경에서는 ADMIN 권한만 허용하도록 변경 예정
-	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-	@ResponseStatus(HttpStatus.OK)
-	@PostMapping("/admin")
-	@Operation(summary = "장소 생성 api", description = "관리자가 장소 등록할 수 있는 api, 하위카테고리 선택")
-	public ApiResponseDto<CreatePlaceResponse> createPlace(@AuthenticationPrincipal User user,
-		@RequestBody CreatePlaceDto createPlaceDto) {
-		CreatePlaceResponse response = placeFacade.registerPlace(user, createPlaceDto);
-		return ApiResponseDto.success(HttpStatus.OK.value(), response);
-	}
 
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/{placeId}")

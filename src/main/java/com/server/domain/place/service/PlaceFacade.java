@@ -1,7 +1,6 @@
 package com.server.domain.place.service;
 
 import com.server.domain.category.dto.CategoryDto;
-import com.server.domain.category.entity.Category;
 import com.server.domain.category.service.CategoryService;
 import com.server.domain.dateSchedule.entity.DateSchedule;
 import com.server.domain.dateSchedule.service.DateSchedService;
@@ -13,12 +12,10 @@ import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.entity.PhotoType;
 import com.server.domain.photo.service.PhotoService;
 import com.server.domain.place.dto.CreatePlaceByUserDto;
-import com.server.domain.place.dto.CreatePlaceDto;
 import com.server.domain.place.dto.CreatePlaceResponse;
 import com.server.domain.place.dto.GetPlaceDetailResponse;
 import com.server.domain.place.dto.LocationDto;
 import com.server.domain.place.dto.PlaceDto;
-import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.place.dto.RegisterPhotoRequest;
 import com.server.domain.place.dto.request.PlaceFocusRequest;
 import com.server.domain.place.dto.response.PlaceFocusResponse;
@@ -51,30 +48,6 @@ public class PlaceFacade {
 	private final ReviewService reviewService;
 	private final FolderService folderService;
 	private final DateSchedService dateSchedService;
-
-
-	@Transactional
-	public CreatePlaceResponse registerPlace(User user, CreatePlaceDto createPlaceDto) {
-		Category category = categoryService.getCategoryByName(createPlaceDto.getCategoryName());
-		Place place = Place.builder()
-			.name(createPlaceDto.getName())
-			.region1depth(createPlaceDto.getRegion1depth())
-			.region2depth(createPlaceDto.getRegion2depth())
-			.region3depth(createPlaceDto.getRegion3depth())
-			.address(createPlaceDto.getAddress())
-			.latitude(createPlaceDto.getLatitude())
-			.longitude(createPlaceDto.getLongitude())
-			.score(0L)
-			.user(user)
-			.category(category)
-			.status(PlaceStatus.ACTIVE)
-			.build();
-
-		Place savedPlace = placeService.save(place);
-		photoService.uploadPhotos(user, place, createPlaceDto.getImageUrls(), PhotoType.PUBLIC);
-
-		return CreatePlaceResponse.from(savedPlace);
-	}
 
 	@Transactional(readOnly = true)
 	public GetPlaceDetailResponse getPlaceDetail(Long placeId) {
