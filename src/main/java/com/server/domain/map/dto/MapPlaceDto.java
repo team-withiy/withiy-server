@@ -53,8 +53,11 @@ public class MapPlaceDto {
 		String region3 = parts.length > 2 ? parts[2] : null;
 
 		return LocationDto.builder()
-			.latitude(this.coordinates != null ? this.coordinates.getLatitude() : null)
-			.longitude(this.coordinates != null ? this.coordinates.getLongitude() : null)
+			.latitude(this.coordinates != null ? Double.parseDouble(this.coordinates.getLatitude())
+				: null)
+			.longitude(
+				this.coordinates != null ? Double.parseDouble(this.coordinates.getLongitude())
+					: null)
 			.region1depth(region1)
 			.region2depth(region2)
 			.region3depth(region3)

@@ -55,8 +55,8 @@ public class PlaceFacade {
 		Place place = placeService.getPlaceById(placeId);
 
 		LocationDto location = LocationDto.builder()
-			.latitude(Double.toString(place.getLatitude()))
-			.longitude(Double.toString(place.getLongitude()))
+			.latitude((place.getLatitude()))
+			.longitude(place.getLongitude())
 			.region1depth(place.getRegion1depth())
 			.region2depth(place.getRegion2depth())
 			.region3depth(place.getRegion3depth())
