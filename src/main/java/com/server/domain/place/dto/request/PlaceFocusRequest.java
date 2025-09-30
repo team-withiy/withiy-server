@@ -5,8 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -18,5 +20,4 @@ public class PlaceFocusRequest {
 	private double longitude;
 	@Schema(description = "반경(km)", example = "1000", required = true)
 	private double radius;
-
 }
