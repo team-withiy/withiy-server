@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NearbyPlaceRequest {
+public class PlaceFocusRequest {
 
 	@Schema(description = "위도", example = "37.5665", required = true)
 	private double latitude;

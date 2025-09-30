@@ -60,7 +60,7 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
 			"WHERE sub.distance < :radius " +
 			"ORDER BY sub.distance ASC",
 		nativeQuery = true)
-	List<Place> findNearbyPlaces(
+	List<Place> findFocusPlaces(
 		@Param("lat") double latitude,
 		@Param("lng") double longitude,
 		@Param("radius") double radiusKm

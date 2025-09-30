@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class NearbyPlaceResponse {
+public class PlaceFocusResponse {
 
 	List<PlaceDto> places;
 

@@ -20,8 +20,8 @@ import com.server.domain.place.dto.LocationDto;
 import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.place.dto.RegisterPhotoRequest;
-import com.server.domain.place.dto.request.NearbyPlaceRequest;
-import com.server.domain.place.dto.response.NearbyPlaceResponse;
+import com.server.domain.place.dto.request.PlaceFocusRequest;
+import com.server.domain.place.dto.response.PlaceFocusResponse;
 import com.server.domain.place.entity.Place;
 import com.server.domain.review.dto.ReviewDto;
 import com.server.domain.review.entity.Review;
@@ -50,7 +50,7 @@ public class PlaceFacade {
 	private final PhotoService photoService;
 	private final ReviewService reviewService;
 	private final FolderService folderService;
-    private final DateSchedService dateSchedService;
+	private final DateSchedService dateSchedService;
 
 
 	@Transactional
@@ -121,12 +121,12 @@ public class PlaceFacade {
 			.build();
 	}
 
-    public CreatePlaceResponse createPlaceOnSchedule(User user, CreatePlaceByUserDto request) {
-        DateSchedule dateSchedule = dateSchedService.findByUserAndId(user, request.getDateScheduleId());
+	public CreatePlaceResponse createPlaceOnSchedule(User user, CreatePlaceByUserDto request) {
+		DateSchedule dateSchedule = dateSchedService.findByUserAndId(user,
+			request.getDateScheduleId());
 
-
-        return null;
-    }
+		return null;
+	}
 
 	@Transactional
 	public String updatePlaceFolders(Set<Long> targetFolderIds, Long placeId, User user) {
@@ -212,8 +212,8 @@ public class PlaceFacade {
 
 
 	@Transactional(readOnly = true)
-	public NearbyPlaceResponse getNearbyPlaces(User user, NearbyPlaceRequest request) {
-		List<Place> places = placeService.getNearbyPlaces(
+	public PlaceFocusResponse getFocusPlaces(User user, PlaceFocusRequest request) {
+		List<Place> places = placeService.getFocusPlaces(
 			request.getLatitude(),
 			request.getLongitude(),
 			request.getRadius() // km 단위
@@ -240,7 +240,7 @@ public class PlaceFacade {
 			))
 			.collect(Collectors.toList());
 
-		return NearbyPlaceResponse.builder()
+		return PlaceFocusResponse.builder()
 			.places(placeDtos)
 			.build();
 	}

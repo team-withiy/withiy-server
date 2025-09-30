@@ -1,12 +1,10 @@
 package com.server.domain.place.service;
 
-import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.service.CategoryService;
 import com.server.domain.folder.repository.FolderPlaceRepository;
 import com.server.domain.place.dto.PlaceDetailDto;
 import com.server.domain.place.dto.PlaceDto;
-import com.server.domain.place.dto.PlaceFocusDto;
 import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.place.dto.UpdatePlaceDto;
 import com.server.domain.place.entity.Place;
@@ -53,22 +51,6 @@ public class PlaceService {
 		System.out.println("!!!");
 		log.info("place : {} ", place);
 		return place;
-	}
-
-	@Transactional
-	public List<PlaceFocusDto> getMapFocusPlaces(String swLat, String swLng, String neLat,
-		String neLng) {
-
-		List<Place> places = placeRepository.findByLatitudeBetweenAndLongitudeBetween(swLat, neLat,
-			swLng, neLng);
-
-		return places.stream().map(place ->
-			PlaceFocusDto.builder()
-				.id(place.getId())
-				.name(place.getName())
-				.category(CategoryDto.from(place.getCategory()))
-				.build()
-		).collect(Collectors.toList());
 	}
 
 	@Transactional
@@ -211,8 +193,8 @@ public class PlaceService {
 		);
 	}
 
-	public List<Place> getNearbyPlaces(double latitude, double longitude, double radius) {
-		return placeRepository.findNearbyPlaces(
+	public List<Place> getFocusPlaces(double latitude, double longitude, double radius) {
+		return placeRepository.findFocusPlaces(
 			latitude,
 			longitude,
 			radius // km 단위
