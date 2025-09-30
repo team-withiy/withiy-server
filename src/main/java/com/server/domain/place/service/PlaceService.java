@@ -44,15 +44,15 @@ public class PlaceService {
 
 	public Place getPlaceById(Long placeId) {
 		Place place = placeRepository.findById(placeId)
-                .orElseThrow(() -> {
-                    System.out.println("@@@@");
-                    log.warn("Place not found. id={}", placeId);  // ← 여긴 반드시 찍힘
-                    return new BusinessException(PlaceErrorCode.NOT_FOUND);
-                });
+			.orElseThrow(() -> {
+				System.out.println("@@@@");
+				log.warn("Place not found. id={}", placeId);  // ← 여긴 반드시 찍힘
+				return new BusinessException(PlaceErrorCode.NOT_FOUND);
+			});
 
-        System.out.println("!!!");
-        log.info("place : {} ", place);
-        return place;
+		System.out.println("!!!");
+		log.info("place : {} ", place);
+		return place;
 	}
 
 	@Transactional
@@ -108,7 +108,7 @@ public class PlaceService {
 	public List<PlaceDto> searchByKeyword(String keyword) {
 
 		List<Place> places = placeRepository.findByNameContainingIgnoreCase(keyword);
-		
+
 		return places.stream()
 			.map(PlaceDto::from)
 			.collect(Collectors.toList());

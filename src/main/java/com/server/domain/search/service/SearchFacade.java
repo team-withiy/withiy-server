@@ -19,6 +19,7 @@ import com.server.domain.search.dto.response.SearchInitResponse;
 import com.server.domain.user.entity.User;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,7 +57,7 @@ public class SearchFacade {
 			// MapPlaceDto -> PlaceDto 변환
 			searchPlaces = searchMapPlaces.stream()
 				.map(MapPlaceDto::toPlaceDto)
-				.toList();
+				.collect(Collectors.toList());
 
 		}
 		List<CourseDto> searchCourses = routeService.searchCoursesByKeyword(keyword);
@@ -71,7 +72,6 @@ public class SearchFacade {
 
 		// 0. 비회원인 경우 빈 리스트 반환
 		if (user == null) {
-			// 비회원인 경우 빈 리스트 반환
 			return SearchInitResponse.builder()
 				.recentKeywords(List.of())
 				.bookmarkedPlaces(List.of())
