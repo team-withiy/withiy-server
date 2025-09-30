@@ -3,10 +3,10 @@ package com.server.domain.admin.service;
 import com.server.domain.admin.dto.ActiveContentsResponse;
 import com.server.domain.admin.dto.ActiveCourseDto;
 import com.server.domain.admin.dto.ActivePlaceDto;
-import com.server.domain.album.service.AlbumService;
 import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.service.CategoryService;
+import com.server.domain.folder.service.FolderService;
 import com.server.domain.photo.service.PhotoService;
 import com.server.domain.place.entity.Place;
 import com.server.domain.place.service.PlaceService;
@@ -27,9 +27,9 @@ public class AdminFacade {
 
 	private final PlaceService placeService;
 	private final CategoryService categoryService;
-	private final AlbumService albumService;
 	private final PhotoService photoService;
 	private final RouteService routeService;
+	private final FolderService folderService;
 	private final static int PLACE_DEFAULT_PHOTO_LIMIT = 30;
 
 	@Transactional(readOnly = true)
@@ -87,12 +87,14 @@ public class AdminFacade {
 			List<String> photoUrls = photoService.getLimitedPhotoUrlsByPlaceId(place.getId(),
 				PLACE_DEFAULT_PHOTO_LIMIT);
 
+			long bookmarkCount = folderService.countBookmarkedByPlaceId(place.getId());
+
 			activePlaces.add(ActivePlaceDto.builder()
 				.placeId(place.getId())
 				.placeName(place.getName())
 				.placeAddress(place.getAddress())
 				.createdByAdmin(place.isCreatedByAdmin())
-				.bookmarkCount(0L)
+				.bookmarkCount(bookmarkCount)
 				.score(score)
 				.photoUrls(photoUrls)
 				.placeCategory(CategoryDto.from(category))

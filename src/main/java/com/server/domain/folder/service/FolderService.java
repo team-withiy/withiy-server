@@ -185,4 +185,14 @@ public class FolderService {
 	public List<Place> getBookmarkedPlaces(User user) {
 		return folderPlaceRepository.findBookmarkedPlacesByUserId(user.getId());
 	}
+
+	/**
+	 * 특정 장소가 몇 명의 사용자에 의해 북마크되었는지 반환합니다.
+	 *
+	 * @param placeId 장소 ID
+	 * @return 북마크한 사용자 수
+	 */
+	public long countBookmarkedByPlaceId(Long placeId) {
+		return folderPlaceRepository.countDistinctUsersByPlaceId(placeId);
+	}
 }
