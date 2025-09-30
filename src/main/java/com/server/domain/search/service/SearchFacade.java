@@ -13,7 +13,7 @@ import com.server.domain.route.service.RouteService;
 import com.server.domain.search.dto.BookmarkedPlaceDto;
 import com.server.domain.search.dto.SearchHistoryDto;
 import com.server.domain.search.dto.SearchResultResponse;
-import com.server.domain.search.dto.SearchSource;
+import com.server.domain.search.dto.SearchSourceType;
 import com.server.domain.search.dto.request.SearchResultRequest;
 import com.server.domain.search.dto.response.SearchInitResponse;
 import com.server.domain.user.entity.User;
@@ -45,11 +45,11 @@ public class SearchFacade {
 	public SearchResultResponse search(User user, SearchResultRequest searchRequestDto) {
 
 		String keyword = searchRequestDto.getKeyword();
-		SearchSource source = searchRequestDto.getSource();
+		SearchSourceType source = searchRequestDto.getSource();
 
 		List<PlaceDto> searchPlaces = placeService.searchByKeyword(keyword);
 
-		if (searchPlaces.isEmpty() && source == SearchSource.DATE_SCHEDULE) {
+		if (searchPlaces.isEmpty() && source == SearchSourceType.DATE_SCHEDULE) {
 			List<MapPlaceDto> searchMapPlaces = mapService.searchByKeyword(
 				KeywordSearchRequest.builder()
 					.query(keyword).build());
