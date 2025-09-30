@@ -2,7 +2,7 @@ package com.server.domain.map.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.server.domain.map.dto.CoordinateDto;
-import com.server.domain.map.dto.PlaceDto;
+import com.server.domain.map.dto.MapPlaceDto;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,8 +20,8 @@ public class CategorySearchResponse {
 	private Meta meta;
 	private List<Document> documents;
 
-	public static PlaceDto toPlaceDto(Document document) {
-		return PlaceDto.builder().id(document.getId()).placeName(document.getPlaceName())
+	public static MapPlaceDto toPlaceDto(Document document) {
+		return MapPlaceDto.builder().id(document.getId()).placeName(document.getPlaceName())
 			.categoryName(document.getCategoryName())
 			.categoryGroupCode(document.getCategoryGroupCode())
 			.categoryGroupName(document.getCategoryGroupName()).phone(document.getPhone())

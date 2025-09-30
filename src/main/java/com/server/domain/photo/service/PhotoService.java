@@ -143,6 +143,7 @@ public class PhotoService {
 	}
 
 	public Map<Long, List<String>> getPlacePhotoUrlsMap(List<Long> placeIds) {
+		// TODO: 사진 조회 시 DB 레벨에서 limit 적용 필요 (성능 최적화)
 		List<Photo> photos = photoRepository.findByPlaceIdInAndType(placeIds,
 			PhotoType.PUBLIC);
 

@@ -1,7 +1,7 @@
 package com.server.domain.map.controller;
 
 import com.server.domain.map.dto.AddressDto;
-import com.server.domain.map.dto.PlaceDto;
+import com.server.domain.map.dto.MapPlaceDto;
 import com.server.domain.map.dto.RegionDto;
 import com.server.domain.map.dto.request.AddressToCoordRequest;
 import com.server.domain.map.dto.request.CategorySearchRequest;
@@ -106,7 +106,7 @@ public class MapController {
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/search/keyword")
 	@Operation(summary = "키워드로 장소 검색", description = "키워드를 기반으로 장소 검색")
-	public ApiResponseDto<List<PlaceDto>> searchByKeyword(@RequestParam String query,
+	public ApiResponseDto<List<MapPlaceDto>> searchByKeyword(@RequestParam String query,
 		@RequestParam(required = false) String categoryGroupCode,
 		@RequestParam(required = false) String x, @RequestParam(required = false) String y,
 		@RequestParam(required = false) Integer radius,
@@ -132,14 +132,15 @@ public class MapController {
 			.categoryGroupCode(categoryGroupCode).x(x).y(y).radius(radius).rect(rect).page(page)
 			.size(size).sort(sort).build();
 
-		List<PlaceDto> result = mapService.searchByKeyword(request);
+		List<MapPlaceDto> result = mapService.searchByKeyword(request);
 		return ApiResponseDto.success(HttpStatus.OK.value(), result);
 	}
 
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/search/category")
 	@Operation(summary = "카테고리로 장소 검색", description = "카테고리 코드를 기반으로 장소 검색")
-	public ApiResponseDto<List<PlaceDto>> searchByCategory(@RequestParam String categoryGroupCode,
+	public ApiResponseDto<List<MapPlaceDto>> searchByCategory(
+		@RequestParam String categoryGroupCode,
 		@RequestParam(required = false) String x, @RequestParam(required = false) String y,
 		@RequestParam(required = false) Integer radius,
 		@RequestParam(required = false) String rect,
@@ -157,7 +158,7 @@ public class MapController {
 			CategorySearchRequest.builder().categoryGroupCode(categoryGroupCode).x(x).y(y)
 				.radius(radius).rect(rect).page(page).size(size).sort(sort).build();
 
-		List<PlaceDto> result = mapService.searchByCategory(request);
+		List<MapPlaceDto> result = mapService.searchByCategory(request);
 		return ApiResponseDto.success(HttpStatus.OK.value(), result);
 	}
 

@@ -1,4 +1,4 @@
-package com.server.domain.place.dto.reqeust;
+package com.server.domain.place.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

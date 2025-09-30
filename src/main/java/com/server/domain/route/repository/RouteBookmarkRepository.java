@@ -14,7 +14,7 @@ public interface RouteBookmarkRepository extends JpaRepository<RouteBookmark, Lo
 	boolean existsByRouteIdAndUserId(@Param("route") Long route,
 		@Param("userId") Long userId);
 
-	@Query("SELECT cb FROM RouteBookmark cb JOIN cb.route WHERE cb.user = :user")
+	@Query("SELECT cb FROM RouteBookmark cb JOIN FETCH cb.route WHERE cb.user = :user")
 	List<RouteBookmark> findByUserWithCourse(User user);
 
 	@Query("SELECT COUNT(cb) FROM RouteBookmark cb " +
