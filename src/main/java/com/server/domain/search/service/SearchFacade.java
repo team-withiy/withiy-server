@@ -13,12 +13,13 @@ import com.server.domain.route.service.RouteService;
 import com.server.domain.search.dto.BookmarkedPlaceDto;
 import com.server.domain.search.dto.SearchHistoryDto;
 import com.server.domain.search.dto.SearchResultResponse;
-import com.server.domain.search.dto.SearchSource;
+import com.server.domain.search.dto.SearchSourceType;
 import com.server.domain.search.dto.request.SearchResultRequest;
 import com.server.domain.search.dto.response.SearchInitResponse;
 import com.server.domain.user.entity.User;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,11 +45,11 @@ public class SearchFacade {
 	public SearchResultResponse search(User user, SearchResultRequest searchRequestDto) {
 
 		String keyword = searchRequestDto.getKeyword();
-		SearchSource source = searchRequestDto.getSource();
+		SearchSourceType source = searchRequestDto.getSource();
 
 		List<PlaceDto> searchPlaces = placeService.searchByKeyword(keyword);
 
-		if (searchPlaces.isEmpty() && source == SearchSource.DATE_SCHEDULE) {
+		if (searchPlaces.isEmpty() && source == SearchSourceType.DATE_SCHEDULE) {
 			List<MapPlaceDto> searchMapPlaces = mapService.searchByKeyword(
 				KeywordSearchRequest.builder()
 					.query(keyword).build());
@@ -56,7 +57,7 @@ public class SearchFacade {
 			// MapPlaceDto -> PlaceDto 변환
 			searchPlaces = searchMapPlaces.stream()
 				.map(MapPlaceDto::toPlaceDto)
-				.toList();
+				.collect(Collectors.toList());
 
 		}
 		List<CourseDto> searchCourses = routeService.searchCoursesByKeyword(keyword);
@@ -71,7 +72,6 @@ public class SearchFacade {
 
 		// 0. 비회원인 경우 빈 리스트 반환
 		if (user == null) {
-			// 비회원인 경우 빈 리스트 반환
 			return SearchInitResponse.builder()
 				.recentKeywords(List.of())
 				.bookmarkedPlaces(List.of())

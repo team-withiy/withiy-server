@@ -1,7 +1,6 @@
 package com.server.domain.place.service;
 
 import com.server.domain.category.dto.CategoryDto;
-import com.server.domain.category.entity.Category;
 import com.server.domain.category.service.CategoryService;
 import com.server.domain.dateSchedule.entity.DateSchedule;
 import com.server.domain.dateSchedule.service.DateSchedService;
@@ -13,15 +12,13 @@ import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.entity.PhotoType;
 import com.server.domain.photo.service.PhotoService;
 import com.server.domain.place.dto.CreatePlaceByUserDto;
-import com.server.domain.place.dto.CreatePlaceDto;
 import com.server.domain.place.dto.CreatePlaceResponse;
 import com.server.domain.place.dto.GetPlaceDetailResponse;
 import com.server.domain.place.dto.LocationDto;
 import com.server.domain.place.dto.PlaceDto;
-import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.place.dto.RegisterPhotoRequest;
-import com.server.domain.place.dto.request.NearbyPlaceRequest;
-import com.server.domain.place.dto.response.NearbyPlaceResponse;
+import com.server.domain.place.dto.request.PlaceFocusRequest;
+import com.server.domain.place.dto.response.PlaceFocusResponse;
 import com.server.domain.place.entity.Place;
 import com.server.domain.review.dto.ReviewDto;
 import com.server.domain.review.entity.Review;
@@ -50,31 +47,7 @@ public class PlaceFacade {
 	private final PhotoService photoService;
 	private final ReviewService reviewService;
 	private final FolderService folderService;
-    private final DateSchedService dateSchedService;
-
-
-	@Transactional
-	public CreatePlaceResponse registerPlace(User user, CreatePlaceDto createPlaceDto) {
-		Category category = categoryService.getCategoryByName(createPlaceDto.getCategoryName());
-		Place place = Place.builder()
-			.name(createPlaceDto.getName())
-			.region1depth(createPlaceDto.getRegion1depth())
-			.region2depth(createPlaceDto.getRegion2depth())
-			.region3depth(createPlaceDto.getRegion3depth())
-			.address(createPlaceDto.getAddress())
-			.latitude(createPlaceDto.getLatitude())
-			.longitude(createPlaceDto.getLongitude())
-			.score(0L)
-			.user(user)
-			.category(category)
-			.status(PlaceStatus.ACTIVE)
-			.build();
-
-		Place savedPlace = placeService.save(place);
-		photoService.uploadPhotos(user, place, createPlaceDto.getImageUrls(), PhotoType.PUBLIC);
-
-		return CreatePlaceResponse.from(savedPlace);
-	}
+	private final DateSchedService dateSchedService;
 
 	@Transactional(readOnly = true)
 	public GetPlaceDetailResponse getPlaceDetail(Long placeId) {
@@ -82,8 +55,8 @@ public class PlaceFacade {
 		Place place = placeService.getPlaceById(placeId);
 
 		LocationDto location = LocationDto.builder()
-			.latitude(Double.toString(place.getLatitude()))
-			.longitude(Double.toString(place.getLongitude()))
+			.latitude((place.getLatitude()))
+			.longitude(place.getLongitude())
 			.region1depth(place.getRegion1depth())
 			.region2depth(place.getRegion2depth())
 			.region3depth(place.getRegion3depth())
@@ -121,12 +94,12 @@ public class PlaceFacade {
 			.build();
 	}
 
-    public CreatePlaceResponse createPlaceOnSchedule(User user, CreatePlaceByUserDto request) {
-        DateSchedule dateSchedule = dateSchedService.findByUserAndId(user, request.getDateScheduleId());
+	public CreatePlaceResponse createPlaceOnSchedule(User user, CreatePlaceByUserDto request) {
+		DateSchedule dateSchedule = dateSchedService.findByUserAndId(user,
+			request.getDateScheduleId());
 
-
-        return null;
-    }
+		return null;
+	}
 
 	@Transactional
 	public String updatePlaceFolders(Set<Long> targetFolderIds, Long placeId, User user) {
@@ -212,8 +185,8 @@ public class PlaceFacade {
 
 
 	@Transactional(readOnly = true)
-	public NearbyPlaceResponse getNearbyPlaces(User user, NearbyPlaceRequest request) {
-		List<Place> places = placeService.getNearbyPlaces(
+	public PlaceFocusResponse getFocusPlaces(User user, PlaceFocusRequest request) {
+		List<Place> places = placeService.getFocusPlaces(
 			request.getLatitude(),
 			request.getLongitude(),
 			request.getRadius() // km 단위
@@ -240,7 +213,7 @@ public class PlaceFacade {
 			))
 			.collect(Collectors.toList());
 
-		return NearbyPlaceResponse.builder()
+		return PlaceFocusResponse.builder()
 			.places(placeDtos)
 			.build();
 	}
