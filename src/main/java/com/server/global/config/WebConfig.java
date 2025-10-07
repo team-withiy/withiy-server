@@ -18,7 +18,7 @@ public class WebConfig implements WebMvcConfigurer {
 				"https://withiy.zerohertz.xyz",
 				"https://withiy-prod.zerohertz.xyz"
 			)
-			.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+			.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
 			.allowedHeaders("*")
 			.allowCredentials(true);
 	}
