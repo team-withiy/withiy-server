@@ -67,10 +67,3 @@ aws:
     bucket: ${AWS_S3_BUCKET}
     url: ${AWS_S3_URL}
     cloudfront-url: ${CLOUDFRONT_URL}
-logging:
-  level:
-    org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
-    org.springframework.security: info
-    org.springframework.web: info
-    com.server: debug
