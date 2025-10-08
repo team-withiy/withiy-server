@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 			.body(ApiResponseDto.error(
 				HttpStatus.INTERNAL_SERVER_ERROR.value(),
-				e.getMessage()));
+				"서버 내부 오류가 발생했습니다."));
 	}
 
 	@ExceptionHandler(AuthException.class)
