@@ -53,12 +53,10 @@ public class SecurityConfig {
 			.oauth2Login(oauth -> oauth.userInfoEndpoint(
 					c -> c.userService(oAuth2UserService))
 				.successHandler(oAuth2SuccessHandler))
-			// 예외 처리 필터를 가장 먼저 추가
-			.addFilterBefore(filterChainExceptionHandler,
-				UsernamePasswordAuthenticationFilter.class)
-			// JWT 인증 필터는 그 다음에 추가
-			.addFilterBefore(jwtAuthenticationFilter,
-				UsernamePasswordAuthenticationFilter.class);
+			// JWT 필터를 먼저 등록
+			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+			// 예외 처리 필터를 JWT 필터보다 앞에 등록
+			.addFilterBefore(filterChainExceptionHandler, JwtAuthenticationFilter.class);
 		return http.build();
 	}
 }
