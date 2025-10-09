@@ -39,7 +39,7 @@ public class Report extends BaseTime {
 	@JoinColumn(name = "reporter_id", nullable = false)
 	private User reporter;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "report_type_id", nullable = false)
 	private ReportType reportType;
 

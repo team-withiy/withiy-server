@@ -32,7 +32,7 @@ public class ReportController {
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping
 	@Operation(summary = "신고 사유 조회 API", description = "사용자가 신고 사유 목록을 조회하는 API")
-	public ApiResponseDto<GetReportTypesResponse> getReportReasons(
+	public ApiResponseDto<GetReportTypesResponse> getReportTypes(
 		@RequestParam String target) {
 		List<ReportTypeDto> types = reportFacade.getReportTypes(target);
 		return ApiResponseDto.success(HttpStatus.OK.value(),

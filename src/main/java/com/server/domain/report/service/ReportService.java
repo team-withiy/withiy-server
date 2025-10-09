@@ -51,14 +51,8 @@ public class ReportService {
 
 	@Transactional(readOnly = true)
 	public List<ReportTypeDto> getReportTypes(ReportTarget target) {
-		if (target.equals(ReportTarget.PHOTO) || target.equals(
-			ReportTarget.PLACE)) {
-			return reportTypeRepository.findByTarget(target).stream()
-				.map(ReportTypeDto::from)
-				.toList();
-
-		} else {
-			throw new BusinessException(ReportErrorCode.REPORT_TARGET_NOT_FOUND);
-		}
+		return reportTypeRepository.findByTarget(target).stream()
+			.map(ReportTypeDto::from)
+			.toList();
 	}
 }
