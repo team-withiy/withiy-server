@@ -1,10 +1,9 @@
 package com.server.domain.report.controller;
 
-import com.server.domain.report.dto.ReportReasonType;
+import com.server.domain.report.dto.ReportTypeDto;
 import com.server.domain.report.dto.request.CreateReportRequest;
-import com.server.domain.report.dto.response.GetReportReasonsResponse;
+import com.server.domain.report.dto.response.GetReportTypesResponse;
 import com.server.domain.report.service.ReportFacade;
-import com.server.domain.report.service.ReportService;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,15 +28,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReportController {
 
 	private final ReportFacade reportFacade;
-	private final ReportService reportService;
 
 	@ResponseStatus(HttpStatus.OK)
-	@GetMapping("/reasons")
+	@GetMapping
 	@Operation(summary = "신고 사유 조회 API", description = "사용자가 신고 사유 목록을 조회하는 API")
-	public ApiResponseDto<GetReportReasonsResponse> getReportReasons() {
-		List<ReportReasonType> reasons = List.of(ReportReasonType.values());
+	public ApiResponseDto<GetReportTypesResponse> getReportReasons(
+		@RequestParam String target) {
+		List<ReportTypeDto> types = reportFacade.getReportTypes(target);
 		return ApiResponseDto.success(HttpStatus.OK.value(),
-			GetReportReasonsResponse.of(reasons));
+			GetReportTypesResponse.of(types));
 	}
 
 	@PreAuthorize("hasRole('USER')")
@@ -45,7 +45,7 @@ public class ReportController {
 	@Operation(summary = "신고 생성 API", description = "사용자가 사진, 장소 등을 신고하는 API")
 	public ApiResponseDto<String> createReport(@AuthenticationPrincipal User user,
 		@RequestBody CreateReportRequest request) {
-		reportFacade.createReport(user, request);
+		reportFacade.reportTarget(user, request);
 		return ApiResponseDto.success(HttpStatus.CREATED.value(), "신고가 성공적으로 접수되었습니다.");
 	}
 
