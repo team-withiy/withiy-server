@@ -1,9 +1,9 @@
 package com.server.domain.report.service;
 
 import com.server.domain.report.dto.ReportReason;
+import com.server.domain.report.dto.ReportReasonDto;
 import com.server.domain.report.dto.ReportStatus;
 import com.server.domain.report.dto.ReportTarget;
-import com.server.domain.report.dto.ReportTypeDto;
 import com.server.domain.report.entity.Report;
 import com.server.domain.report.entity.ReportType;
 import com.server.domain.report.repository.ReportRepository;
@@ -50,9 +50,9 @@ public class ReportService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ReportTypeDto> getReportTypes(ReportTarget target) {
+	public List<ReportReasonDto> getReportReasons(ReportTarget target) {
 		return reportTypeRepository.findByTarget(target).stream()
-			.map(ReportTypeDto::from)
+			.map(ReportReasonDto::from)
 			.toList();
 	}
 }

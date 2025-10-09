@@ -2,8 +2,8 @@ package com.server.domain.report.service;
 
 import com.server.domain.photo.service.PhotoService;
 import com.server.domain.place.service.PlaceService;
+import com.server.domain.report.dto.ReportReasonDto;
 import com.server.domain.report.dto.ReportTarget;
-import com.server.domain.report.dto.ReportTypeDto;
 import com.server.domain.report.dto.request.CreateReportRequest;
 import com.server.domain.user.entity.User;
 import java.util.List;
@@ -31,7 +31,7 @@ public class ReportFacade {
 	public void reportTarget(User reporter, CreateReportRequest request) {
 
 		ReportTarget target = ReportTarget.fromString(request.getTarget());
-		
+
 		switch (target) {
 			case PLACE -> placeService.getPlaceById(request.getTargetId());
 			case PHOTO -> photoService.getPhotoById(request.getTargetId());
@@ -42,8 +42,8 @@ public class ReportFacade {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ReportTypeDto> getReportTypes(String target) {
+	public List<ReportReasonDto> getReportReasons(String target) {
 		ReportTarget reportTarget = ReportTarget.fromString(target);
-		return reportService.getReportTypes(reportTarget);
+		return reportService.getReportReasons(reportTarget);
 	}
 }
