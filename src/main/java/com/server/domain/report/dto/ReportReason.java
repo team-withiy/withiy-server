@@ -3,7 +3,7 @@ package com.server.domain.report.dto;
 import lombok.Getter;
 
 @Getter
-public enum ReportReasonType {
+public enum ReportReason {
 	// 📷 사진 관련
 	PHOTO_INAPPROPRIATE("부적절한 사진"),         // 장소와 무관하거나 선정적/불쾌한 사진
 	PHOTO_COPYRIGHT("저작권 위반 사진"),          // 본인 소유가 아닌 사진
@@ -19,7 +19,7 @@ public enum ReportReasonType {
 
 	private final String description;
 
-	ReportReasonType(String description) {
+	ReportReason(String description) {
 		this.description = description;
 	}
 }
