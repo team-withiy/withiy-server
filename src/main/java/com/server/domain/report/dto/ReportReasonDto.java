@@ -12,13 +12,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Schema(description = "신고 유형 DTO")
-public class ReportTypeDto {
+public class ReportReasonDto {
 
 	private ReportReason reason;
 	private String description;
 
-	public static ReportTypeDto from(ReportType type) {
-		return ReportTypeDto.builder()
+	public static ReportReasonDto from(ReportType type) {
+		return ReportReasonDto.builder()
 			.reason(type.getReason())
 			.description(type.getDescription())
 			.build();

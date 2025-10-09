@@ -1,8 +1,8 @@
 package com.server.domain.report.controller;
 
-import com.server.domain.report.dto.ReportTypeDto;
+import com.server.domain.report.dto.ReportReasonDto;
 import com.server.domain.report.dto.request.CreateReportRequest;
-import com.server.domain.report.dto.response.GetReportTypesResponse;
+import com.server.domain.report.dto.response.GetReportReasonsResponse;
 import com.server.domain.report.service.ReportFacade;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
@@ -30,13 +30,13 @@ public class ReportController {
 	private final ReportFacade reportFacade;
 
 	@ResponseStatus(HttpStatus.OK)
-	@GetMapping
+	@GetMapping("/reasons")
 	@Operation(summary = "신고 사유 조회 API", description = "사용자가 신고 사유 목록을 조회하는 API")
-	public ApiResponseDto<GetReportTypesResponse> getReportTypes(
+	public ApiResponseDto<GetReportReasonsResponse> getReportReasons(
 		@RequestParam String target) {
-		List<ReportTypeDto> types = reportFacade.getReportTypes(target);
+		List<ReportReasonDto> types = reportFacade.getReportReasons(target);
 		return ApiResponseDto.success(HttpStatus.OK.value(),
-			GetReportTypesResponse.of(types));
+			GetReportReasonsResponse.of(types));
 	}
 
 	@PreAuthorize("hasRole('USER')")
