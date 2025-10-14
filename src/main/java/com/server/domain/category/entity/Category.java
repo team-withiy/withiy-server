@@ -38,6 +38,9 @@ public class Category {
 	@Column(name = "icon")
 	private String icon;
 
+	@Column(name = "description")
+	private String description;
+	
 	// 상위 카테고리
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "parent_id")
@@ -55,7 +58,7 @@ public class Category {
 	// 하위 카테고리 추가 메서드
 	public void addChildCategory(Category child) {
 		children.add(child);
-        // TODO 아래와 같이 하면 순환참조 일어날 것 같음..?
+		// TODO 아래와 같이 하면 순환참조 일어날 것 같음..?
 //		child.setParent(this);
 	}
 
