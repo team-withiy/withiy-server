@@ -2,6 +2,7 @@ package com.server.domain.review.service;
 
 import com.server.domain.place.entity.Place;
 import com.server.domain.review.entity.Review;
+import com.server.domain.review.entity.ReviewSortType;
 import com.server.domain.review.repository.ReviewRepository;
 import com.server.domain.review.repository.projection.PlaceScoreProjection;
 import com.server.domain.user.entity.User;
@@ -54,7 +55,7 @@ public class ReviewService {
 	}
 
 	public CursorPageDto<Review, Long> getReviewsByPlaceWithCursor(Place place,
-		ApiCursorPaginationRequest pageRequest) {
+		ApiCursorPaginationRequest pageRequest, String sortBy) {
 
 		Long cursor = pageRequest.getCursor();
 		int limit = pageRequest.getLimit();
@@ -69,10 +70,21 @@ public class ReviewService {
 		List<Review> fetched;
 
 		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
-			fetched = reviewRepository.findPrevReviewsByPlaceId(place.getId(),
-				cursorReview.getUpdatedAt(),
-				cursorReview.getScore(),
-				pageable);
+			if (ReviewSortType.of(sortBy) == ReviewSortType.SCORE) {
+				fetched = reviewRepository.findPrevReviewsByPlaceIdOrderByScore(
+					place.getId(),
+					cursorReview.getScore(),
+					cursorReview.getUpdatedAt(),
+					pageable
+				);
+			} else {
+				fetched = reviewRepository.findPrevReviewsByPlaceIdOrderByUpdatedAt(
+					place.getId(),
+					cursorReview.getUpdatedAt(),
+					cursorReview.getScore(),
+					pageable
+				);
+			}
 
 			Collections.reverse(fetched);
 			boolean hasMore = fetched.size() > limit;
@@ -82,10 +94,21 @@ public class ReviewService {
 				cursorReview.getScore());
 		} else {
 
-			fetched = reviewRepository.findNextReviewsByPlaceId(place.getId(),
-				cursorReview.getUpdatedAt(),
-				cursorReview.getScore(),
-				pageable);
+			if (ReviewSortType.of(sortBy) == ReviewSortType.SCORE) {
+				fetched = reviewRepository.findNextReviewsByPlaceIdOrderByScore(
+					place.getId(),
+					cursorReview.getScore(),
+					cursorReview.getUpdatedAt(),
+					pageable
+				);
+			} else {
+				fetched = reviewRepository.findNextReviewsByPlaceIdOrderByUpdatedAt(
+					place.getId(),
+					cursorReview.getUpdatedAt(),
+					cursorReview.getScore(),
+					pageable
+				);
+			}
 			boolean hasMore = fetched.size() > limit;
 			hasNext = hasMore;
 			hasPrev = reviewRepository.existsPrevReviewByPlaceId(place.getId(),

@@ -164,12 +164,12 @@ public class PlaceFacade {
 
 	@Transactional(readOnly = true)
 	public CursorPageDto<ReviewDto, Long> getPlaceReviews(Long placeId,
-		ApiCursorPaginationRequest pageRequest) {
+		ApiCursorPaginationRequest pageRequest, String sortBy) {
 		// 장소 조회
 		Place place = placeService.getPlaceById(placeId);
 		// 장소 리뷰 커서 페이지 조회
 		CursorPageDto<Review, Long> page = reviewService.getReviewsByPlaceWithCursor(place,
-			pageRequest);
+			pageRequest, sortBy);
 		// Review -> ReviewDto 변환
 		List<Review> reviews = page.getData();
 		Map<Long, List<String>> reviewToPhotoUrls = photoService.getPhotosGroupedByReview(reviews,

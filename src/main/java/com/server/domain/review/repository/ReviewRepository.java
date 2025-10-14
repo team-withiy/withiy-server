@@ -25,10 +25,24 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		"     (r.updatedAt > :cursorUpdatedAt OR " +
 		"     (r.updatedAt = :cursorUpdatedAt AND r.score > :cursorScore)) " +
 		"ORDER BY r.updatedAt ASC, r.score ASC")
-	List<Review> findPrevReviewsByPlaceId(@Param("placeId") Long placeId,
+	List<Review> findPrevReviewsByPlaceIdOrderByUpdatedAt(
+		@Param("placeId") Long placeId,
 		@Param("cursorUpdatedAt") LocalDateTime cursorUpdatedAt,
 		@Param("cursorScore") Long cursorScore,
-		Pageable pageable);
+		Pageable pageable
+	);
+
+	@Query("SELECT r FROM Review r JOIN FETCH r.user u " +
+		"WHERE r.place.id = :placeId AND " +
+		"     (r.score > :cursorScore OR " +
+		"     (r.score = :cursorScore AND r.updatedAt > :cursorUpdatedAt)) " +
+		"ORDER BY r.score ASC, r.updatedAt ASC")
+	List<Review> findPrevReviewsByPlaceIdOrderByScore(
+		@Param("placeId") Long placeId,
+		@Param("cursorScore") Long cursorScore,
+		@Param("cursorUpdatedAt") LocalDateTime cursorUpdatedAt,
+		Pageable pageable
+	);
 
 	@Query("SELECT COUNT(r) > 0 FROM Review r " +
 		"WHERE r.place.id = :placeId AND " +
@@ -43,10 +57,24 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		"     (r.updatedAt < :cursorUpdatedAt OR " +
 		"     (r.updatedAt = :cursorUpdatedAt AND r.score < :cursorScore)) " +
 		"ORDER BY r.updatedAt DESC, r.score DESC")
-	List<Review> findNextReviewsByPlaceId(@Param("placeId") Long placeId,
+	List<Review> findNextReviewsByPlaceIdOrderByUpdatedAt(
+		@Param("placeId") Long placeId,
 		@Param("cursorUpdatedAt") LocalDateTime cursorUpdatedAt,
 		@Param("cursorScore") Long cursorScore,
-		Pageable pageable);
+		Pageable pageable
+	);
+
+	@Query("SELECT r FROM Review r JOIN FETCH r.user u " +
+		"WHERE r.place.id = :placeId AND " +
+		"     (r.score < :cursorScore OR " +
+		"     (r.score = :cursorScore AND r.updatedAt < :cursorUpdatedAt)) " +
+		"ORDER BY r.score DESC, r.updatedAt DESC")
+	List<Review> findNextReviewsByPlaceIdOrderByScore(
+		@Param("placeId") Long placeId,
+		@Param("cursorScore") Long cursorScore,
+		@Param("cursorUpdatedAt") LocalDateTime cursorUpdatedAt,
+		Pageable pageable
+	);
 
 	@Query("SELECT COUNT(r) > 0 FROM Review r " +
 		"WHERE r.place.id = :placeId AND " +

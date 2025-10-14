@@ -17,6 +17,8 @@ import com.server.global.dto.ApiResponseDto;
 import com.server.global.pagination.dto.ApiCursorPaginationRequest;
 import com.server.global.pagination.dto.ApiCursorPaginationResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -134,9 +137,17 @@ public class PlaceController {
 	@GetMapping("/{placeId}/reviews")
 	@ResponseStatus(HttpStatus.OK)
 	public ApiCursorPaginationResponse<ReviewDto, Long> getPlaceReviews(@PathVariable Long placeId,
-		@ModelAttribute ApiCursorPaginationRequest pageRequest) {
+		@ModelAttribute ApiCursorPaginationRequest pageRequest,
+		@Parameter(
+			description = "리뷰 정렬 기준 (기본값: latest)",
+			schema = @Schema(
+				allowableValues = {"latest", "score"},
+				defaultValue = "latest"
+			)
+		)
+		@RequestParam(defaultValue = "latest") String sortBy) {
 		return ApiCursorPaginationResponse.success(HttpStatus.OK.value(),
-			placeFacade.getPlaceReviews(placeId, pageRequest));
+			placeFacade.getPlaceReviews(placeId, pageRequest, sortBy));
 	}
 
 	@GetMapping("/focus")
