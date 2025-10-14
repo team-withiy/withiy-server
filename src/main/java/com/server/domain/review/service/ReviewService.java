@@ -2,6 +2,7 @@ package com.server.domain.review.service;
 
 import com.server.domain.place.entity.Place;
 import com.server.domain.review.entity.Review;
+import com.server.domain.review.entity.ReviewSortType;
 import com.server.domain.review.repository.ReviewRepository;
 import com.server.domain.review.repository.projection.PlaceScoreProjection;
 import com.server.domain.user.entity.User;
@@ -27,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewService {
 
 	private final ReviewRepository reviewRepository;
-	private final static int PLACE_DEFAULT_REVIEW_LIMIT = 4;
+	private final static int PLACE_DEFAULT_REVIEW_LIMIT = 5;
 
 	@Transactional
 	public Review save(Place place, User user, String contents, Long score) {
@@ -54,13 +55,15 @@ public class ReviewService {
 	}
 
 	public CursorPageDto<Review, Long> getReviewsByPlaceWithCursor(Place place,
-		ApiCursorPaginationRequest pageRequest) {
+		ApiCursorPaginationRequest pageRequest, String sortBy) {
 
 		Long cursor = pageRequest.getCursor();
 		int limit = pageRequest.getLimit();
 		boolean hasNext = false;
 		boolean hasPrev = false;
+		boolean isPrev = Boolean.TRUE.equals(pageRequest.getPrev());
 		long total = reviewRepository.countReviewsByPlaceId(place.getId());
+		ReviewSortType sortType = ReviewSortType.of(sortBy);
 
 		Review cursorReview = reviewRepository.findById(cursor)
 			.orElseThrow(() -> new BusinessException(ReviewErrorCode.REVIEW_NOT_FOUND));
@@ -68,36 +71,73 @@ public class ReviewService {
 		Pageable pageable = PageRequest.of(0, limit + 1);
 		List<Review> fetched;
 
-		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
-			fetched = reviewRepository.findPrevReviewsByPlaceId(place.getId(),
-				cursorReview.getUpdatedAt(),
-				cursorReview.getScore(),
-				pageable);
+		if (isPrev) {
+			if (sortType == ReviewSortType.SCORE) {
+				fetched = reviewRepository.findPrevReviewsByPlaceIdOrderByScore(
+					place.getId(),
+					cursorReview.getScore(),
+					cursorReview.getUpdatedAt(),
+					pageable
+				);
+			} else {
+				fetched = reviewRepository.findPrevReviewsByPlaceIdOrderByUpdatedAt(
+					place.getId(),
+					cursorReview.getUpdatedAt(),
+					cursorReview.getScore(),
+					pageable
+				);
+			}
 
 			Collections.reverse(fetched);
-			boolean hasMore = fetched.size() > limit;
-			hasPrev = hasMore;
-			hasNext = reviewRepository.existsNextReviewByPlaceId(place.getId(),
-				cursorReview.getUpdatedAt(),
-				cursorReview.getScore());
 		} else {
+			if (sortType == ReviewSortType.SCORE) {
+				fetched = reviewRepository.findNextReviewsByPlaceIdOrderByScore(
+					place.getId(),
+					cursorReview.getScore(),
+					cursorReview.getUpdatedAt(),
+					pageable
+				);
+			} else {
+				fetched = reviewRepository.findNextReviewsByPlaceIdOrderByUpdatedAt(
+					place.getId(),
+					cursorReview.getUpdatedAt(),
+					cursorReview.getScore(),
+					pageable
+				);
+			}
+		}
 
-			fetched = reviewRepository.findNextReviewsByPlaceId(place.getId(),
-				cursorReview.getUpdatedAt(),
+		boolean hasMore = fetched.size() > limit;
+
+		if (sortType == ReviewSortType.SCORE) {
+			hasNext = reviewRepository.existsNextReviewByPlaceIdOrderByScore(
+				place.getId(),
 				cursorReview.getScore(),
-				pageable);
-			boolean hasMore = fetched.size() > limit;
-			hasNext = hasMore;
-			hasPrev = reviewRepository.existsPrevReviewByPlaceId(place.getId(),
+				cursorReview.getUpdatedAt()
+			);
+			hasPrev = reviewRepository.existsPrevReviewByPlaceIdOrderByScore(
+				place.getId(),
+				cursorReview.getScore(),
+				cursorReview.getUpdatedAt()
+			);
+		} else {
+			hasNext = reviewRepository.existsNextReviewByPlaceIdOrderByUpdatedAt(
+				place.getId(),
 				cursorReview.getUpdatedAt(),
-				cursorReview.getScore());
+				cursorReview.getScore()
+			);
+			hasPrev = reviewRepository.existsPrevReviewByPlaceIdOrderByUpdatedAt(
+				place.getId(),
+				cursorReview.getUpdatedAt(),
+				cursorReview.getScore()
+			);
 		}
 
 		return CursorPaginationUtils.paginate(
 			total,
 			fetched,
 			limit,
-			Boolean.TRUE.equals(pageRequest.getPrev()),
+			isPrev,
 			cursor,
 			hasPrev,
 			hasNext,
