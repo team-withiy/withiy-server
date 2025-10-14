@@ -63,7 +63,7 @@ public class ReviewService {
 		boolean hasPrev = false;
 		boolean isPrev = Boolean.TRUE.equals(pageRequest.getPrev());
 		long total = reviewRepository.countReviewsByPlaceId(place.getId());
-		ReviewSortType sortType = ReviewSortType.valueOf(sortBy)
+		ReviewSortType sortType = ReviewSortType.of(sortBy);
 
 		Review cursorReview = reviewRepository.findById(cursor)
 			.orElseThrow(() -> new BusinessException(ReviewErrorCode.REVIEW_NOT_FOUND));
