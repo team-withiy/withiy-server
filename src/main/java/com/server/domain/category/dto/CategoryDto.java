@@ -21,13 +21,15 @@ public class CategoryDto {
 	private String name;
 	@Schema(description = "카테고리 아이콘 URL", example = "https://example.com/icon.png")
 	private String icon;
-
+	@Schema(description = "카테고리 설명", example = "데이트하기 좋은 장소")
+	private String description;
 
 	public static CategoryDto from(Category category) {
 		return CategoryDto.builder()
 			.id(category.getId())
 			.name(category.getName())
 			.icon(category.getIcon())
+			.description(category.getDescription())
 			.build();
 	}
 

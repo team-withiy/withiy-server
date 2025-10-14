@@ -40,7 +40,7 @@ public class Category {
 
 	@Column(name = "description")
 	private String description;
-	
+
 	// 상위 카테고리
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "parent_id")
@@ -50,9 +50,10 @@ public class Category {
 	@OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Category> children = new ArrayList<>();
 
-	public Category(String name, String icon) {
+	public Category(String name, String icon, String description) {
 		this.name = name;
 		this.icon = icon;
+		this.description = description;
 	}
 
 	// 하위 카테고리 추가 메서드

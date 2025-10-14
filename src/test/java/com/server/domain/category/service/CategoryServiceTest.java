@@ -34,9 +34,10 @@ class CategoryServiceTest {
 	void createCategory_shouldReturnCategoryDto() {
 		// given
 		CreateCategoryDto createCategoryDto =
-			CreateCategoryDto.builder().name("테스트 카테고리").icon("test_icon").build();
+			CreateCategoryDto.builder().name("테스트 카테고리").icon("test_icon")
+				.description("test_description").build();
 
-		Category savedCategory = new Category("테스트 카테고리", "test_icon");
+		Category savedCategory = new Category("테스트 카테고리", "test_icon", "테스트 설명");
 		// ID 직접 설정
 		ReflectionTestUtils.setField(savedCategory, "id", 1L);
 
@@ -63,10 +64,10 @@ class CategoryServiceTest {
 	@DisplayName("모든 카테고리 조회 테스트")
 	void getCategories_shouldReturnAllCategories() {
 		// given
-		Category category1 = new Category("카테고리1", "icon1");
+		Category category1 = new Category("카테고리1", "icon1", "description1");
 		ReflectionTestUtils.setField(category1, "id", 1L);
 
-		Category category2 = new Category("카테고리2", "icon2");
+		Category category2 = new Category("카테고리2", "icon2", "description2");
 		ReflectionTestUtils.setField(category2, "id", 2L);
 
 		List<Category> categoryList = Arrays.asList(category1, category2);
