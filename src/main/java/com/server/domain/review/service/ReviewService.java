@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewService {
 
 	private final ReviewRepository reviewRepository;
-	private final static int PLACE_DEFAULT_REVIEW_LIMIT = 4;
+	private final static int PLACE_DEFAULT_REVIEW_LIMIT = 5;
 
 	@Transactional
 	public Review save(Place place, User user, String contents, Long score) {
