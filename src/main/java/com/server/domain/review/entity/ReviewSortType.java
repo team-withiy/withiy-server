@@ -10,12 +10,11 @@ public enum ReviewSortType {
 		if (sortBy == null) {
 			return LATEST; // 기본값 지정
 		}
-		
-		for (ReviewSortType type : values()) {
-			if (type.name().equalsIgnoreCase(sortBy)) {
-				return type;
-			}
+
+		try {
+			return valueOf(sortBy.toUpperCase());
+		} catch (IllegalArgumentException e) {
+			throw new BusinessException(ReviewErrorCode.INVALID_REVIEW_SORT_TYPE);
 		}
-		throw new BusinessException(ReviewErrorCode.INVALID_REVIEW_SORT_TYPE);
 	}
 }

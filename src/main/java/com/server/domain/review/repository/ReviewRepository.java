@@ -48,9 +48,21 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		"WHERE r.place.id = :placeId AND " +
 		"     (r.updatedAt < :cursorUpdatedAt OR " +
 		"     (r.updatedAt = :cursorUpdatedAt AND r.score < :cursorScore))")
-	boolean existsNextReviewByPlaceId(@Param("placeId") Long placeId,
+	boolean existsNextReviewByPlaceIdOrderByUpdatedAt(
+		@Param("placeId") Long placeId,
 		@Param("cursorUpdatedAt") LocalDateTime cursorUpdatedAt,
-		@Param("cursorScore") Long cursorScore);
+		@Param("cursorScore") Long cursorScore
+	);
+
+	@Query("SELECT COUNT(r) > 0 FROM Review r " +
+		"WHERE r.place.id = :placeId AND " +
+		"     (r.score < :cursorScore OR " +
+		"     (r.score = :cursorScore AND r.updatedAt < :cursorUpdatedAt))")
+	boolean existsNextReviewByPlaceIdOrderByScore(
+		@Param("placeId") Long placeId,
+		@Param("cursorScore") Long cursorScore,
+		@Param("cursorUpdatedAt") LocalDateTime cursorUpdatedAt
+	);
 
 	@Query("SELECT r FROM Review r JOIN FETCH r.user u " +
 		"WHERE r.place.id = :placeId AND " +
@@ -80,9 +92,21 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		"WHERE r.place.id = :placeId AND " +
 		"     (r.updatedAt > :cursorUpdatedAt OR " +
 		"     (r.updatedAt = :cursorUpdatedAt AND r.score > :cursorScore))")
-	boolean existsPrevReviewByPlaceId(@Param("placeId") Long placeId,
+	boolean existsPrevReviewByPlaceIdOrderByUpdatedAt(
+		@Param("placeId") Long placeId,
 		@Param("cursorUpdatedAt") LocalDateTime cursorUpdatedAt,
-		@Param("cursorScore") Long cursorScore);
+		@Param("cursorScore") Long cursorScore
+	);
+
+	@Query("SELECT COUNT(r) > 0 FROM Review r " +
+		"WHERE r.place.id = :placeId AND " +
+		"     (r.score > :cursorScore OR " +
+		"     (r.score = :cursorScore AND r.updatedAt > :cursorUpdatedAt))")
+	boolean existsPrevReviewByPlaceIdOrderByScore(
+		@Param("placeId") Long placeId,
+		@Param("cursorScore") Long cursorScore,
+		@Param("cursorUpdatedAt") LocalDateTime cursorUpdatedAt
+	);
 
 	@Query("SELECT r.place.id AS placeId, AVG(r.score) AS avgScore " +
 		"FROM Review r WHERE r.place.id IN :placeIds GROUP BY r.place.id")

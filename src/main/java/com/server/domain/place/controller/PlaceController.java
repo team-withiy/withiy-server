@@ -145,7 +145,7 @@ public class PlaceController {
 				defaultValue = "latest"
 			)
 		)
-		@RequestParam(defaultValue = "latest") String sortBy) {
+		@RequestParam(required = false) String sortBy) {
 		return ApiCursorPaginationResponse.success(HttpStatus.OK.value(),
 			placeFacade.getPlaceReviews(placeId, pageRequest, sortBy));
 	}
