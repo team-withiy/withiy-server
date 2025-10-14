@@ -20,12 +20,14 @@ public class CategoryService {
 
 	@Transactional
 	public CategoryDto createCategory(CreateCategoryDto createCategoryDto) {
-		Category category = new Category(createCategoryDto.getName(), createCategoryDto.getIcon());
+		Category category = new Category(createCategoryDto.getName(), createCategoryDto.getIcon(),
+			createCategoryDto.getDescription());
 		categoryRepository.save(category);
 		return CategoryDto.builder()
 			.id(category.getId())
 			.name(category.getName())
 			.icon(category.getIcon())
+			.description(category.getDescription())
 			.build();
 	}
 
@@ -43,8 +45,8 @@ public class CategoryService {
 			.orElseThrow(() -> new BusinessException(CategoryErrorCode.NOT_FOUND));
 	}
 
-    public Category findById(Long categoryId) {
-        return categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new BusinessException(CategoryErrorCode.NOT_FOUND));
-    }
+	public Category findById(Long categoryId) {
+		return categoryRepository.findById(categoryId)
+			.orElseThrow(() -> new BusinessException(CategoryErrorCode.NOT_FOUND));
+	}
 }
