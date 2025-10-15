@@ -7,7 +7,6 @@ import com.server.domain.search.service.SearchFacade;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/search")
 @RequiredArgsConstructor
 @Tag(name = "Search", description = "검색 관련 API")
-@SecurityRequirement(name = "bearerAuth")
 public class SearchController {
 
 	private final SearchFacade searchFacade;
