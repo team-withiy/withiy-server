@@ -12,6 +12,8 @@ import com.server.domain.user.entity.User;
 import com.server.domain.user.service.UserService;
 import com.server.global.dto.ApiResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/users")
+@Tag(name = "User", description = "유저 관련 API")
+@SecurityRequirement(name = "bearerAuth")
 public class UserController {
 
 	private final UserService userService;
@@ -40,7 +44,7 @@ public class UserController {
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/me")
-	@Operation(summary = "자기 정보 얻기", description = "로그인한 유저의 정보 반환")
+	@Operation(summary = "[사용자] 자기 정보 얻기", description = "로그인한 유저의 정보 반환")
 	public ApiResponseDto<UserDto> getUser(@AuthenticationPrincipal User user) {
 		UserDto userDto = userService.getUser(user);
 		return ApiResponseDto.success(HttpStatus.OK.value(), userDto);
@@ -50,7 +54,7 @@ public class UserController {
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/profile/{userCode}")
-	@Operation(summary = "사용자 프로필 조회", description = "userCode를 이용하여 사용자의 기본 프로필 정보 조회")
+	@Operation(summary = "[사용자] 사용자 프로필 조회", description = "userCode를 이용하여 사용자의 기본 프로필 정보 조회")
 	public ApiResponseDto<UserProfileResponseDto> getUserProfile(@PathVariable String userCode) {
 		UserProfileResponseDto userProfile = userService.getUserProfileByCode(userCode);
 		return ApiResponseDto.success(HttpStatus.OK.value(), userProfile);
@@ -60,7 +64,7 @@ public class UserController {
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.OK)
 	@DeleteMapping("/me")
-	@Operation(summary = "유저 삭제(탈퇴)", description = "로그인한 유저 삭제")
+	@Operation(summary = "[사용자] 유저 삭제(탈퇴)", description = "로그인한 유저 삭제")
 	public ApiResponseDto<String> deleteUser(@AuthenticationPrincipal User user) {
 		String name = userService.deleteUser(user, true);
 		return ApiResponseDto.success(HttpStatus.OK.value(),
@@ -71,7 +75,7 @@ public class UserController {
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.OK)
 	@PostMapping("/me")
-	@Operation(summary = "유저 등록", description = "유저 약관 동의 및 닉네임 업데이트")
+	@Operation(summary = "[사용자] 유저 등록", description = "유저 약관 동의 및 닉네임 업데이트")
 	public ApiResponseDto<String> registerUser(@AuthenticationPrincipal User user,
 		@RequestBody RegisterUserInDto body) {
 		String nickname =
@@ -85,7 +89,7 @@ public class UserController {
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.OK)
 	@PostMapping("/restore")
-	@Operation(summary = "계정 관리", description = "삭제된 계정 복구 또는 계정 삭제")
+	@Operation(summary = "[사용자] 계정 관리", description = "삭제된 계정 복구 또는 계정 삭제")
 	public ApiResponseDto<String> manageAccount(@AuthenticationPrincipal User user,
 		@RequestBody RestoreAccountDto body) {
 		String nickname;
@@ -107,7 +111,7 @@ public class UserController {
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.OK)
 	@PostMapping("/logout")
-	@Operation(summary = "로그아웃", description = "로그인한 유저 로그아웃")
+	@Operation(summary = "[사용자] 로그아웃", description = "로그인한 유저 로그아웃")
 	public ApiResponseDto<String> logout(@AuthenticationPrincipal User user) {
 
 		// TODO: Redis에서 refresh token 관리
@@ -118,7 +122,7 @@ public class UserController {
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.OK)
 	@PatchMapping(value = "/profile")
-	@Operation(summary = "프로필 업데이트",
+	@Operation(summary = "[사용자] 프로필 업데이트",
 		description = "사용자의 프로필을 업데이트합니다. 닉네임 및 프로필 이미지를 포함할 수 있습니다.")
 	public ApiResponseDto<ProfileResponseDto> updateProfile(
 		@AuthenticationPrincipal User user, @Valid @RequestBody ProfileUpdateDto requestDto) {
@@ -133,7 +137,7 @@ public class UserController {
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.OK)
 	@PatchMapping(value = "/notifications/settings")
-	@Operation(summary = "알림 설정 업데이트",
+	@Operation(summary = "[사용자] 알림 설정 업데이트",
 		description = "사용자의 알림 설정을 업데이트합니다. 데이트 알림 설정이 필수입니다.")
 	public ApiResponseDto<String> updateNotificationSettings(
 		@AuthenticationPrincipal User user,
@@ -149,7 +153,7 @@ public class UserController {
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping(value = "/notifications/settings")
-	@Operation(summary = "알림 설정 조회",
+	@Operation(summary = "[사용자] 알림 설정 조회",
 		description = "사용자의 알림 설정을 조회합니다. 데이트 알림 설정이 포함됩니다.")
 	public ApiResponseDto<UserNotificationSettingResponseDto> getNotificationSettings(
 		@AuthenticationPrincipal User user) {

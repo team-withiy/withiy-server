@@ -6,6 +6,7 @@ import com.server.domain.badge.service.BadgeService;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/badges")
 @Slf4j
 @Tag(name = "Badge", description = "배지 관련 API")
+@SecurityRequirement(name = "bearerAuth")
 public class BadgeController {
 
 	private final BadgeService badgeService;
@@ -34,7 +36,7 @@ public class BadgeController {
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping
-	@Operation(summary = "배지 획득",
+	@Operation(summary = "[사용자] 배지 획득",
 		description = "배지 발급 조건을 만족하면 배지를 획득합니다.")
 	public ApiResponseDto<String> claimBadge(@AuthenticationPrincipal User user,
 		@Valid @RequestBody BadgeSelectionRequestDto requestDto) {
@@ -47,7 +49,7 @@ public class BadgeController {
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.OK)
 	@PutMapping("/main")
-	@Operation(summary = "메인 배지 변경",
+	@Operation(summary = "[사용자] 메인 배지 변경",
 		description = "사용자가 보유한 배지 중 하나를 메인 배지로 변경합니다.")
 	public ApiResponseDto<String> updateMainBadge(
 		@AuthenticationPrincipal User user,
@@ -61,7 +63,7 @@ public class BadgeController {
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/all")
-	@Operation(summary = "모든 배지 조회",
+	@Operation(summary = "[사용자] 모든 배지 조회",
 		description = "사용자가 획득한 배지 정보도 포함하여 모든 배지 정보를 조회합니다.")
 	public ApiResponseDto<List<BadgeResponseDto>> getAllBadges(
 		@AuthenticationPrincipal User user) {

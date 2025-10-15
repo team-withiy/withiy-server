@@ -19,6 +19,8 @@ import com.server.global.pagination.dto.ApiCursorPaginationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/places")
+@Tag(name = "Place", description = "장소 관련 API")
 public class PlaceController {
 
 	private final PlaceService placeService;
@@ -49,9 +52,8 @@ public class PlaceController {
 
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/{placeId}")
-	@Operation(summary = "특정 장소 정보 가져오기", description = "장소 id를 받아 특정 장소 간단한 정보 조회")
-	public ApiResponseDto<PlaceDto> getMapFocusPlaces(@PathVariable Long placeId,
-		@AuthenticationPrincipal User user) {
+	@Operation(summary = "[공용] 특정 장소 정보 가져오기", description = "장소 id를 받아 특정 장소 간단한 정보 조회")
+	public ApiResponseDto<PlaceDto> getMapFocusPlaces(@PathVariable Long placeId) {
 
 		return ApiResponseDto.success(HttpStatus.OK.value(),
 			placeService.getPlaceSimpleDetail(placeId));
@@ -59,7 +61,7 @@ public class PlaceController {
 
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/{placeId}/detail")
-	@Operation(summary = "특정 장소 상세 정보 가져오기", description = "장소 id를 받아 특정 장소 자세한 정보 조회")
+	@Operation(summary = "[공용] 특정 장소 상세 정보 가져오기", description = "장소 id를 받아 특정 장소 자세한 정보 조회")
 	public ApiResponseDto<GetPlaceDetailResponse> getPlaceDetail(@PathVariable Long placeId) {
 		GetPlaceDetailResponse response = placeFacade.getPlaceDetail(placeId);
 
@@ -67,10 +69,11 @@ public class PlaceController {
 	}
 
 
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+	@SecurityRequirement(name = "bearerAuth")
 	@ResponseStatus(HttpStatus.OK)
 	@PatchMapping("/{placeId}")
-	@Operation(summary = "특정 장소 정보 수정", description = "장소 id와 수정하고 싶은 컬럼을 받아 장소 정보 수정")
+	@Operation(summary = "[관리자] 특정 장소 정보 수정", description = "장소 id와 수정하고 싶은 컬럼을 받아 장소 정보 수정")
 	public ApiResponseDto<PlaceDetailDto> updatePlace(@PathVariable Long placeId,
 		@RequestBody UpdatePlaceDto updatePlaceDto) {
 		PlaceDetailDto placeDetailDto = placeService.updatePlace(placeId, updatePlaceDto);
@@ -78,29 +81,32 @@ public class PlaceController {
 
 	}
 
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+	@SecurityRequirement(name = "bearerAuth")
 	@ResponseStatus(HttpStatus.OK)
 	@DeleteMapping("/{placeId}")
-	@Operation(summary = "특정 장소 삭제", description = "장소 id를 받아 특정 장소 삭제")
+	@Operation(summary = "[관리자] 특정 장소 삭제", description = "장소 id를 받아 특정 장소 삭제")
 	public ApiResponseDto<String> deletePlace(@PathVariable Long placeId) {
 		String result = placeService.deletePlace(placeId);
 		return ApiResponseDto.success(HttpStatus.OK.value(), result);
 	}
 
-	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER')")
+	@SecurityRequirement(name = "bearerAuth")
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/{placeId}/bookmarks")
-	@Operation(summary = "장소 북마크 여부 조회", description = "장소 id를 받아 사용자가 해당 장소를 북마크했는지 여부 조회")
+	@Operation(summary = "[사용자] 장소 북마크 여부 조회", description = "장소 id를 받아 사용자가 해당 장소를 북마크했는지 여부 조회")
 	public ApiResponseDto<Boolean> isBookmarked(@PathVariable Long placeId,
 		@AuthenticationPrincipal User user) {
 		Boolean isBookmarked = placeFacade.isBookmarked(placeId, user);
 		return ApiResponseDto.success(HttpStatus.OK.value(), isBookmarked);
 	}
 
-	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER')")
+	@SecurityRequirement(name = "bearerAuth")
 	@ResponseStatus(HttpStatus.OK)
 	@PutMapping("/{placeId}/bookmarks")
-	@Operation(summary = "장소 북마크 추가/삭제", description = "장소가 북마크에 추가되어 있으면 삭제하고, 추가되어 있지 않으면 추가합니다.")
+	@Operation(summary = "[사용자] 장소 북마크 추가/삭제", description = "장소가 북마크에 추가되어 있으면 삭제하고, 추가되어 있지 않으면 추가합니다.")
 	public ApiResponseDto<String> toggleBookmark(@RequestBody FolderIdsRequest request,
 		@PathVariable Long placeId, @AuthenticationPrincipal User user) {
 		String result = placeFacade.updatePlaceFolders(request.getFolderIds(), placeId, user);
@@ -108,9 +114,10 @@ public class PlaceController {
 	}
 
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+	@SecurityRequirement(name = "bearerAuth")
 	@ResponseStatus(HttpStatus.OK)
 	@PostMapping("/{placeId}/photos")
-	@Operation(summary = "장소 전체 공개 사진 등록", description = "장소에 사진을 등록합니다. 사진은 전체 공개로 설정됩니다.")
+	@Operation(summary = "[사용자] 장소 전체 공개 사진 등록", description = "장소에 사진을 등록합니다. 사진은 전체 공개로 설정됩니다.")
 	public ApiResponseDto<String> registerPhotos(@AuthenticationPrincipal User user,
 		@PathVariable Long placeId, @RequestBody RegisterPhotoRequest request) {
 
@@ -120,6 +127,7 @@ public class PlaceController {
 
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/{placeId}/photos")
+	@Operation(summary = "[공용] 특정 장소 사진 목록 조회", description = "장소 id를 받아 특정 장소에 등록된 사진들을 커서 기반 페이징으로 조회")
 	public ApiCursorPaginationResponse<PhotoDto, Long> getPlacePhotos(@PathVariable Long placeId,
 		@Valid @ModelAttribute ApiCursorPaginationRequest pageRequest) {
 		return ApiCursorPaginationResponse.success(HttpStatus.OK.value(),
@@ -128,6 +136,7 @@ public class PlaceController {
 
 	@GetMapping("/{placeId}/photos/{photoId}")
 	@ResponseStatus(HttpStatus.OK)
+	@Operation(summary = "[공용] 특정 장소 사진 단건 조회", description = "장소 id와 사진 id를 받아 특정 장소에 등록된 사진 단건 조회")
 	public ApiResponseDto<PhotoDto> getPlacePhoto(@PathVariable Long placeId,
 		@PathVariable Long photoId) {
 		return ApiResponseDto.success(HttpStatus.OK.value(),
@@ -136,6 +145,7 @@ public class PlaceController {
 
 	@GetMapping("/{placeId}/reviews")
 	@ResponseStatus(HttpStatus.OK)
+	@Operation(summary = "[공용] 특정 장소 리뷰 목록 조회", description = "장소 id를 받아 특정 장소에 등록된 리뷰들을 커서 기반 페이징으로 조회")
 	public ApiCursorPaginationResponse<ReviewDto, Long> getPlaceReviews(@PathVariable Long placeId,
 		@ModelAttribute ApiCursorPaginationRequest pageRequest,
 		@Parameter(
@@ -152,7 +162,7 @@ public class PlaceController {
 
 	@GetMapping("/focus")
 	@ResponseStatus(HttpStatus.OK)
-	@Operation(summary = "지도 위 포커스 화면 장소 조회", description = "사용자의 현재 위치를 기반으로 근처 장소를 조회합니다.")
+	@Operation(summary = "[공용] 지도 위 포커스 화면 장소 조회", description = "사용자의 포커스 위치를 기반으로 장소를 조회합니다.")
 	public ApiResponseDto<PlaceFocusResponse> getFocusPlaces(@AuthenticationPrincipal User user,
 		@ModelAttribute PlaceFocusRequest request) {
 		PlaceFocusResponse response = placeFacade.getFocusPlaces(user, request);
