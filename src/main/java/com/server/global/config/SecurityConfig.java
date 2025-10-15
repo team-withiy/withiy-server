@@ -66,10 +66,10 @@ public class SecurityConfig {
 			)
 
 			// ✅ 필터 순서
-			.addFilterBefore(filterChainExceptionHandler,
-				UsernamePasswordAuthenticationFilter.class) // 예외 필터 먼저
 			.addFilterBefore(jwtAuthenticationFilter,
-				UsernamePasswordAuthenticationFilter.class);    // JWT 필터 다음
+				UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(filterChainExceptionHandler,
+				JwtAuthenticationFilter.class);    // JWT 필터 다음
 
 		return http.build();
 	}

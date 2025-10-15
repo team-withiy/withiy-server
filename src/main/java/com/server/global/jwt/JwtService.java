@@ -89,7 +89,8 @@ public class JwtService {
 		}
 		if (authHeader.startsWith(BEARER)) {
 			String token = authHeader.substring(BEARER.length()).trim();
-			log.debug("Extracted access token: {}", token); // debug로 낮춰도 충분
+			log.debug("Extracted access token: {}... (length: {})",
+				token.substring(0, Math.min(6, token.length())), token.length());
 			return Optional.of(token);
 		}
 
