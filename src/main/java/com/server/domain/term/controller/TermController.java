@@ -4,6 +4,7 @@ import com.server.domain.term.dto.TermDto;
 import com.server.domain.term.service.TermService;
 import com.server.global.dto.ApiResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,13 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/term")
+@Tag(name = "Term", description = "약관 관련 API")
 public class TermController {
 
 	private final TermService termService;
 
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping
-	@Operation(summary = "Withiy 사용 약관 조회", description = "DB에 포함된 모든 약관 리턴")
+	@Operation(summary = "[공용] Withiy 사용 약관 조회", description = "DB에 포함된 모든 약관 리턴")
 	public ApiResponseDto<List<TermDto>> getTerms() {
 		List<TermDto> termDto = termService.getAllTerms();
 		return ApiResponseDto.success(HttpStatus.OK.value(), termDto);

@@ -38,7 +38,7 @@ public class MapController {
 
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/address-to-coord")
-	@Operation(summary = "주소를 좌표로 변환", description = "주소 문자열을 위도/경도 좌표로 변환")
+	@Operation(summary = "[공용] 주소를 좌표로 변환", description = "주소 문자열을 위도/경도 좌표로 변환")
 	public ApiResponseDto<List<AddressDto>> addressToCoord(@RequestParam String query,
 		@RequestParam(required = false) String analyzeType) {
 
@@ -57,7 +57,7 @@ public class MapController {
 
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/coord-to-address")
-	@Operation(summary = "좌표를 주소로 변환", description = "위도/경도 좌표를 주소로 변환")
+	@Operation(summary = "[공용] 좌표를 주소로 변환", description = "위도/경도 좌표를 주소로 변환")
 	public ApiResponseDto<AddressDto> coordToAddress(@RequestParam String x, @RequestParam String y,
 		@RequestParam(required = false) String inputCoord) {
 
@@ -72,7 +72,7 @@ public class MapController {
 
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/coord-to-region")
-	@Operation(summary = "좌표를 행정구역으로 변환", description = "위도/경도 좌표를 행정구역 정보로 변환")
+	@Operation(summary = "[공용] 좌표를 행정구역으로 변환", description = "위도/경도 좌표를 행정구역 정보로 변환")
 	public ApiResponseDto<List<RegionDto>> coordToRegion(@RequestParam String x,
 		@RequestParam String y, @RequestParam(required = false) String inputCoord,
 		@RequestParam(required = false) String outputCoord) {
@@ -86,26 +86,9 @@ public class MapController {
 		return ApiResponseDto.success(HttpStatus.OK.value(), result);
 	}
 
-	// @ResponseStatus(HttpStatus.OK)
-	// @GetMapping("/convert-coord")
-	// @Operation(summary = "좌표계 변환",
-	// description = "좌표계 간 변환 (WGS84, WCONGNAMUL, CONGNAMUL, WTM, TM 등)")
-	// public ApiResponseDto<CoordinateDto> convertCoord(@RequestParam String x,
-	// @RequestParam String y, @RequestParam String inputCoord,
-	// @RequestParam String outputCoord) {
-
-	// validateCoordinates(x, y);
-
-	// ConvertCoordRequest request = ConvertCoordRequest.builder().x(x).y(y).inputCoord(inputCoord)
-	// .outputCoord(outputCoord).build();
-
-	// CoordinateDto result = mapService.convertCoord(request);
-	// return ApiResponseDto.success(HttpStatus.OK.value(), result);
-	// }
-
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/search/keyword")
-	@Operation(summary = "키워드로 장소 검색", description = "키워드를 기반으로 장소 검색")
+	@Operation(summary = "[공용] 키워드로 장소 검색", description = "키워드를 기반으로 장소 검색")
 	public ApiResponseDto<List<MapPlaceDto>> searchByKeyword(@RequestParam String query,
 		@RequestParam(required = false) String categoryGroupCode,
 		@RequestParam(required = false) String x, @RequestParam(required = false) String y,
@@ -138,7 +121,7 @@ public class MapController {
 
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/search/category")
-	@Operation(summary = "카테고리로 장소 검색", description = "카테고리 코드를 기반으로 장소 검색")
+	@Operation(summary = "[공용] 카테고리로 장소 검색", description = "카테고리 코드를 기반으로 장소 검색")
 	public ApiResponseDto<List<MapPlaceDto>> searchByCategory(
 		@RequestParam String categoryGroupCode,
 		@RequestParam(required = false) String x, @RequestParam(required = false) String y,

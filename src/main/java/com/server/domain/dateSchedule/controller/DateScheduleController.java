@@ -8,6 +8,8 @@ import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -29,41 +31,44 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/date-schedule")
+@Tag(name = "DateSchedule", description = "데이트 일정 관련 API")
+@SecurityRequirement(name = "bearerAuth")
 public class DateScheduleController {
-    private final DateSchedFacade dateSchedFacade;
 
-    @PostMapping
-    @Operation(summary = "일정 등록 API", description = "사용자가 일정을 등록하는 API")
-    public ApiResponseDto<Void> createDateSchedule(
-            @AuthenticationPrincipal User user,
-            @Valid @RequestBody DateSchedCreateRequest request
-    ) {
-        dateSchedFacade.createDateSchedule(user, request);
-        return ApiResponseDto.success(HttpStatus.OK.value(), null);
-    }
+	private final DateSchedFacade dateSchedFacade;
 
-    @GetMapping
-    @Operation(summary = "일정 조회 API", description = "사용자가 등록한 일정을 조회하는 API")
-    public ApiResponseDto<List<DateSchedResponse>> getDateSchedule(
-            @AuthenticationPrincipal User user,
-            @RequestParam
-            @Parameter(description = "month, day 만 가능") String format,
-            @RequestParam
-            @Parameter(description = "month 일때 yyyy-MM 형식, day 일때 yyyy-MM-dd") String date
-    ) {
-        List<DateSchedResponse> responses = dateSchedFacade.getDateSchedule(user, format, date);
-        return ApiResponseDto.success(HttpStatus.OK.value(), responses);
-    }
+	@PostMapping
+	@Operation(summary = "[사용자] 일정 등록 API", description = "사용자가 일정을 등록하는 API")
+	public ApiResponseDto<Void> createDateSchedule(
+		@AuthenticationPrincipal User user,
+		@Valid @RequestBody DateSchedCreateRequest request
+	) {
+		dateSchedFacade.createDateSchedule(user, request);
+		return ApiResponseDto.success(HttpStatus.OK.value(), null);
+	}
 
-    @PatchMapping("/{dateSchedId}")
-    @Operation(summary = "일정 수정 API", description = "사용자가 등록한 일정을 수정하는 API")
-    public ApiResponseDto<Void> updatePlaceInDateSchedule(
-            @AuthenticationPrincipal User user,
-            @PathVariable Long dateSchedId,
-            @Valid @RequestBody DateSchedUpdateRequest request
-    ) {
-        dateSchedFacade.updatePlaceInDateSchedule(user, dateSchedId, request);
-        return ApiResponseDto.success(HttpStatus.OK.value(), null);
-    }
+	@GetMapping
+	@Operation(summary = "[사용자] 일정 조회 API", description = "사용자가 등록한 일정을 조회하는 API")
+	public ApiResponseDto<List<DateSchedResponse>> getDateSchedule(
+		@AuthenticationPrincipal User user,
+		@RequestParam
+		@Parameter(description = "month, day 만 가능") String format,
+		@RequestParam
+		@Parameter(description = "month 일때 yyyy-MM 형식, day 일때 yyyy-MM-dd") String date
+	) {
+		List<DateSchedResponse> responses = dateSchedFacade.getDateSchedule(user, format, date);
+		return ApiResponseDto.success(HttpStatus.OK.value(), responses);
+	}
+
+	@PatchMapping("/{dateSchedId}")
+	@Operation(summary = "[사용자] 일정 수정 API", description = "사용자가 등록한 일정을 수정하는 API")
+	public ApiResponseDto<Void> updatePlaceInDateSchedule(
+		@AuthenticationPrincipal User user,
+		@PathVariable Long dateSchedId,
+		@Valid @RequestBody DateSchedUpdateRequest request
+	) {
+		dateSchedFacade.updatePlaceInDateSchedule(user, dateSchedId, request);
+		return ApiResponseDto.success(HttpStatus.OK.value(), null);
+	}
 
 }

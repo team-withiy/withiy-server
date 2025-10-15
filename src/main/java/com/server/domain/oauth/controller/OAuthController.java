@@ -40,7 +40,7 @@ public class OAuthController {
 
 	@ResponseStatus(HttpStatus.OK)
 	@PostMapping("/refresh")
-	@Operation(summary = "토큰 갱신", description = "리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급합니다.")
+	@Operation(summary = "[공용] 토큰 갱신", description = "리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급합니다.")
 	public ApiResponseDto<TokenDto> refreshToken(@RequestBody RefreshTokenDto refreshTokenDto) {
 		TokenDto tokenDto = authService.refreshToken(refreshTokenDto.getRefreshToken());
 		return ApiResponseDto.success(HttpStatus.OK.value(), tokenDto);

@@ -4,6 +4,7 @@ import com.server.domain.review.entity.Review;
 import com.server.domain.user.dto.SimpleUserDto;
 import com.server.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,16 +26,20 @@ public class ReviewDto {
 	private Long score;
 	@Schema(description = "장소 이름", example = "강남역 스타벅스")
 	private String placeName;
+	@Schema(description = "리뷰 생성 일시", example = "2023-10-05T14:48:00")
+	private LocalDateTime updatedAt;
+
 
 	@Builder
 	private ReviewDto(Long reviewId, SimpleUserDto reviewer, String contents,
-		List<String> imageUrls, Long score, String placeName) {
+		List<String> imageUrls, Long score, String placeName, LocalDateTime updatedAt) {
 		this.reviewId = reviewId;
 		this.reviewer = reviewer;
 		this.contents = contents;
 		this.imageUrls = imageUrls;
 		this.score = score;
 		this.placeName = placeName;
+		this.updatedAt = updatedAt;
 	}
 
 	public static ReviewDto of(Review review, User reviewer, List<String> imageUrls
@@ -46,6 +51,7 @@ public class ReviewDto {
 			.imageUrls(imageUrls)
 			.score(review.getScore())
 			.placeName(placeName)
+			.updatedAt(review.getUpdatedAt())
 			.build();
 	}
 }

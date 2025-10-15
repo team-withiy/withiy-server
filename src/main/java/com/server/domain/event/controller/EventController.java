@@ -7,6 +7,7 @@ import com.server.domain.event.service.EventService;
 import com.server.global.dto.ApiResponseDto;
 import com.server.global.etc.HmacUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/events")
+@Tag(name = "Event", description = "이벤트 관련 API")
 public class EventController {
 
 	private final EventService eventService;
@@ -37,7 +39,7 @@ public class EventController {
 
 	@ResponseStatus(HttpStatus.OK)
 	@PostMapping("/external")
-	@Operation(summary = "외부 크롤러에서 이벤트 저장", description = "크롤러가 직접 이벤트 리스트를 전달")
+	@Operation(summary = "[공용] 외부 크롤러에서 이벤트 저장", description = "크롤러가 직접 이벤트 리스트를 전달")
 	public ApiResponseDto<List<EventDto>> saveEventsFromExternal(
 		HttpServletRequest request,
 		@RequestBody CrawlingEventDtoList crawlingEventDtoList) throws Exception {
@@ -65,7 +67,7 @@ public class EventController {
 
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping
-	@Operation(summary = "이벤트 정보 가져오기", description = "인터파크 티켓 랭킹 탑 50 기반 각 장르별 이벤트 dto 반환")
+	@Operation(summary = "[공용] 이벤트 정보 가져오기", description = "인터파크 티켓 랭킹 탑 50 기반 각 장르별 이벤트 dto 반환")
 	public ApiResponseDto<List<EventDto>> getEvents() {
 		List<EventDto> eventDtos = eventService.getEvents();
 		return ApiResponseDto.success(HttpStatus.OK.value(), eventDtos);
@@ -74,7 +76,7 @@ public class EventController {
 
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/{genre}")
-	@Operation(summary = "장르별 이벤트 정보 가져오기", description = "각 장르별(musical, concert, sports, exhibit, drama) 이벤트 dto 반환")
+	@Operation(summary = "[공용] 장르별 이벤트 정보 가져오기", description = "각 장르별(musical, concert, sports, exhibit, drama) 이벤트 dto 반환")
 	public ApiResponseDto<List<EventDto>> getEventsByGenre(@PathVariable String genre) {
 		// 유효한 장르인지 검사
 		if (!Arrays.asList("musical", "concert", "sports", "exhibit", "drama").contains(genre)) {

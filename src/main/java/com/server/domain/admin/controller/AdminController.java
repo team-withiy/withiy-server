@@ -8,6 +8,8 @@ import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,28 +27,28 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/admin")
+@Tag(name = "Admin", description = "관리자 관련 API")
+@SecurityRequirement(name = "bearerAuth")
 public class AdminController {
 
 	private final AdminFacade adminFacade;
 
-	// TODO: 현재는 USER와 ADMIN 권한을 모두 허용 중이며, 운영 환경에서는 ADMIN 권한만 허용하도록 변경 예정
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping("/contents/active")
-	@Operation(summary = "운영 중 콘텐츠 조회", description = "현재 운영 중인 장소와 코스를 조회합니다.")
+	@Operation(summary = "[관리자] 운영 중 콘텐츠 조회", description = "현재 운영 중인 장소와 코스를 조회합니다.")
 	public ApiResponseDto<ActiveContentsResponse> getActiveContents(
 		@AuthenticationPrincipal User user,
 		@Parameter(description = "콘텐츠 카테고리", example = "Shop, Restaurant") @RequestParam String category,
-		@Parameter(description = "검색 키워드", example = "스타필드") @RequestParam String keyword) {
+		@Parameter(description = "검색 키워드", example = "스타필드") @RequestParam(required = false) String keyword) {
 		ActiveContentsResponse response = adminFacade.getActiveContents(category, keyword);
 		return ApiResponseDto.success(HttpStatus.OK.value(), response);
 	}
 
-	// TODO: 현재는 USER와 ADMIN 권한을 모두 허용 중이며, 운영 환경에서는 ADMIN 권한만 허용하도록 변경 예정
 	@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.OK)
 	@PostMapping("/places")
-	@Operation(summary = "장소 생성 api", description = "관리자가 장소 등록할 수 있는 api, 하위카테고리 선택")
+	@Operation(summary = "[관리자] 장소 생성 api", description = "관리자가 장소 등록할 수 있는 api, 하위카테고리 선택")
 	public ApiResponseDto<CreatePlaceResponse> createPlace(@AuthenticationPrincipal User user,
 		@RequestBody CreatePlaceDto createPlaceDto) {
 		CreatePlaceResponse response = adminFacade.registerPlace(user, createPlaceDto);
