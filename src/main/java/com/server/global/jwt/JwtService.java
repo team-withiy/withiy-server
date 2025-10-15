@@ -83,14 +83,17 @@ public class JwtService {
 
 	public Optional<String> extractAccessToken(HttpServletRequest request) {
 		String authHeader = request.getHeader("Authorization");
-		log.info("Authorization header: {}", authHeader);
-		return Optional.ofNullable(authHeader)
-			.filter(accessToken -> accessToken.startsWith(BEARER))
-			.map(accessToken -> {
-				String token = accessToken.substring(BEARER.length()).trim();
-				log.info("Extracted access token: {}", token);
-				return token;
-			});
+		// ✅ 헤더가 없으면 로그 찍지 말고 빠르게 리턴
+		if (authHeader == null || authHeader.isBlank()) {
+			return Optional.empty();
+		}
+		if (authHeader.startsWith(BEARER)) {
+			String token = authHeader.substring(BEARER.length()).trim();
+			log.debug("Extracted access token: {}", token); // debug로 낮춰도 충분
+			return Optional.of(token);
+		}
+
+		return Optional.empty();
 	}
 
 	public Optional<Long> extractUserId(HttpServletRequest request) {
