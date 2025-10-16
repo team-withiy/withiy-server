@@ -14,7 +14,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 	@Query("SELECT r FROM Review r JOIN FETCH r.user u " +
 		"WHERE r.place.id = :placeId " +
 		"ORDER BY r.updatedAt DESC, r.score DESC")
-	List<Review> findByPlaceId(Long placeId, Pageable pageable);
+	List<Review> findByPlaceIdOrderByUpdatedAt(Long placeId, Pageable pageable);
+
+	@Query("SELECT r FROM Review r JOIN FETCH r.user u " +
+		"WHERE r.place.id = :placeId " +
+		"ORDER BY r.score DESC, r.updatedAt DESC")
+	List<Review> findByPlaceIdOrderByScore(Long placeId, Pageable pageable);
 
 	@Query("SELECT COUNT(r) FROM Review r WHERE r.place.id = :placeId")
 	long countReviewsByPlaceId(Long placeId);

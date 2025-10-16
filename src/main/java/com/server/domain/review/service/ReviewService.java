@@ -51,7 +51,7 @@ public class ReviewService {
 	@Transactional
 	public List<Review> getTopReviewsByPlace(Place place) {
 		Pageable pageable = PageRequest.of(0, PLACE_DEFAULT_REVIEW_LIMIT);
-		return reviewRepository.findByPlaceId(place.getId(), pageable);
+		return reviewRepository.findByPlaceIdOrderByUpdatedAt(place.getId(), pageable);
 	}
 
 	public CursorPageDto<Review, Long> getReviewsByPlaceWithCursor(Place place,
@@ -64,12 +64,34 @@ public class ReviewService {
 		boolean isPrev = Boolean.TRUE.equals(pageRequest.getPrev());
 		long total = reviewRepository.countReviewsByPlaceId(place.getId());
 		ReviewSortType sortType = ReviewSortType.of(sortBy);
+		Pageable pageable = PageRequest.of(0, limit + 1);
+		List<Review> fetched;
+
+		if (cursor == null) {
+			// 커서가 없으면 첫 페이지: 최신순 limit+1개 조회
+			if (sortType == ReviewSortType.LATEST) {
+				fetched = reviewRepository.findByPlaceIdOrderByUpdatedAt(place.getId(), pageable);
+			} else {
+				fetched = reviewRepository.findByPlaceIdOrderByScore(place.getId(), pageable);
+			}
+			boolean hasMore = fetched.size() > limit;
+			hasNext = hasMore;
+			hasPrev = false;
+
+			return CursorPaginationUtils.paginate(
+				total,
+				fetched,
+				limit,
+				isPrev,
+				cursor,
+				hasPrev,
+				hasNext,
+				Review::getId
+			);
+		}
 
 		Review cursorReview = reviewRepository.findById(cursor)
 			.orElseThrow(() -> new BusinessException(ReviewErrorCode.REVIEW_NOT_FOUND));
-
-		Pageable pageable = PageRequest.of(0, limit + 1);
-		List<Review> fetched;
 
 		if (isPrev) {
 			if (sortType == ReviewSortType.SCORE) {
