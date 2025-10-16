@@ -67,7 +67,7 @@ public class ReviewService {
 		Pageable pageable = PageRequest.of(0, limit + 1);
 		List<Review> fetched;
 
-		if (cursor == null) {
+		if (cursor == null || cursor <= 0) {
 			// 커서가 없으면 첫 페이지: 최신순 limit+1개 조회
 			if (sortType == ReviewSortType.LATEST) {
 				fetched = reviewRepository.findByPlaceIdOrderByUpdatedAt(place.getId(), pageable);
