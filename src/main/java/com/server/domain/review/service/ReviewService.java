@@ -6,8 +6,6 @@ import com.server.domain.review.entity.ReviewSortType;
 import com.server.domain.review.repository.ReviewRepository;
 import com.server.domain.review.repository.projection.PlaceScoreProjection;
 import com.server.domain.user.entity.User;
-import com.server.global.error.code.ReviewErrorCode;
-import com.server.global.error.exception.BusinessException;
 import com.server.global.pagination.dto.ApiCursorPaginationRequest;
 import com.server.global.pagination.dto.CursorPageDto;
 import com.server.global.pagination.utils.CursorPaginationUtils;
@@ -66,8 +64,15 @@ public class ReviewService {
 		ReviewSortType sortType = ReviewSortType.of(sortBy);
 		Pageable pageable = PageRequest.of(0, limit + 1);
 		List<Review> fetched;
+		Review cursorReview = null;
 
-		if (cursor == null || cursor <= 0) {
+		// 1️⃣ 커서가 null이 아닐 때만 DB 조회 시도
+		if (cursor != null) {
+			cursorReview = reviewRepository.findById(cursor).orElse(null);
+		}
+
+		// 2️⃣ 커서가 없거나, 해당 리뷰가 존재하지 않는 경우 → 첫 페이지 처리
+		if (cursor == null || cursorReview == null) {
 			// 커서가 없으면 첫 페이지: 최신순 limit+1개 조회
 			if (sortType == ReviewSortType.LATEST) {
 				fetched = reviewRepository.findByPlaceIdOrderByUpdatedAt(place.getId(), pageable);
@@ -82,16 +87,13 @@ public class ReviewService {
 				total,
 				fetched,
 				limit,
-				isPrev,
+				false,
 				cursor,
 				hasPrev,
 				hasNext,
 				Review::getId
 			);
 		}
-
-		Review cursorReview = reviewRepository.findById(cursor)
-			.orElseThrow(() -> new BusinessException(ReviewErrorCode.REVIEW_NOT_FOUND));
 
 		if (isPrev) {
 			if (sortType == ReviewSortType.SCORE) {

@@ -75,7 +75,7 @@ public class PhotoService {
 		List<Photo> fetched;
 		total = photoRepository.countPhotosByPlaceIdAndType(place.getId(), PhotoType.PUBLIC);
 
-		if (cursor == null || cursor <= 0) {
+		if (cursor == null) {
 			// 커서가 없으면 첫 페이지: 최신순 limit+1개 조회
 			fetched = photoRepository.findTopPhotosByPlaceIdAndType(place.getId(),
 				PhotoType.PUBLIC, pageable);
@@ -87,7 +87,7 @@ public class PhotoService {
 				total,
 				fetched,
 				limit,
-				Boolean.TRUE.equals(pageRequest.getPrev()),
+				false,
 				cursor,
 				hasPrev,
 				hasNext,
