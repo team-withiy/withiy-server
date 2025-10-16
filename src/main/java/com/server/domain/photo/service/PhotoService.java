@@ -30,9 +30,9 @@ public class PhotoService {
 	private final static int REVIEW_DEFAULT_PHOTO_LIMIT = 4;
 	private final static int PLACE_DEFAULT_PHOTO_LIMIT = 30;
 
-    public void save(Photo photo) {
-        photoRepository.save(photo);
-    }
+	public void save(Photo photo) {
+		photoRepository.save(photo);
+	}
 
 	public void saveAll(List<Photo> photos) {
 		photoRepository.saveAll(photos);
@@ -75,6 +75,25 @@ public class PhotoService {
 		List<Photo> fetched;
 		total = photoRepository.countPhotosByPlaceIdAndType(place.getId(), PhotoType.PUBLIC);
 
+		if (cursor == null || cursor <= 0) {
+			// 커서가 없으면 첫 페이지: 최신순 limit+1개 조회
+			fetched = photoRepository.findTopPhotosByPlaceIdAndType(place.getId(),
+				PhotoType.PUBLIC, pageable);
+			boolean hasMore = fetched.size() > limit;
+			hasNext = hasMore;
+			hasPrev = false;
+
+			return CursorPaginationUtils.paginate(
+				total,
+				fetched,
+				limit,
+				Boolean.TRUE.equals(pageRequest.getPrev()),
+				cursor,
+				hasPrev,
+				hasNext,
+				Photo::getId
+			);
+		}
 		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
 
 			fetched = photoRepository.findPrevPhotosByPlaceIdAndType(place.getId(),
