@@ -41,7 +41,8 @@ public class CategoryService {
 	}
 
 	public Category getCategoryByName(String name) {
-		return categoryRepository.findByName(name)
+
+		return categoryRepository.findByNameIgnoreCase(name)
 			.orElseThrow(() -> new BusinessException(CategoryErrorCode.NOT_FOUND));
 	}
 
