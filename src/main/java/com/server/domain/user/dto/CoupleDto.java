@@ -34,9 +34,7 @@ public class CoupleDto {
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	private LocalDate firstMetDate;
 
-	public static CoupleDto from(Couple couple, User currentUser) {
-
-		User partner = couple.getPartnerOf(currentUser);
+	public static CoupleDto from(Couple couple, User partner) {
 
 		return CoupleDto.builder()
 			.id(couple.getId())

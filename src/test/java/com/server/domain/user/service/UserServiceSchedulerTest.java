@@ -19,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceSchedulerTest {
@@ -40,9 +41,9 @@ public class UserServiceSchedulerTest {
 		LocalDateTime thirtyOneDaysAgo = now.minus(31, ChronoUnit.DAYS);
 
 		User expiredUser = new User();
-		expiredUser.setId(1L);
-		expiredUser.setNickname("ExpiredUser");
-		expiredUser.setDeletedAt(thirtyOneDaysAgo);
+		ReflectionTestUtils.setField(expiredUser, "id", 1L);
+		expiredUser.updateNickname("ExpiredUser");
+		expiredUser.updateDeletedAt(thirtyOneDaysAgo);
 
 		// 시간 정확도 문제를 해결하기 위해 any() 사용
 		when(userRepository.findByDeletedAtNotNullAndDeletedAtBefore(any(LocalDateTime.class)))
@@ -66,14 +67,14 @@ public class UserServiceSchedulerTest {
 		LocalDateTime thirtyOneDaysAgo = now.minus(31, ChronoUnit.DAYS);
 
 		User user1 = new User();
-		user1.setId(1L);
-		user1.setNickname("User1");
-		user1.setDeletedAt(thirtyOneDaysAgo);
+		ReflectionTestUtils.setField(user1, "id", 1L);
+		user1.updateNickname("User1");
+		user1.updateDeletedAt(thirtyOneDaysAgo);
 
 		User user2 = new User();
-		user2.setId(2L);
-		user2.setNickname("User2");
-		user2.setDeletedAt(thirtyOneDaysAgo);
+		ReflectionTestUtils.setField(user2, "id", 2L);
+		user2.updateNickname("User2");
+		user2.updateDeletedAt(thirtyOneDaysAgo);
 
 		// 시간 정확도 문제를 해결하기 위해 any() 사용
 		when(userRepository.findByDeletedAtNotNullAndDeletedAtBefore(any(LocalDateTime.class)))

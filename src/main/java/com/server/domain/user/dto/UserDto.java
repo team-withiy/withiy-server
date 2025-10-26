@@ -82,6 +82,4 @@ public class UserDto {
 			.restorableCouple(restorableCoupleDto)
 			.build();
 	}
-
-
 }

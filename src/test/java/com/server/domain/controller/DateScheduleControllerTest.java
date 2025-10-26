@@ -1,39 +1,27 @@
 package com.server.domain.controller;
 
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.server.domain.dateSchedule.dto.DateSchedCreateRequest;
-import com.server.domain.dateSchedule.dto.DateSchedPlaceDto;
 import com.server.domain.dateSchedule.service.DateSchedFacade;
-import com.server.domain.user.controller.JwtTestUtil;
 import com.server.domain.user.controller.TestJpaConfig;
 import com.server.domain.user.controller.TestSecurityConfig;
 import com.server.domain.user.entity.User;
-import com.server.global.dto.ApiResponseDto;
 import com.server.global.jwt.JwtAuthentication;
 import com.server.global.jwt.JwtService;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -43,44 +31,44 @@ import org.springframework.web.context.WebApplicationContext;
 @Import({TestSecurityConfig.class, TestJpaConfig.class})
 class DateScheduleControllerTest {
 
-    @Autowired
-    private ObjectMapper objectMapper;
+	@Autowired
+	private ObjectMapper objectMapper;
 
-    @Autowired
-    private WebApplicationContext context;
+	@Autowired
+	private WebApplicationContext context;
 
-    private MockMvc mockMvc;
+	private MockMvc mockMvc;
 
-    @MockBean
-    private JwtService jwtService;
+	@MockBean
+	private JwtService jwtService;
 
-    @MockBean
-    private DateSchedFacade dateSchedFacade;
+	@MockBean
+	private DateSchedFacade dateSchedFacade;
 
-    private User mockUser;
+	private User mockUser;
 
-    @BeforeEach
-    void setUp() {
-        // 각 테스트 전에 MockMvc를 재설정
-        mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+	@BeforeEach
+	void setUp() {
+		// 각 테스트 전에 MockMvc를 재설정
+		mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
 
-        // 테스트용 사용자 설정
-        mockUser = new User();
-        mockUser.setId(1L);
-        mockUser.setNickname("testUser");
-        mockUser.setThumbnail("thumbnail.jpg");
-        mockUser.setCode("USER123");
-        mockUser.setAdmin(false);
+		// 테스트용 사용자 설정
+		mockUser = new User();
+		ReflectionTestUtils.setField(mockUser, "id", 1L);
+		mockUser.updateNickname("testUser");
+		mockUser.updateThumbnail("thumbnail.jpg");
+		ReflectionTestUtils.setField(mockUser, "code", "USER123");
+		ReflectionTestUtils.setField(mockUser, "isAdmin", false);
 
-        // JWT 서비스 설정
-        when(jwtService.createAccessToken(anyLong())).thenReturn("mock-jwt-token");
+		// JWT 서비스 설정
+		when(jwtService.createAccessToken(anyLong())).thenReturn("mock-jwt-token");
 
-        // 기본 인증 설정
-        SecurityContextHolder.getContext().setAuthentication(
-                new JwtAuthentication(mockUser, AuthorityUtils.createAuthorityList("ROLE_USER")));
-    }
+		// 기본 인증 설정
+		SecurityContextHolder.getContext().setAuthentication(
+			new JwtAuthentication(mockUser, AuthorityUtils.createAuthorityList("ROLE_USER")));
+	}
 
-    // TODO
+	// TODO
 //    @Test
 //    @DisplayName("일정 등록 테스트")
 //    void createDateScheduler() throws Exception {

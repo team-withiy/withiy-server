@@ -35,6 +35,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -69,11 +70,11 @@ public class UserControllerTest {
 
 		// Setup mock User
 		mockUser = new User();
-		mockUser.setId(1L);
-		mockUser.setNickname("testUser");
-		mockUser.setThumbnail("thumbnail.jpg");
-		mockUser.setCode("USER123");
-		mockUser.setAdmin(false);
+		ReflectionTestUtils.setField(mockUser, "id", 1L);
+		ReflectionTestUtils.setField(mockUser, "nickname", "testUser");
+		ReflectionTestUtils.setField(mockUser, "thumbnail", "thumbnail.jpg");
+		ReflectionTestUtils.setField(mockUser, "code", "USER123");
+		ReflectionTestUtils.setField(mockUser, "isAdmin", false);
 
 		// Setup mock UserDto
 		mockUserDto = UserDto.builder().nickname("testUser").thumbnail("thumbnail.jpg")

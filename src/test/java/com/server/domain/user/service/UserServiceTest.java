@@ -40,6 +40,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -80,7 +81,7 @@ public class UserServiceTest {
 		// Setup User
 		user = User.builder().nickname("testUser").thumbnail("thumbnail.jpg").terms(terms)
 			.code("USER123").build();
-		user.setId(1L);
+		ReflectionTestUtils.setField(user, "id", 1L);
 
 		// Setup OAuth object
 		oauth = OAuth.builder()
@@ -99,7 +100,7 @@ public class UserServiceTest {
 			termAgreements.add(agreement);
 		}
 
-		user.setTermAgreements(termAgreements);
+		user.updateTermAgreements(termAgreements);
 	}
 
 	@Test
@@ -108,17 +109,15 @@ public class UserServiceTest {
 		// Given
 		// 유저와 파트너 설정
 		User partner = new User();
-		partner.setId(2L);
-		partner.setNickname("partnerUser");
-		partner.setThumbnail("partner-thumbnail.jpg");
+		ReflectionTestUtils.setField(partner, "id", 2L);
+		partner.updateNickname("partnerUser");
+		partner.updateThumbnail("partner-thumbnail.jpg");
 
-		user.setId(1L); // 현재 유저 ID 설정
+		ReflectionTestUtils.setField(user, "id", 1L);
 
 		Couple mockCouple = new Couple();
-		mockCouple.setId(10L);
-		mockCouple.setUser1(user);     // 현재 유저
-		mockCouple.setUser2(partner);  // 상대 유저
-		mockCouple.setDeletedAt(null);
+		ReflectionTestUtils.setField(mockCouple, "id", 10L);
+		mockCouple.updateDeletedAt(null);
 
 		// Setup all required terms as agreed
 		for (TermAgreement agreement : user.getTermAgreements()) {
@@ -126,6 +125,7 @@ public class UserServiceTest {
 		}
 
 		when(coupleService.getCoupleOrNull(any())).thenReturn(mockCouple);
+		when(coupleService.getPartner(mockCouple, user)).thenReturn(partner);
 		// Call the method
 		UserDto userDto = userService.getUser(user);
 
@@ -175,23 +175,22 @@ public class UserServiceTest {
 		// Given
 		// 유저와 파트너 설정
 		User partner = new User();
-		partner.setId(2L);
-		partner.setNickname("partnerUser");
-		partner.setThumbnail("partner-thumbnail.jpg");
+		ReflectionTestUtils.setField(partner, "id", 2L);
+		partner.updateNickname("partnerUser");
+		partner.updateThumbnail("partner-thumbnail.jpg");
 
-		user.setId(1L); // 현재 유저 ID 설정
+		ReflectionTestUtils.setField(user, "id", 1L);// 현재 유저 ID 설정
 
 		Couple mockCouple = new Couple();
-		mockCouple.setId(10L);
-		mockCouple.setUser1(user);     // 현재 유저
-		mockCouple.setUser2(partner);  // 상대 유저
-		mockCouple.setDeletedAt(LocalDateTime.now().minusDays(10));
+		ReflectionTestUtils.setField(mockCouple, "id", 10L);
+		mockCouple.updateDeletedAt(LocalDateTime.now().minusDays(10));
 
 		// Setup all required terms as agreed
 		for (TermAgreement agreement : user.getTermAgreements()) {
 			agreement.setAgreed(true);
 		}
 		when(coupleService.getCoupleOrNull(any())).thenReturn(mockCouple);
+		when(coupleService.getPartner(mockCouple, user)).thenReturn(partner);
 		// Call the method
 		UserDto userDto = userService.getUser(user);
 
@@ -213,17 +212,15 @@ public class UserServiceTest {
 		// Given
 		// 유저와 파트너 설정
 		User partner = new User();
-		partner.setId(2L);
-		partner.setNickname("partnerUser");
-		partner.setThumbnail("partner-thumbnail.jpg");
+		ReflectionTestUtils.setField(partner, "id", 2L);
+		partner.updateNickname("partnerUser");
+		partner.updateThumbnail("partner-thumbnail.jpg");
 
-		user.setId(1L); // 현재 유저 ID 설정
+		ReflectionTestUtils.setField(user, "id", 1L); // 현재 유저 ID 설정
 
 		Couple mockCouple = new Couple();
-		mockCouple.setId(10L);
-		mockCouple.setUser1(user);     // 현재 유저
-		mockCouple.setUser2(partner);  // 상대 유저
-		mockCouple.setDeletedAt(LocalDateTime.now().minusDays(31)); // 31일 이상 지난 커플
+		ReflectionTestUtils.setField(mockCouple, "id", 10L);
+		mockCouple.updateDeletedAt(LocalDateTime.now().minusDays(31)); // 31일 이상 지난 커플
 
 		// Setup all required terms as agreed
 		for (TermAgreement agreement : user.getTermAgreements()) {
@@ -361,7 +358,7 @@ public class UserServiceTest {
 	@DisplayName("Restore account test - successful restoration")
 	void restoreAccountSuccessTest() {
 		// Setup
-		user.setDeletedAt(LocalDateTime.now().minusDays(5));
+		user.updateDeletedAt(LocalDateTime.now().minusDays(5));
 		when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
 		// Call the method
@@ -377,7 +374,7 @@ public class UserServiceTest {
 	@DisplayName("Restore account test - already active account")
 	void restoreAccountAlreadyActiveTest() {
 		// Setup
-		user.setDeletedAt(null);
+		user.updateDeletedAt(null);
 		when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
 		// Call the method and verify exception
@@ -392,7 +389,7 @@ public class UserServiceTest {
 	@DisplayName("Restore account test - restoration period expired")
 	void restoreAccountPeriodExpiredTest() {
 		// Setup
-		user.setDeletedAt(LocalDateTime.now().minusDays(31));
+		user.updateDeletedAt(LocalDateTime.now().minusDays(31));
 		when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
 		// Call the method and verify exception
@@ -478,7 +475,7 @@ public class UserServiceTest {
 	@DisplayName("Set refresh token null test - logout user")
 	void logoutUserTest() {
 		// given
-		user.setRefreshToken("dummy-refresh-token");
+		user.updateRefreshToken("dummy-refresh-token");
 		when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
 		// when
@@ -578,8 +575,8 @@ public class UserServiceTest {
 	@DisplayName("알림 설정 조회 - 데이트 알림 ON, 이벤트 알림 OFF")
 	void getNotificationSettingsTest() {
 		// given
-		user.setDateNotificationEnabled(true);
-		user.setEventNotificationEnabled(false);
+		user.updateDateNotificationEnabled(true);
+		user.updateEventNotificationEnabled(false);
 
 		// when
 		UserNotificationSettingResponseDto responseDto = userService.getNotificationSettings(user);

@@ -15,7 +15,9 @@ import com.server.domain.term.entity.Term;
 import com.server.domain.user.dto.CoupleDto;
 import com.server.domain.user.dto.RestoreCoupleDto;
 import com.server.domain.user.entity.Couple;
+import com.server.domain.user.entity.CoupleMember;
 import com.server.domain.user.entity.User;
+import com.server.domain.user.repository.CoupleMemberRepository;
 import com.server.domain.user.repository.CoupleRepository;
 import com.server.domain.user.repository.UserRepository;
 import com.server.global.error.code.CoupleErrorCode;
@@ -31,12 +33,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 public class CoupleServiceTest {
 
 	@Mock
 	private CoupleRepository coupleRepository;
+
+	@Mock
+	private CoupleMemberRepository coupleMemberRepository;
 
 	@Mock
 	private UserRepository userRepository;
@@ -47,6 +53,8 @@ public class CoupleServiceTest {
 	private User user1;
 	private User user2;
 	private Couple couple;
+	private CoupleMember user1Member;
+	private CoupleMember user2Member;
 	private LocalDate firstMetDate;
 	private LocalDateTime createdDateTime;
 
@@ -59,22 +67,33 @@ public class CoupleServiceTest {
 		user1 = User.builder().nickname("User1").thumbnail("user1_thumbnail.jpg").code("USER1_CODE")
 			.terms(emptyTerms) // Add empty terms list instead of null
 			.build();
-		user1.setId(1L);
+		ReflectionTestUtils.setField(user1, "id", 1L);
 
 		user2 = User.builder().nickname("User2").thumbnail("user2_thumbnail.jpg").code("USER2_CODE")
 			.terms(emptyTerms) // Add empty terms list instead of null
 			.build();
-		user2.setId(2L);
+		ReflectionTestUtils.setField(user2, "id", 2L);
 
 		// Setup dates
 		firstMetDate = LocalDate.of(2025, 1, 1);
 		createdDateTime = LocalDateTime.of(2025, 4, 29, 12, 0);
 
 		// Setup couple
-		couple = new Couple(user1, user2, firstMetDate);
-		couple.setId(1L);
-		couple.setCreatedAt(createdDateTime);
-		couple.setUpdatedAt(createdDateTime);
+		couple = new Couple(firstMetDate);
+		ReflectionTestUtils.setField(couple, "id", 1L);
+		ReflectionTestUtils.setField(couple, "createdAt", createdDateTime);
+		ReflectionTestUtils.setField(couple, "updatedAt", createdDateTime);
+
+		user1Member = CoupleMember.builder()
+			.couple(couple)
+			.user(user1)
+			.build();
+		ReflectionTestUtils.setField(user1Member, "id", 1L);
+		user2Member = CoupleMember.builder()
+			.couple(couple)
+			.user(user2)
+			.build();
+		ReflectionTestUtils.setField(user2Member, "id", 2L);
 	}
 
 	@Test
@@ -87,9 +106,9 @@ public class CoupleServiceTest {
 		when(coupleRepository.save(any(Couple.class))).thenAnswer(invocation -> {
 			Couple savedCouple = invocation.getArgument(0);
 			if (savedCouple.getCreatedAt() == null) {
-				savedCouple.setCreatedAt(createdDateTime);
+				savedCouple.updateDeletedAt(createdDateTime);
 			}
-			savedCouple.setId(1L);
+			ReflectionTestUtils.setField(savedCouple, "id", 1L);
 			return savedCouple;
 		});
 
@@ -107,8 +126,8 @@ public class CoupleServiceTest {
 	@Test
 	@DisplayName("Connect couple - user already connected")
 	void connectCoupleUserAlreadyConnectedTest() {
-		// Setup
-		user1.setCoupleAsUser1(couple); // Set user as already connected
+		when(coupleMemberRepository.findByUserId(user1.getId())).thenReturn(
+			Optional.of(user1Member));
 
 		// Call and verify
 		BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -150,8 +169,10 @@ public class CoupleServiceTest {
 	@DisplayName("Connect couple - partner already connected")
 	void connectCouplePartnerAlreadyConnectedTest() {
 		// Setup
-		user2.setCoupleAsUser2(couple); // Set partner as already connected
+		when(coupleMemberRepository.findByUserId(user1.getId())).thenReturn(Optional.empty());
 		when(userRepository.findByCode("USER2_CODE")).thenReturn(Optional.of(user2));
+		when(coupleMemberRepository.findByUserId(user2.getId())).thenReturn(
+			Optional.of(user2Member));
 
 		// Call and verify
 		BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -165,7 +186,11 @@ public class CoupleServiceTest {
 	@DisplayName("Get couple - successful retrieval")
 	void getCoupleSuccessTest() {
 		// Setup
-		when(coupleRepository.findByUser1OrUser2(user1, user1)).thenReturn(Optional.of(couple));
+		when(coupleMemberRepository.findByUserId(user1.getId())).thenReturn(
+			Optional.of(user1Member));
+
+		when(coupleMemberRepository.findByCoupleIdAndUserIdNot(couple.getId(), user1.getId()))
+			.thenReturn(Optional.of(user2Member));
 
 		// Call the method
 		CoupleDto result = coupleService.getCouple(user1);
@@ -183,8 +208,13 @@ public class CoupleServiceTest {
 	@DisplayName("Get couple - successful retrieval with restore enabled")
 	void getCoupleSuccessWithRestoreEnabledTest() {
 		// Setup
-		couple.setDeletedAt(LocalDateTime.now().minusDays(1)); // Simulate deleted couple
-		when(coupleRepository.findByUser1OrUser2(user1, user1)).thenReturn(Optional.of(couple));
+		couple.updateDeletedAt(LocalDateTime.now().minusDays(1)); // Simulate deleted couple
+
+		when(coupleMemberRepository.findByUserId(user1.getId())).thenReturn(
+			Optional.of(user1Member));
+
+		when(coupleMemberRepository.findByCoupleIdAndUserIdNot(couple.getId(), user1.getId()))
+			.thenReturn(Optional.of(user2Member));
 
 		// Call the method
 		CoupleDto result = coupleService.getCouple(user1);
@@ -203,7 +233,8 @@ public class CoupleServiceTest {
 	@DisplayName("Get couple - not found")
 	void getCoupleNotFoundTest() {
 		// Setup
-		when(coupleRepository.findByUser1OrUser2(user1, user1)).thenReturn(Optional.empty());
+		when(coupleMemberRepository.findByUserId(user1.getId())).thenReturn(
+			Optional.empty());
 
 		// Call and verify
 		BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -217,7 +248,8 @@ public class CoupleServiceTest {
 	@DisplayName("Disconnect couple - successful disconnection")
 	void disconnectCoupleSuccessTest() {
 		// Setup
-		when(coupleRepository.findByUser1OrUser2(user1, user1)).thenReturn(Optional.of(couple));
+		when(coupleMemberRepository.findByUserId(user1.getId())).thenReturn(
+			Optional.of(user1Member));
 
 		// Call the method
 		Long result = coupleService.disconnectCouple(user1);
@@ -232,7 +264,8 @@ public class CoupleServiceTest {
 	@DisplayName("Disconnect couple - not found")
 	void disconnectCoupleNotFoundTest() {
 		// Setup
-		when(coupleRepository.findByUser1OrUser2(user1, user1)).thenReturn(Optional.empty());
+		when(coupleMemberRepository.findByUserId(user1.getId())).thenReturn(
+			Optional.empty());
 
 		// Call and verify
 		BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -247,7 +280,8 @@ public class CoupleServiceTest {
 	void updateFirstMetDateSuccessTest() {
 		// Setup
 		LocalDate newDate = LocalDate.of(2024, 12, 25);
-		when(coupleRepository.findByUser1OrUser2(user1, user1)).thenReturn(Optional.of(couple));
+		when(coupleMemberRepository.findByUserId(user1.getId())).thenReturn(
+			Optional.of(user1Member));
 		when(coupleRepository.save(couple)).thenReturn(couple);
 
 		// Call the method
@@ -264,7 +298,8 @@ public class CoupleServiceTest {
 	void updateFirstMetDateNotFoundTest() {
 		// Setup
 		LocalDate newDate = LocalDate.of(2024, 12, 25);
-		when(coupleRepository.findByUser1OrUser2(user1, user1)).thenReturn(Optional.empty());
+		when(coupleMemberRepository.findByUserId(user1.getId())).thenReturn(
+			Optional.empty());
 
 		// Call and verify
 		BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -279,8 +314,10 @@ public class CoupleServiceTest {
 	void RestoreCoupleSuccessWithRestoreTrueTest() {
 		// Setup
 		RestoreCoupleDto requestDto = new RestoreCoupleDto(true);
-		couple.setDeletedAt(LocalDateTime.now().minusDays(1));
-		when(coupleRepository.findByUser1OrUser2(user1, user1)).thenReturn(Optional.of(couple));
+		couple.updateDeletedAt(LocalDateTime.now().minusDays(1));
+
+		when(coupleMemberRepository.findByUserId(user1.getId())).thenReturn(
+			Optional.of(user1Member));
 
 		// Call the method
 		Long result = coupleService.restoreCouple(user1, requestDto.isRestore());
@@ -299,8 +336,9 @@ public class CoupleServiceTest {
 	void RestoreCoupleSuccessWithRestoreFalseTest() {
 		// Setup
 		RestoreCoupleDto requestDto = new RestoreCoupleDto(false);
-		couple.setDeletedAt(LocalDateTime.now().minusDays(1));
-		when(coupleRepository.findByUser1OrUser2(user1, user1)).thenReturn(Optional.of(couple));
+		couple.updateDeletedAt(LocalDateTime.now().minusDays(1));
+		when(coupleMemberRepository.findByUserId(user1.getId())).thenReturn(
+			Optional.of(user1Member));
 
 		// Verify
 		// When

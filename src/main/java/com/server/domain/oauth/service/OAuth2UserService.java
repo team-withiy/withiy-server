@@ -81,7 +81,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 					String imageUrl = imageService.uploadImage(file, "user", newUser.getId())
 						.getImageUrl();
 					oAuth.updateThumbnail(imageUrl);
-					newUser.setThumbnail(imageUrl);
+					newUser.updateThumbnail(imageUrl);
 				}
 				oAuthRepository.save(oAuth);
 			}
