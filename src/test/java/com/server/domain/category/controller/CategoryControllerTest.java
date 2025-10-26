@@ -38,6 +38,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -72,11 +73,11 @@ class CategoryControllerTest {
 
 		// 테스트용 사용자 설정
 		mockUser = new User();
-		mockUser.setId(1L);
-		mockUser.setNickname("testUser");
-		mockUser.setThumbnail("thumbnail.jpg");
-		mockUser.setCode("USER123");
-		mockUser.setAdmin(false);
+		ReflectionTestUtils.setField(mockUser, "id", 1L);
+		ReflectionTestUtils.setField(mockUser, "nickname", "testUser");
+		ReflectionTestUtils.setField(mockUser, "thumbnail", "thumbnail.jpg");
+		ReflectionTestUtils.setField(mockUser, "code", "USER123");
+		ReflectionTestUtils.setField(mockUser, "isAdmin", false);
 
 		// JWT 서비스 설정
 		when(jwtService.createAccessToken(anyLong())).thenReturn("mock-jwt-token");

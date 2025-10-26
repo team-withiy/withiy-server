@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
@@ -45,9 +46,9 @@ public class TestJwtAuthenticationFilter extends OncePerRequestFilter {
 			// For tests, we don't validate the token - just having it is enough
 			// Instead, we create a mock User and authorities
 			User mockUser = new User();
-			mockUser.setId(1L);
-			mockUser.setNickname("testUser");
-			mockUser.setAdmin(false);
+			ReflectionTestUtils.setField(mockUser, "id", 1L);
+			ReflectionTestUtils.setField(mockUser, "nickname", "testUser");
+			ReflectionTestUtils.setField(mockUser, "admin", false);
 
 			// Assign USER role by default
 			authorities = AuthorityUtils.createAuthorityList("ROLE_USER");

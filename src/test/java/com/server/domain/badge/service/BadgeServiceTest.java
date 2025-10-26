@@ -72,7 +72,7 @@ public class BadgeServiceTest {
 			.terms(terms)
 			.code("USER123")
 			.build();
-		user.setId(1L);
+		ReflectionTestUtils.setField(user, "id", 1L);
 
 		// Setup Badges
 		badges = new ArrayList<>();
