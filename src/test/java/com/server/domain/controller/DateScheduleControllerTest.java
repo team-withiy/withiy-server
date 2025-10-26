@@ -55,8 +55,8 @@ class DateScheduleControllerTest {
 		// 테스트용 사용자 설정
 		mockUser = new User();
 		ReflectionTestUtils.setField(mockUser, "id", 1L);
-		mockUser.updateNickname("testUser");
-		mockUser.updateThumbnail("thumbnail.jpg");
+		ReflectionTestUtils.setField(mockUser, "nickname", "testUser");
+		ReflectionTestUtils.setField(mockUser, "thumbnail", "thumbnail.png");
 		ReflectionTestUtils.setField(mockUser, "code", "USER123");
 		ReflectionTestUtils.setField(mockUser, "isAdmin", false);
 
