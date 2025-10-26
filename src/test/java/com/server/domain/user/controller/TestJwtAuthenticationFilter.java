@@ -48,7 +48,7 @@ public class TestJwtAuthenticationFilter extends OncePerRequestFilter {
 			User mockUser = new User();
 			ReflectionTestUtils.setField(mockUser, "id", 1L);
 			ReflectionTestUtils.setField(mockUser, "nickname", "testUser");
-			ReflectionTestUtils.setField(mockUser, "admin", false);
+			ReflectionTestUtils.setField(mockUser, "isAdmin", false);
 
 			// Assign USER role by default
 			authorities = AuthorityUtils.createAuthorityList("ROLE_USER");

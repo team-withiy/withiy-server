@@ -67,7 +67,7 @@ public class User extends BaseTime {
 	private List<OAuth> oAuth = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true,
-		fetch = FetchType.LAZY)
+		fetch = FetchType.EAGER)
 	@JsonIgnore
 	private List<TermAgreement> termAgreements = new ArrayList<>();
 

@@ -37,7 +37,7 @@ public class CoupleMember extends BaseTime {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	public CoupleMember of(Couple couple, User user) {
+	public static CoupleMember of(Couple couple, User user) {
 		return CoupleMember.builder()
 			.couple(couple)
 			.user(user)

@@ -106,7 +106,7 @@ public class CoupleServiceTest {
 		when(coupleRepository.save(any(Couple.class))).thenAnswer(invocation -> {
 			Couple savedCouple = invocation.getArgument(0);
 			if (savedCouple.getCreatedAt() == null) {
-				savedCouple.updateDeletedAt(createdDateTime);
+				ReflectionTestUtils.setField(savedCouple, "createdAt", createdDateTime);
 			}
 			ReflectionTestUtils.setField(savedCouple, "id", 1L);
 			return savedCouple;
@@ -283,6 +283,8 @@ public class CoupleServiceTest {
 		when(coupleMemberRepository.findByUserId(user1.getId())).thenReturn(
 			Optional.of(user1Member));
 		when(coupleRepository.save(couple)).thenReturn(couple);
+		when(coupleMemberRepository.findByCoupleIdAndUserIdNot(couple.getId(),
+			user1.getId())).thenReturn(Optional.of(user2Member));
 
 		// Call the method
 		CoupleDto result = coupleService.updateFirstMetDate(user1, newDate);

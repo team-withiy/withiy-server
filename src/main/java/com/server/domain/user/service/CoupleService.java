@@ -12,6 +12,7 @@ import com.server.global.error.code.CoupleErrorCode;
 import com.server.global.error.exception.BusinessException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -45,14 +46,14 @@ public class CoupleService {
 		User partner = userRepository.findByCode(partnerCode)
 			.orElseThrow(() -> new BusinessException(CoupleErrorCode.PARTNER_NOT_FOUND));
 
-		// 3. 상대방 이미 커플인지 확인
-		if (isUserInCouple(partner)) {
-			throw new BusinessException(CoupleErrorCode.PARTNER_ALREADY_CONNECTED);
-		}
-
-		// 4. 자기 자신과의 연결 시도 방지
+		// 3. 자기 자신과의 연결 시도 방지
 		if (user.getId().equals(partner.getId())) {
 			throw new BusinessException(CoupleErrorCode.SELF_CONNECTION_NOT_ALLOWED);
+		}
+
+		// 4. 상대방 이미 커플인지 확인
+		if (isUserInCouple(partner)) {
+			throw new BusinessException(CoupleErrorCode.PARTNER_ALREADY_CONNECTED);
 		}
 
 		// 5. 커플 생성 및 저장
@@ -71,7 +72,7 @@ public class CoupleService {
 			return false;
 		}
 
-		return couple.getDeletedAt() == null ? true : false;
+		return couple.getDeletedAt() == null;
 	}
 
 	@Transactional
@@ -92,8 +93,7 @@ public class CoupleService {
 			.user(partner)
 			.build();
 
-		coupleMemberRepository.save(coupleMember);
-		coupleMemberRepository.save(partnerMember);
+		coupleMemberRepository.saveAll(List.of(coupleMember, partnerMember));
 	}
 
 	/**
@@ -184,13 +184,15 @@ public class CoupleService {
 			throw new BusinessException(CoupleErrorCode.COUPLE_NOT_FOUND);
 		}
 
+		User partner = getPartner(couple, user);
+
 		// 처음 만난 날짜 업데이트
 		couple.updateFirstMetDate(firstMetDate);
 		coupleRepository.save(couple);
 
 		log.info("커플 ID: {}의 처음 만난 날짜가 {}로 업데이트되었습니다.", couple.getId(), firstMetDate);
 
-		return CoupleDto.from(couple, user);
+		return CoupleDto.from(couple, partner);
 	}
 
 	/**
