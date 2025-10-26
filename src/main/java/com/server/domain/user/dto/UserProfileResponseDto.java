@@ -26,12 +26,12 @@ public class UserProfileResponseDto {
 	@Schema(description = "커플 여부", example = "true")
 	private Boolean hasCouple;
 
-	public static UserProfileResponseDto from(User user) {
+	public static UserProfileResponseDto from(User user, boolean hasCouple) {
 		return UserProfileResponseDto.builder()
 			.userCode(user.getCode())
 			.nickname(user.getNickname())
 			.profileImageUrl(user.getThumbnail())
-			.hasCouple(user.getCouple() != null)
+			.hasCouple(hasCouple)
 			.build();
 	}
 }

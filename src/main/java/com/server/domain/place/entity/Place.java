@@ -86,11 +86,13 @@ public class Place extends BaseTime {
 	@Column(name = "deleted_at", nullable = true)
 	private LocalDateTime deletedAt;
 
-    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Photo> photos = new ArrayList<>();
+	@OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<Photo> photos = new ArrayList<>();
 
-    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlaceReview> placeReviews = new ArrayList<>();
+	@OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<PlaceReview> placeReviews = new ArrayList<>();
 
 	public boolean isCreatedByAdmin() {
 		return user != null && user.isAdmin();
@@ -126,35 +128,35 @@ public class Place extends BaseTime {
 		}
 	}
 
-    public void addPhoto(Photo photo) {
-        this.photos.add(photo);
-    }
+	public void addPhoto(Photo photo) {
+		this.photos.add(photo);
+	}
 
-    public void addReview(Category category, Long score, String review, String hashTag) {
-        PlaceReview placeReview = PlaceReview.builder()
-                .category(category)
-                .score(score)
-                .review(review)
-                .hashTag(hashTag)
-                .user(this.user)
-                .place(this)
-                .build();
-        this.placeReviews.add(placeReview);
-    }
+	public void addReview(Category category, Long score, String review, String hashTag) {
+		PlaceReview placeReview = PlaceReview.builder()
+			.category(category)
+			.score(score)
+			.review(review)
+			.hashTag(hashTag)
+			.user(this.user)
+			.place(this)
+			.build();
+		this.placeReviews.add(placeReview);
+	}
 
-    public void updateScore(Long score) {
-        int totalReviews = this.getPlaceReviews().size(); // 이미 새 리뷰를 포함
+	public void updateScore(Long score) {
+		int totalReviews = this.getPlaceReviews().size(); // 이미 새 리뷰를 포함
 
-        // (이전 평균 * (개수-1))을 총점으로 가정하고 계산
-        if (totalReviews > 1) {
-            // 기존 총점 (단순화: 이전 평균에 개수-1을 곱함)
-            // NOTE: 이 방식도 부정확할 수 있으므로, 실제로는 'totalScore' 필드를 별도 관리해야 합니다.
-            long previousTotalScore = this.score * (totalReviews - 1);
-            this.score = (previousTotalScore + score) / totalReviews;
-        } else { // 첫 번째 리뷰일 때
-            this.score = score;
-        }
-        this.status = PlaceStatus.ACTIVE;
-    }
+		// (이전 평균 * (개수-1))을 총점으로 가정하고 계산
+		if (totalReviews > 1) {
+			// 기존 총점 (단순화: 이전 평균에 개수-1을 곱함)
+			// NOTE: 이 방식도 부정확할 수 있으므로, 실제로는 'totalScore' 필드를 별도 관리해야 합니다.
+			long previousTotalScore = this.score * (totalReviews - 1);
+			this.score = (previousTotalScore + score) / totalReviews;
+		} else { // 첫 번째 리뷰일 때
+			this.score = score;
+		}
+		this.status = PlaceStatus.ACTIVE;
+	}
 
 }

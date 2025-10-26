@@ -89,7 +89,7 @@ public class OAuth2UserInfo {
 
 		User user =
 			User.builder()
-				.nickname(nickname).thumbnail(picture).terms(terms).code(randomCode) // 생성된 랜덤 코드 설정
+				.nickname(nickname).thumbnail(picture).code(randomCode) // 생성된 랜덤 코드 설정
 				.build();
 
 		return OAuth.builder().provider(provider)

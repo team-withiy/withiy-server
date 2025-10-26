@@ -4,7 +4,6 @@ import com.server.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
@@ -28,13 +27,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class TermAgreement {
 
 	@Id
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne
 	@JoinColumn(name = "user_id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private User user;
 
 	@Id
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne
 	@JoinColumn(name = "term_id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Term term;

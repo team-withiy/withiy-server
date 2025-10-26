@@ -53,20 +53,20 @@ public class UserService {
 	}
 
 	public UserDto getUser(User user) {
-		Couple couple = coupleService.getCoupleOrNull(user);
 
+		// 1. 커플 유저 조회
+		Couple couple = coupleService.getCoupleOrNull(user);
 		if (couple == null) {
 			return UserDto.from(user); // 커플 없음
 		}
 
-		User partner = couple.getPartnerOf(user);
+		// 2. 파트너 유저 조회
+		User partner = coupleService.getPartner(couple, user);
 
+		// 3. 커플 상태에 따른 DTO 반환
 		if (couple.getDeletedAt() == null) {
-			// 커플 연결됨
 			return UserDto.from(user, ActiveCoupleDto.from(couple, partner));
-		}
-
-		if (couple.isRestorable()) {
+		} else if (couple.isRestorable()) {
 			return UserDto.from(user, RestorableCoupleDto.from(couple, partner));
 		}
 
@@ -81,7 +81,7 @@ public class UserService {
 		if (forAccountWithdrawal) { // True: User wants to withdraw their account (e.g., DELETE
 			// /api/users/me)
 			// Soft delete: set deletedAt to current time, mark for eventual hard deletion
-			user.setDeletedAt(LocalDateTime.now());
+			user.updateDeletedAt(LocalDateTime.now());
 			user.updateRefreshToken(null); // Clear refresh token upon withdrawal
 			userRepository.save(user);
 			log.info("User account '{}' marked for deletion (soft delete).", originalNickname);
@@ -89,7 +89,7 @@ public class UserService {
 			// false)
 
 			// 1. Clear soft delete timestamp
-			user.setDeletedAt(null);
+			user.updateDeletedAt(null);
 
 			// 2. Reset all term agreements to false
 			if (user.getTermAgreements() != null) {
@@ -102,8 +102,8 @@ public class UserService {
 
 			// 3. Reset user-specific profile data
 			oauthRepository.findByUser(user).ifPresent(oauth -> {
-				user.setThumbnail(oauth.getThumbnail());
-				user.setNickname(oauth.getNickname());
+				user.updateThumbnail(oauth.getThumbnail());
+				user.updateNickname(oauth.getNickname());
 				oauthRepository.save(oauth);
 				log.debug("Reset OAuth profile data for user '{}'.", originalNickname);
 			});
@@ -145,14 +145,14 @@ public class UserService {
 
 		// 닉네임 설정 (제공된 경우)
 		if (nickname != null && !nickname.trim().isEmpty()) {
-			user.setNickname(nickname);
+			user.updateNickname(nickname);
 			log.debug("Updated nickname for user ID {}: {}", user.getId(), nickname);
 		}
 
 		// 프로필 이미지 설정 (제공된 경우)
 		if (thumbnail != null && !thumbnail.trim().isEmpty()) {
 			// Consider adding URL validation here for security and data integrity.
-			user.setThumbnail(thumbnail);
+			user.updateThumbnail(thumbnail);
 			log.debug("Updated thumbnail for user ID {}: {}", user.getId(), thumbnail);
 		}
 
@@ -209,7 +209,7 @@ public class UserService {
 		}
 
 		// 계정 복구 처리
-		user.setDeletedAt(null);
+		user.updateDeletedAt(null);
 		userRepository.save(user);
 		log.info("User account restored successfully: {}", user.getNickname());
 
@@ -278,8 +278,8 @@ public class UserService {
 		nickname = updateIfNotBlank(nickname, user.getNickname(), "nickname");
 		thumbnail = updateIfNotBlank(thumbnail, user.getThumbnail(), "thumbnail");
 
-		user.setNickname(nickname);
-		user.setThumbnail(thumbnail);
+		user.updateNickname(nickname);
+		user.updateThumbnail(thumbnail);
 		userRepository.save(user);
 
 		// 응답 DTO 생성
@@ -324,14 +324,9 @@ public class UserService {
 			user.getNickname());
 
 		// 커플 정보가 있는 경우, 커플 정보도 포함하여 반환
-		if (user.getCouple() != null) {
-			log.info("User {} is in a couple with ID: {}", user.getNickname(),
-				user.getCouple().getId());
-		} else {
-			log.info("User {} is not in a couple", user.getNickname());
-		}
+		boolean hasCouple = coupleService.isUserInCouple(user);
 
-		return UserProfileResponseDto.from(user);
+		return UserProfileResponseDto.from(user, hasCouple);
 	}
 
 	@Transactional
@@ -352,8 +347,8 @@ public class UserService {
 		Boolean updatedEventSetting = updateIfNotNull(
 			notificationSettingsDto.getEventNotificationEnabled(),
 			user.getEventNotificationEnabled(), "eventNotificationEnabled");
-		user.setDateNotificationEnabled(updatedDateSetting);
-		user.setEventNotificationEnabled(updatedEventSetting);
+		user.updateDateNotificationEnabled(updatedDateSetting);
+		user.updateEventNotificationEnabled(updatedEventSetting);
 		userRepository.save(user);
 	}
 
