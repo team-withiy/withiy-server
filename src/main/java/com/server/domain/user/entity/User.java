@@ -1,7 +1,6 @@
 package com.server.domain.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.server.domain.album.entity.Album;
 import com.server.domain.dateSchedule.entity.DateSchedule;
 import com.server.domain.folder.entity.Folder;
 import com.server.domain.oauth.entity.OAuth;
@@ -98,8 +97,8 @@ public class User {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<DateSchedule> schedules = new ArrayList<>();
 
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Album> albums = new ArrayList<>();
+//	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+//	private List<Album> albums = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Folder> folders = new ArrayList<>();

@@ -62,8 +62,8 @@ public class DateSchedFacade {
                     .region2depth(placeDto.getRegion2depth())
                     .region3depth(placeDto.getRegion3depth())
                     .address(placeDto.getAddress())
-                    .latitude(placeDto.getLatitude())
-                    .longitude(placeDto.getLongitude())
+                    .latitude(Double.valueOf(placeDto.getLatitude()))
+                    .longitude(Double.valueOf(placeDto.getLongitude()))
                     .score(0L)
                     .user(user)
                     .status(PlaceStatus.WRITE)
@@ -149,7 +149,7 @@ public class DateSchedFacade {
                 .title(dateSchedule.getName())
                 .scheduleAt(dateSchedule.getScheduleAt())
                 .dateSchedule(dateSchedule)
-                .user(user)
+                .couple(user.getCouple())
                 .build();
 
         Album savedAlbum = albumService.saveAlbumAndReturn(toSave);
