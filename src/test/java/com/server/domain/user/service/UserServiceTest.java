@@ -18,7 +18,7 @@ import com.server.domain.oauth.entity.OAuth;
 import com.server.domain.oauth.repository.OAuthRepository;
 import com.server.domain.term.entity.Term;
 import com.server.domain.term.entity.TermAgreement;
-import com.server.domain.term.repository.TermAgreementRepository;
+import com.server.domain.term.service.TermService;
 import com.server.domain.user.dto.NotificationSettingRequestDto;
 import com.server.domain.user.dto.UserDto;
 import com.server.domain.user.dto.UserNotificationSettingResponseDto;
@@ -49,7 +49,7 @@ public class UserServiceTest {
 	private UserRepository userRepository;
 
 	@Mock
-	private TermAgreementRepository termAgreementRepository;
+	private TermService termService;
 
 	@Mock
 	private OAuthRepository oauthRepository;
@@ -99,8 +99,6 @@ public class UserServiceTest {
 			TermAgreement agreement = TermAgreement.builder().user(user).term(term).build();
 			termAgreements.add(agreement);
 		}
-
-		user.updateTermAgreements(termAgreements);
 	}
 
 	@Test
@@ -120,12 +118,14 @@ public class UserServiceTest {
 		mockCouple.updateDeletedAt(null);
 
 		// Setup all required terms as agreed
-		for (TermAgreement agreement : user.getTermAgreements()) {
+		for (TermAgreement agreement : termAgreements) {
 			agreement.setAgreed(true);
 		}
 
 		when(coupleService.getCoupleOrNull(any())).thenReturn(mockCouple);
 		when(coupleService.getPartner(mockCouple, user)).thenReturn(partner);
+		when(termService.getUserTermAgreements(user.getId())).thenReturn(termAgreements);
+		
 		// Call the method
 		UserDto userDto = userService.getUser(user);
 
@@ -146,13 +146,13 @@ public class UserServiceTest {
 	@DisplayName("Get user with no couple test")
 	void getUserWithNoCoupleTest() {
 		// Setup all required terms as agreed
-		for (TermAgreement agreement : user.getTermAgreements()) {
+		for (TermAgreement agreement : termAgreements) {
 			agreement.setAgreed(true);
 		}
 
 		// Simulate couple being disconnected
 		when(coupleService.getCoupleOrNull(any())).thenReturn(null);
-
+		when(termService.getUserTermAgreements(user.getId())).thenReturn(termAgreements);
 		// Call the method
 		UserDto userDto = userService.getUser(user);
 
@@ -186,11 +186,13 @@ public class UserServiceTest {
 		mockCouple.updateDeletedAt(LocalDateTime.now().minusDays(10));
 
 		// Setup all required terms as agreed
-		for (TermAgreement agreement : user.getTermAgreements()) {
+		for (TermAgreement agreement : termAgreements) {
 			agreement.setAgreed(true);
 		}
 		when(coupleService.getCoupleOrNull(any())).thenReturn(mockCouple);
 		when(coupleService.getPartner(mockCouple, user)).thenReturn(partner);
+		when(termService.getUserTermAgreements(user.getId())).thenReturn(termAgreements);
+
 		// Call the method
 		UserDto userDto = userService.getUser(user);
 
@@ -223,10 +225,12 @@ public class UserServiceTest {
 		mockCouple.updateDeletedAt(LocalDateTime.now().minusDays(31)); // 31일 이상 지난 커플
 
 		// Setup all required terms as agreed
-		for (TermAgreement agreement : user.getTermAgreements()) {
+		for (TermAgreement agreement : termAgreements) {
 			agreement.setAgreed(true);
 		}
 		when(coupleService.getCoupleOrNull(any())).thenReturn(mockCouple);
+		when(termService.getUserTermAgreements(user.getId())).thenReturn(termAgreements);
+
 		// Call the method
 		UserDto userDto = userService.getUser(user);
 
@@ -287,7 +291,7 @@ public class UserServiceTest {
 	@DisplayName("Reset user for re-registration test (formerly hard delete)")
 	void resetUserForReRegistrationTest() {
 		when(oauthRepository.findByUser(any())).thenReturn(Optional.of(oauth));
-
+		when(termService.getUserTermAgreements(user.getId())).thenReturn(termAgreements);
 		// Call the method with forAccountWithdrawal = false
 		String result = userService.deleteUser(user, false);
 		// Verify the results
@@ -298,9 +302,8 @@ public class UserServiceTest {
 		assertNull(user.getRefreshToken()); // Refresh token should be cleared
 
 		// Verify term agreements are reset
-		for (TermAgreement agreement : user.getTermAgreements()) {
+		for (TermAgreement agreement : termAgreements) {
 			assertFalse(agreement.isAgreed());
-			verify(termAgreementRepository).save(agreement); // Verify each agreement is saved
 		}
 
 		verify(userRepository).save(user); // User should be saved, not deleted
@@ -311,21 +314,22 @@ public class UserServiceTest {
 	@DisplayName("Register user test - successful registration")
 	void registerUserSuccessTest() {
 		// Setup
-		Map<Long, Boolean> termAgreements = new HashMap<>();
-		termAgreements.put(1L, true); // Required term
-		termAgreements.put(2L, false); // Optional term
+		when(termService.getUserTermAgreements(user.getId())).thenReturn(termAgreements);
+		Map<Long, Boolean> updatedTermAgreements = new HashMap<>();
+		updatedTermAgreements.put(1L, true); // Required term
+		updatedTermAgreements.put(2L, true); // Optional term
 
 		// Call the method
-		String result = userService.registerUser(user, termAgreements);
+		String result = userService.registerUser(user, updatedTermAgreements);
 
 		// Verify the results
 		assertEquals("testUser", result);
-		verify(termAgreementRepository, times(2)).save(any(TermAgreement.class));
+		verify(termService, times(1)).saveAllTermAgreements(termAgreements);
 		verify(userRepository).save(user);
 
 		// Verify term agreements were updated
-		assertTrue(user.getTermAgreements().get(0).isAgreed());
-		assertFalse(user.getTermAgreements().get(1).isAgreed());
+		assertTrue(termAgreements.get(0).isAgreed());
+		assertTrue(termAgreements.get(1).isAgreed());
 	}
 
 	@Test
@@ -418,35 +422,36 @@ public class UserServiceTest {
 	@DisplayName("Register user test with nickname update")
 	void registerUserWithNicknameTest() {
 		// Setup
-		Map<Long, Boolean> termAgreements = new HashMap<>();
-		termAgreements.put(1L, true); // Required term
-		termAgreements.put(2L, false); // Optional term
+		when(termService.getUserTermAgreements(user.getId())).thenReturn(termAgreements);
+		Map<Long, Boolean> updatedTermAgreements = new HashMap<>();
+		updatedTermAgreements.put(1L, true); // Required term
+		updatedTermAgreements.put(2L, true); // Optional term
 		String newNickname = "newNickname";
 
 		// Call the method
-		String result = userService.registerUser(user, termAgreements, newNickname, null);
+		String result = userService.registerUser(user, updatedTermAgreements, newNickname, null);
 
 		// Verify the results
 		assertEquals(newNickname, result);
 		assertEquals(newNickname, user.getNickname());
-		verify(termAgreementRepository, times(2)).save(any(TermAgreement.class));
+		verify(termService, times(1)).saveAllTermAgreements(termAgreements);
 		verify(userRepository).save(user);
 
 		// Verify term agreements were updated
-		assertTrue(user.getTermAgreements().get(0).isAgreed());
-		assertFalse(user.getTermAgreements().get(1).isAgreed());
+		assertTrue(termAgreements.get(0).isAgreed());
+		assertTrue(termAgreements.get(1).isAgreed());
 	}
 
 	@Test
 	@DisplayName("Register user test with empty nickname")
 	void registerUserWithEmptyNicknameTest() {
 		// Setup
-		Map<Long, Boolean> termAgreements = new HashMap<>();
-		termAgreements.put(1L, true); // Required term
+		Map<Long, Boolean> updatedTermAgreements = new HashMap<>();
+		updatedTermAgreements.put(1L, true); // Required term
 		String originalNickname = user.getNickname();
 		String emptyNickname = "   ";
 		// Call the method
-		String result = userService.registerUser(user, termAgreements, emptyNickname, null);
+		String result = userService.registerUser(user, updatedTermAgreements, emptyNickname, null);
 
 		// Verify that the nickname remains unchanged
 		assertEquals(originalNickname, result);

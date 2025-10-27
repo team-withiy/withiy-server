@@ -3,7 +3,7 @@ package com.server.domain.user.service;
 import com.server.domain.folder.service.FolderService;
 import com.server.domain.oauth.repository.OAuthRepository;
 import com.server.domain.term.entity.TermAgreement;
-import com.server.domain.term.repository.TermAgreementRepository;
+import com.server.domain.term.service.TermService;
 import com.server.domain.user.dto.ActiveCoupleDto;
 import com.server.domain.user.dto.NotificationSettingRequestDto;
 import com.server.domain.user.dto.ProfileResponseDto;
@@ -35,7 +35,7 @@ public class UserService {
 	private static final long ACCOUNT_RESTORATION_PERIOD_DAYS = 30;
 	private final UserRepository userRepository;
 	private final OAuthRepository oauthRepository;
-	private final TermAgreementRepository termAgreementRepository;
+	private final TermService termService;
 	private final CoupleService coupleService;
 	private final FolderService folderService;
 
@@ -52,12 +52,17 @@ public class UserService {
 			.orElseThrow(() -> new BusinessException(UserErrorCode.NOT_FOUND));
 	}
 
+	@Transactional(readOnly = true)
 	public UserDto getUser(User user) {
+
+		// 약관 동의 여부 확인
+		List<TermAgreement> agreements = termService.getUserTermAgreements(user.getId());
+		boolean isRegistered = hasAgreedToAllRequiredTerms(user.getId(), agreements);
 
 		// 1. 커플 유저 조회
 		Couple couple = coupleService.getCoupleOrNull(user);
 		if (couple == null) {
-			return UserDto.from(user); // 커플 없음
+			return UserDto.from(user, isRegistered); // 커플 없음
 		}
 
 		// 2. 파트너 유저 조회
@@ -65,12 +70,30 @@ public class UserService {
 
 		// 3. 커플 상태에 따른 DTO 반환
 		if (couple.getDeletedAt() == null) {
-			return UserDto.from(user, ActiveCoupleDto.from(couple, partner));
+			return UserDto.from(user, ActiveCoupleDto.from(couple, partner), isRegistered);
 		} else if (couple.isRestorable()) {
-			return UserDto.from(user, RestorableCoupleDto.from(couple, partner));
+			return UserDto.from(user, RestorableCoupleDto.from(couple, partner), isRegistered);
 		}
 
-		return UserDto.from(user); // 삭제된 지 30일 이상
+		return UserDto.from(user, isRegistered); // 삭제된 지 30일 이상
+	}
+
+	private boolean hasAgreedToAllRequiredTerms(Long userId, List<TermAgreement> agreements) {
+		if (agreements.isEmpty()) {
+			log.warn("User {} has no term agreements.", userId);
+			return false;
+		}
+
+		// 필수 약관 중 하나라도 미동의가 있다면 false
+		boolean allAgreed = agreements.stream()
+			.filter(a -> a.getTerm().isRequired())
+			.allMatch(TermAgreement::isAgreed);
+
+		if (!allAgreed) {
+			log.info("User {} has not agreed to all required terms.", userId);
+		}
+
+		return allAgreed;
 	}
 
 
@@ -92,13 +115,9 @@ public class UserService {
 			user.updateDeletedAt(null);
 
 			// 2. Reset all term agreements to false
-			if (user.getTermAgreements() != null) {
-				for (TermAgreement agreement : user.getTermAgreements()) {
-					agreement.setAgreed(false);
-					termAgreementRepository.save(agreement);
-				}
-				log.debug("Reset term agreements for user '{}'.", originalNickname);
-			}
+			List<TermAgreement> agreements = termService.getUserTermAgreements(user.getId());
+			agreements.forEach(agreement -> agreement.setAgreed(false));
+			log.debug("Reset term agreements for user '{}'.", originalNickname);
 
 			// 3. Reset user-specific profile data
 			oauthRepository.findByUser(user).ifPresent(oauth -> {
@@ -119,16 +138,17 @@ public class UserService {
 
 	private boolean areAllRequiredTermsAgreed(User user) {
 		// If there are no term agreements, return false
-		if (user.getTermAgreements() == null || user.getTermAgreements().isEmpty()) {
+		List<TermAgreement> agreements = termService.getUserTermAgreements(user.getId());
+
+		// 약관이 없으면 바로 false
+		if (agreements.isEmpty()) {
 			return false;
 		}
 
-		for (TermAgreement agreement : user.getTermAgreements()) {
-			if (agreement.getTerm().isRequired() && !agreement.isAgreed()) {
-				return false;
-			}
-		}
-		return true;
+		// 필수 약관 모두 동의했는지 검사
+		return agreements.stream()
+			.filter(a -> a.getTerm().isRequired())
+			.allMatch(TermAgreement::isAgreed);
 	}
 
 	@Transactional
@@ -156,16 +176,18 @@ public class UserService {
 			log.debug("Updated thumbnail for user ID {}: {}", user.getId(), thumbnail);
 		}
 
-		// Update each term agreement based on the provided term ID and boolean value
-		for (TermAgreement agreement : user.getTermAgreements()) {
-			Long termId = agreement.getTerm().getId();
-			if (termAgreements.containsKey(termId)) {
-				agreement.setAgreed(termAgreements.get(termId));
-				termAgreementRepository.save(agreement);
-				log.debug("Updated term agreement for term ID {}: {}", termId,
-					termAgreements.get(termId));
-			}
-		}
+		// Update user's term agreements based on client request
+		List<TermAgreement> existingAgreements = termService.getUserTermAgreements(user.getId());
+		existingAgreements.stream()
+			.filter(agreement -> termAgreements.containsKey(agreement.getTerm().getId()))
+			.peek(agreement -> {
+				Long termId = agreement.getTerm().getId();
+				Boolean agreed = termAgreements.get(termId);
+				agreement.setAgreed(agreed);
+				log.debug("Updated term agreement for term ID {}: {}", termId, agreed);
+			})
+			.toList();
+		termService.saveAllTermAgreements(existingAgreements);
 
 		// Check if all required terms are agreed to and log the registration status
 		boolean registered = areAllRequiredTermsAgreed(user);
