@@ -8,11 +8,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Slf4j
 public class UserDto {
 
 	@Schema(description = "사용자 ID", example = "6")
@@ -38,13 +40,13 @@ public class UserDto {
 	@Schema(description = "복구 가능 커플 정보", nullable = true)
 	private RestorableCoupleDto restorableCouple;
 
-	public static UserDto from(User user) {
+	public static UserDto from(User user, Boolean isRegistered) {
 		return UserDto.builder()
 			.id(user.getId())
 			.nickname(user.getNickname())
 			.thumbnail(user.getThumbnail())
 			.restoreEnabled(user.isRestorable())
-			.isRegistered(user.hasAgreedToAllRequiredTerms())
+			.isRegistered(isRegistered)
 			.code(user.getCode())
 			.hasCouple(false)
 			.hasRestorableCouple(false)
@@ -53,13 +55,13 @@ public class UserDto {
 			.build();
 	}
 
-	public static UserDto from(User user, ActiveCoupleDto activeCoupleDto) {
+	public static UserDto from(User user, ActiveCoupleDto activeCoupleDto, Boolean isRegistered) {
 		return UserDto.builder()
 			.id(user.getId())
 			.nickname(user.getNickname())
 			.thumbnail(user.getThumbnail())
 			.restoreEnabled(user.isRestorable())
-			.isRegistered(user.hasAgreedToAllRequiredTerms())
+			.isRegistered(isRegistered)
 			.code(user.getCode())
 			.hasCouple(activeCoupleDto != null)
 			.couple(activeCoupleDto)
@@ -68,13 +70,14 @@ public class UserDto {
 			.build();
 	}
 
-	public static UserDto from(User user, RestorableCoupleDto restorableCoupleDto) {
+	public static UserDto from(User user, RestorableCoupleDto restorableCoupleDto,
+		Boolean isRegistered) {
 		return UserDto.builder()
 			.id(user.getId())
 			.nickname(user.getNickname())
 			.thumbnail(user.getThumbnail())
 			.restoreEnabled(user.isRestorable())
-			.isRegistered(user.hasAgreedToAllRequiredTerms())
+			.isRegistered(isRegistered)
 			.code(user.getCode())
 			.hasCouple(false)
 			.couple(null)
@@ -82,6 +85,4 @@ public class UserDto {
 			.restorableCouple(restorableCoupleDto)
 			.build();
 	}
-
-
 }

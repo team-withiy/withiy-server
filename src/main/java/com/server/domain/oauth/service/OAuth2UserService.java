@@ -4,13 +4,11 @@ import com.server.domain.oauth.dto.OAuth2UserInfo;
 import com.server.domain.oauth.dto.PrincipalDetails;
 import com.server.domain.oauth.entity.OAuth;
 import com.server.domain.oauth.repository.OAuthRepository;
-import com.server.domain.term.entity.TermAgreement;
 import com.server.domain.term.repository.TermAgreementRepository;
 import com.server.domain.term.repository.TermRepository;
 import com.server.domain.user.entity.User;
 import com.server.global.service.ImageService;
 import jakarta.transaction.Transactional;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -81,14 +79,9 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 					String imageUrl = imageService.uploadImage(file, "user", newUser.getId())
 						.getImageUrl();
 					oAuth.updateThumbnail(imageUrl);
-					newUser.setThumbnail(imageUrl);
+					newUser.updateThumbnail(imageUrl);
 				}
 				oAuthRepository.save(oAuth);
-			}
-
-			List<TermAgreement> termAgreements = oAuth.getUser().getTermAgreements();
-			for (TermAgreement termAgreement : termAgreements) {
-				termAgreementRepository.save(termAgreement);
 			}
 			return oAuth;
 		} catch (Exception e) {
@@ -96,5 +89,4 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 			throw e;
 		}
 	}
-
 }

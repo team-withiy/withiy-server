@@ -3,7 +3,7 @@ package com.server.domain.user.service;
 import com.server.domain.folder.service.FolderService;
 import com.server.domain.oauth.repository.OAuthRepository;
 import com.server.domain.term.entity.TermAgreement;
-import com.server.domain.term.repository.TermAgreementRepository;
+import com.server.domain.term.service.TermService;
 import com.server.domain.user.dto.ActiveCoupleDto;
 import com.server.domain.user.dto.NotificationSettingRequestDto;
 import com.server.domain.user.dto.ProfileResponseDto;
@@ -35,7 +35,7 @@ public class UserService {
 	private static final long ACCOUNT_RESTORATION_PERIOD_DAYS = 30;
 	private final UserRepository userRepository;
 	private final OAuthRepository oauthRepository;
-	private final TermAgreementRepository termAgreementRepository;
+	private final TermService termService;
 	private final CoupleService coupleService;
 	private final FolderService folderService;
 
@@ -52,25 +52,48 @@ public class UserService {
 			.orElseThrow(() -> new BusinessException(UserErrorCode.NOT_FOUND));
 	}
 
+	@Transactional(readOnly = true)
 	public UserDto getUser(User user) {
+
+		// 약관 동의 여부 확인
+		List<TermAgreement> agreements = termService.getUserTermAgreements(user.getId());
+		boolean isRegistered = hasAgreedToAllRequiredTerms(user.getId(), agreements);
+
+		// 1. 커플 유저 조회
 		Couple couple = coupleService.getCoupleOrNull(user);
-
 		if (couple == null) {
-			return UserDto.from(user); // 커플 없음
+			return UserDto.from(user, isRegistered); // 커플 없음
 		}
 
-		User partner = couple.getPartnerOf(user);
+		// 2. 파트너 유저 조회
+		User partner = coupleService.getPartner(couple, user);
 
+		// 3. 커플 상태에 따른 DTO 반환
 		if (couple.getDeletedAt() == null) {
-			// 커플 연결됨
-			return UserDto.from(user, ActiveCoupleDto.from(couple, partner));
+			return UserDto.from(user, ActiveCoupleDto.from(couple, partner), isRegistered);
+		} else if (couple.isRestorable()) {
+			return UserDto.from(user, RestorableCoupleDto.from(couple, partner), isRegistered);
 		}
 
-		if (couple.isRestorable()) {
-			return UserDto.from(user, RestorableCoupleDto.from(couple, partner));
+		return UserDto.from(user, isRegistered); // 삭제된 지 30일 이상
+	}
+
+	private boolean hasAgreedToAllRequiredTerms(Long userId, List<TermAgreement> agreements) {
+		if (agreements.isEmpty()) {
+			log.warn("User {} has no term agreements.", userId);
+			return false;
 		}
 
-		return UserDto.from(user); // 삭제된 지 30일 이상
+		// 필수 약관 중 하나라도 미동의가 있다면 false
+		boolean allAgreed = agreements.stream()
+			.filter(a -> a.getTerm().isRequired())
+			.allMatch(TermAgreement::isAgreed);
+
+		if (!allAgreed) {
+			log.info("User {} has not agreed to all required terms.", userId);
+		}
+
+		return allAgreed;
 	}
 
 
@@ -81,7 +104,7 @@ public class UserService {
 		if (forAccountWithdrawal) { // True: User wants to withdraw their account (e.g., DELETE
 			// /api/users/me)
 			// Soft delete: set deletedAt to current time, mark for eventual hard deletion
-			user.setDeletedAt(LocalDateTime.now());
+			user.updateDeletedAt(LocalDateTime.now());
 			user.updateRefreshToken(null); // Clear refresh token upon withdrawal
 			userRepository.save(user);
 			log.info("User account '{}' marked for deletion (soft delete).", originalNickname);
@@ -89,21 +112,18 @@ public class UserService {
 			// false)
 
 			// 1. Clear soft delete timestamp
-			user.setDeletedAt(null);
+			user.updateDeletedAt(null);
 
 			// 2. Reset all term agreements to false
-			if (user.getTermAgreements() != null) {
-				for (TermAgreement agreement : user.getTermAgreements()) {
-					agreement.setAgreed(false);
-					termAgreementRepository.save(agreement);
-				}
-				log.debug("Reset term agreements for user '{}'.", originalNickname);
-			}
+			List<TermAgreement> agreements = termService.getUserTermAgreements(user.getId());
+			agreements.forEach(agreement -> agreement.setAgreed(false));
+			termService.saveAllTermAgreements(agreements);
+			log.debug("Reset term agreements for user '{}'.", originalNickname);
 
 			// 3. Reset user-specific profile data
 			oauthRepository.findByUser(user).ifPresent(oauth -> {
-				user.setThumbnail(oauth.getThumbnail());
-				user.setNickname(oauth.getNickname());
+				user.updateThumbnail(oauth.getThumbnail());
+				user.updateNickname(oauth.getNickname());
 				oauthRepository.save(oauth);
 				log.debug("Reset OAuth profile data for user '{}'.", originalNickname);
 			});
@@ -119,16 +139,17 @@ public class UserService {
 
 	private boolean areAllRequiredTermsAgreed(User user) {
 		// If there are no term agreements, return false
-		if (user.getTermAgreements() == null || user.getTermAgreements().isEmpty()) {
+		List<TermAgreement> agreements = termService.getUserTermAgreements(user.getId());
+
+		// 약관이 없으면 바로 false
+		if (agreements.isEmpty()) {
 			return false;
 		}
 
-		for (TermAgreement agreement : user.getTermAgreements()) {
-			if (agreement.getTerm().isRequired() && !agreement.isAgreed()) {
-				return false;
-			}
-		}
-		return true;
+		// 필수 약관 모두 동의했는지 검사
+		return agreements.stream()
+			.filter(a -> a.getTerm().isRequired())
+			.allMatch(TermAgreement::isAgreed);
 	}
 
 	@Transactional
@@ -145,27 +166,28 @@ public class UserService {
 
 		// 닉네임 설정 (제공된 경우)
 		if (nickname != null && !nickname.trim().isEmpty()) {
-			user.setNickname(nickname);
+			user.updateNickname(nickname);
 			log.debug("Updated nickname for user ID {}: {}", user.getId(), nickname);
 		}
 
 		// 프로필 이미지 설정 (제공된 경우)
 		if (thumbnail != null && !thumbnail.trim().isEmpty()) {
 			// Consider adding URL validation here for security and data integrity.
-			user.setThumbnail(thumbnail);
+			user.updateThumbnail(thumbnail);
 			log.debug("Updated thumbnail for user ID {}: {}", user.getId(), thumbnail);
 		}
 
-		// Update each term agreement based on the provided term ID and boolean value
-		for (TermAgreement agreement : user.getTermAgreements()) {
+		// Update user's term agreements based on client request
+		List<TermAgreement> existingAgreements = termService.getUserTermAgreements(user.getId());
+		existingAgreements.forEach(agreement -> {
 			Long termId = agreement.getTerm().getId();
 			if (termAgreements.containsKey(termId)) {
-				agreement.setAgreed(termAgreements.get(termId));
-				termAgreementRepository.save(agreement);
-				log.debug("Updated term agreement for term ID {}: {}", termId,
-					termAgreements.get(termId));
+				Boolean agreed = termAgreements.get(termId);
+				agreement.setAgreed(agreed);
+				log.debug("Updated term agreement for term ID {}: {}", termId, agreed);
 			}
-		}
+		});
+		termService.saveAllTermAgreements(existingAgreements);
 
 		// Check if all required terms are agreed to and log the registration status
 		boolean registered = areAllRequiredTermsAgreed(user);
@@ -209,7 +231,7 @@ public class UserService {
 		}
 
 		// 계정 복구 처리
-		user.setDeletedAt(null);
+		user.updateDeletedAt(null);
 		userRepository.save(user);
 		log.info("User account restored successfully: {}", user.getNickname());
 
@@ -278,8 +300,8 @@ public class UserService {
 		nickname = updateIfNotBlank(nickname, user.getNickname(), "nickname");
 		thumbnail = updateIfNotBlank(thumbnail, user.getThumbnail(), "thumbnail");
 
-		user.setNickname(nickname);
-		user.setThumbnail(thumbnail);
+		user.updateNickname(nickname);
+		user.updateThumbnail(thumbnail);
 		userRepository.save(user);
 
 		// 응답 DTO 생성
@@ -324,14 +346,9 @@ public class UserService {
 			user.getNickname());
 
 		// 커플 정보가 있는 경우, 커플 정보도 포함하여 반환
-		if (user.getCouple() != null) {
-			log.info("User {} is in a couple with ID: {}", user.getNickname(),
-				user.getCouple().getId());
-		} else {
-			log.info("User {} is not in a couple", user.getNickname());
-		}
+		boolean hasCouple = coupleService.isUserInCouple(user);
 
-		return UserProfileResponseDto.from(user);
+		return UserProfileResponseDto.from(user, hasCouple);
 	}
 
 	@Transactional
@@ -352,8 +369,8 @@ public class UserService {
 		Boolean updatedEventSetting = updateIfNotNull(
 			notificationSettingsDto.getEventNotificationEnabled(),
 			user.getEventNotificationEnabled(), "eventNotificationEnabled");
-		user.setDateNotificationEnabled(updatedDateSetting);
-		user.setEventNotificationEnabled(updatedEventSetting);
+		user.updateDateNotificationEnabled(updatedDateSetting);
+		user.updateEventNotificationEnabled(updatedEventSetting);
 		userRepository.save(user);
 	}
 

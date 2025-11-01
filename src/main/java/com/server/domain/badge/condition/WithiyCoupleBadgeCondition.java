@@ -2,10 +2,15 @@ package com.server.domain.badge.condition;
 
 import com.server.domain.badge.entity.BadgeType;
 import com.server.domain.user.entity.User;
+import com.server.domain.user.service.CoupleService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class WithiyCoupleBadgeCondition implements BadgeCondition {
+
+	private final CoupleService coupleService;
 
 	@Override
 	public BadgeType getBadgeType() {
@@ -14,6 +19,6 @@ public class WithiyCoupleBadgeCondition implements BadgeCondition {
 
 	@Override
 	public boolean isSatisfied(User user) {
-		return user.getCouple() != null; // 커플 연결되어 있으면 true
+		return coupleService.isUserInCouple(user);
 	}
 }

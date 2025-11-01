@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -86,11 +87,11 @@ public class TestSecurityConfig implements WebMvcConfigurer {
 
 			// 기본 테스트 사용자 생성
 			com.server.domain.user.entity.User testUser = new com.server.domain.user.entity.User();
-			testUser.setId(1L);
-			testUser.setNickname("testUser");
-			testUser.setThumbnail("thumbnail.jpg");
-			testUser.setCode("USER123");
-			testUser.setAdmin(false);
+			ReflectionTestUtils.setField(testUser, "id", 1L);
+			ReflectionTestUtils.setField(testUser, "nickname", "testUser");
+			ReflectionTestUtils.setField(testUser, "thumbnail", "thumbnail.jpg");
+			ReflectionTestUtils.setField(testUser, "code", "USER123");
+			ReflectionTestUtils.setField(testUser, "isAdmin", false);
 
 			return testUser;
 		}

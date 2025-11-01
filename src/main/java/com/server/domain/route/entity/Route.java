@@ -59,25 +59,27 @@ public class Route extends BaseTime {
 	@Column(name = "score")
 	private Long score;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name ="route_type")
-    private RouteType routeType;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "route_type")
+	private RouteType routeType;
 
 	@Column(name = "deleted_at", nullable = true)
 	private LocalDateTime deletedAt;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dateSchedule_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private DateSchedule dateSchedule;
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "dateSchedule_id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	private DateSchedule dateSchedule;
 
-    @OneToMany(mappedBy = "route", fetch = FetchType.LAZY)
-    private List<DateSchedule> dateSchedules = new ArrayList<>();
+	@OneToMany(mappedBy = "route", fetch = FetchType.LAZY)
+	@Builder.Default
+	private List<DateSchedule> dateSchedules = new ArrayList<>();
 
-    @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<RoutePlace> routePlaces = new ArrayList<>();
+	@OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	@Builder.Default
+	private List<RoutePlace> routePlaces = new ArrayList<>();
 
-    public void updateStatus(RouteStatus routeStatus) {
-        this.status = routeStatus;
-    }
+	public void updateStatus(RouteStatus routeStatus) {
+		this.status = routeStatus;
+	}
 }
