@@ -20,5 +20,6 @@ public class ApiCursorPaginationRequest implements PaginationRequest {
 	@Schema(description = "한 번에 가져올 데이터 수", example = "10", defaultValue = "10")
 	private int limit;
 	@Schema(description = "이전 페이지로 이동 여부, false일 경우 다음 페이지", example = "false", defaultValue = "false")
+	@Builder.Default
 	private Boolean prev = false;
 }

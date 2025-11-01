@@ -69,7 +69,6 @@ public class BadgeServiceTest {
 		user = User.builder()
 			.nickname("testUser")
 			.thumbnail("thumbnail.jpg")
-			.terms(terms)
 			.code("USER123")
 			.build();
 		ReflectionTestUtils.setField(user, "id", 1L);

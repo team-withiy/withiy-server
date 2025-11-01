@@ -1,24 +1,15 @@
 package com.server.domain.user.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.server.domain.oauth.entity.OAuth;
-import com.server.domain.term.entity.Term;
-import com.server.domain.term.entity.TermAgreement;
 import com.server.global.common.BaseTime;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -58,20 +49,6 @@ public class User extends BaseTime {
 	@Column(name = "deleted_at", nullable = true)
 	private LocalDateTime deletedAt;
 
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	private List<CoupleMember> coupleMembers = new ArrayList<>();
-
-	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true,
-		fetch = FetchType.LAZY)
-	@JsonIgnore
-	private List<OAuth> oAuth = new ArrayList<>();
-
-	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true,
-		fetch = FetchType.EAGER)
-	@JsonIgnore
-	private List<TermAgreement> termAgreements = new ArrayList<>();
-
-
 	// date_notification_enabled
 	@Column(name = "date_notification_enabled", nullable = false)
 	private Boolean dateNotificationEnabled = true;
@@ -81,31 +58,15 @@ public class User extends BaseTime {
 
 
 	@Builder
-	public User(String nickname, String thumbnail, List<Term> terms, String code) {
+	public User(String nickname, String thumbnail, String code) {
 		this.nickname = nickname;
 		this.thumbnail = thumbnail;
 		this.isAdmin = false;
 		this.code = code;
-		for (Term term : terms) {
-			this.termAgreements.add(TermAgreement.builder().user(this).term(term).build());
-		}
 	}
 
 	public void updateRefreshToken(String refreshToken) {
 		this.refreshToken = refreshToken;
-	}
-
-	public boolean hasAgreedToAllRequiredTerms() {
-		if (termAgreements == null || termAgreements.isEmpty()) {
-			return false;
-		}
-
-		for (TermAgreement agreement : termAgreements) {
-			if (agreement.getTerm().isRequired() && !agreement.isAgreed()) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	public boolean isRestorable() {
@@ -132,7 +93,4 @@ public class User extends BaseTime {
 		this.eventNotificationEnabled = enabled;
 	}
 
-	public void updateTermAgreements(List<TermAgreement> termAgreements) {
-		this.termAgreements = termAgreements;
-	}
 }
