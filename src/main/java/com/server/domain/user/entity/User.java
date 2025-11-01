@@ -1,6 +1,5 @@
 package com.server.domain.user.entity;
 
-import com.server.domain.term.entity.Term;
 import com.server.global.common.BaseTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,7 +10,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -60,7 +58,7 @@ public class User extends BaseTime {
 
 
 	@Builder
-	public User(String nickname, String thumbnail, List<Term> terms, String code) {
+	public User(String nickname, String thumbnail, String code) {
 		this.nickname = nickname;
 		this.thumbnail = thumbnail;
 		this.isAdmin = false;
@@ -94,5 +92,5 @@ public class User extends BaseTime {
 	public void updateEventNotificationEnabled(Boolean enabled) {
 		this.eventNotificationEnabled = enabled;
 	}
-	
+
 }

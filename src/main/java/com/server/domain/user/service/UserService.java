@@ -117,6 +117,7 @@ public class UserService {
 			// 2. Reset all term agreements to false
 			List<TermAgreement> agreements = termService.getUserTermAgreements(user.getId());
 			agreements.forEach(agreement -> agreement.setAgreed(false));
+			termService.saveAllTermAgreements(agreements);
 			log.debug("Reset term agreements for user '{}'.", originalNickname);
 
 			// 3. Reset user-specific profile data
@@ -178,15 +179,14 @@ public class UserService {
 
 		// Update user's term agreements based on client request
 		List<TermAgreement> existingAgreements = termService.getUserTermAgreements(user.getId());
-		existingAgreements.stream()
-			.filter(agreement -> termAgreements.containsKey(agreement.getTerm().getId()))
-			.peek(agreement -> {
-				Long termId = agreement.getTerm().getId();
+		existingAgreements.forEach(agreement -> {
+			Long termId = agreement.getTerm().getId();
+			if (termAgreements.containsKey(termId)) {
 				Boolean agreed = termAgreements.get(termId);
 				agreement.setAgreed(agreed);
 				log.debug("Updated term agreement for term ID {}: {}", termId, agreed);
-			})
-			.toList();
+			}
+		});
 		termService.saveAllTermAgreements(existingAgreements);
 
 		// Check if all required terms are agreed to and log the registration status

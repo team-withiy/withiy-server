@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TermAgreementRepository extends JpaRepository<TermAgreement, TermAgreementId> {
-	
+
 	@EntityGraph(attributePaths = "term")
-	List<TermAgreement> findByUserId(@Param("userId") Long userId);
+	List<TermAgreement> findAllByUserId(@Param("userId") Long userId);
 }

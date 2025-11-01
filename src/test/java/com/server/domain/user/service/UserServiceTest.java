@@ -79,8 +79,11 @@ public class UserServiceTest {
 		terms.add(optionalTerm);
 
 		// Setup User
-		user = User.builder().nickname("testUser").thumbnail("thumbnail.jpg").terms(terms)
-			.code("USER123").build();
+		user = User.builder()
+			.nickname("testUser")
+			.thumbnail("thumbnail.jpg")
+			.code("USER123")
+			.build();
 		ReflectionTestUtils.setField(user, "id", 1L);
 
 		// Setup OAuth object
@@ -125,7 +128,7 @@ public class UserServiceTest {
 		when(coupleService.getCoupleOrNull(any())).thenReturn(mockCouple);
 		when(coupleService.getPartner(mockCouple, user)).thenReturn(partner);
 		when(termService.getUserTermAgreements(user.getId())).thenReturn(termAgreements);
-		
+
 		// Call the method
 		UserDto userDto = userService.getUser(user);
 
@@ -305,7 +308,7 @@ public class UserServiceTest {
 		for (TermAgreement agreement : termAgreements) {
 			assertFalse(agreement.isAgreed());
 		}
-
+		verify(termService, times(1)).saveAllTermAgreements(termAgreements);
 		verify(userRepository).save(user); // User should be saved, not deleted
 		verify(userRepository, never()).delete(user); // Ensure delete is not called
 	}

@@ -65,12 +65,10 @@ public class CoupleServiceTest {
 
 		// Setup users
 		user1 = User.builder().nickname("User1").thumbnail("user1_thumbnail.jpg").code("USER1_CODE")
-			.terms(emptyTerms) // Add empty terms list instead of null
 			.build();
 		ReflectionTestUtils.setField(user1, "id", 1L);
 
 		user2 = User.builder().nickname("User2").thumbnail("user2_thumbnail.jpg").code("USER2_CODE")
-			.terms(emptyTerms) // Add empty terms list instead of null
 			.build();
 		ReflectionTestUtils.setField(user2, "id", 2L);
 

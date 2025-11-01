@@ -27,7 +27,7 @@ public class TermService {
 
 	@Transactional(readOnly = true)
 	public List<TermAgreement> getUserTermAgreements(Long userId) {
-		return termAgreementRepository.findByUserId(userId);
+		return termAgreementRepository.findAllByUserId(userId);
 	}
 
 	@Transactional
