@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum AlbumErrorCode implements ErrorCode {
 	ALBUM_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "앨범을 찾을 수 없습니다."),
-	PLACE_NOT_MATCHED(HttpStatus.BAD_REQUEST.value(), "요청한 장소와 사진의 장소가 일치하지 않습니다.");
+	PLACE_NOT_MATCHED(HttpStatus.BAD_REQUEST.value(), "요청한 장소와 사진의 장소가 일치하지 않습니다."),
+    ALBUM_COMMENT_OVER_10(HttpStatus.BAD_REQUEST.value(), "댓글은 한 사람당 최대 10개 까지 작성가능합니다.")
+    ;
 
 
 	private final int status;

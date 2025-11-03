@@ -24,7 +24,9 @@ import com.server.domain.route.entity.Route;
 import com.server.domain.route.entity.RoutePlace;
 import com.server.domain.route.entity.RouteType;
 import com.server.domain.route.service.RouteService;
+import com.server.domain.user.entity.Couple;
 import com.server.domain.user.entity.User;
+import com.server.domain.user.service.CoupleService;
 import com.server.global.error.code.DateSchedErrorCode;
 import com.server.global.error.exception.BusinessException;
 import java.time.LocalDate;
@@ -37,137 +39,147 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class DateSchedFacade {
-    private final CategoryService categoryService;
-    private final PlaceService placeService;
-    private final RouteService routeService;
-    private final AlbumService albumService;
-    private final DateSchedService dateSchedService;
-    private final PhotoService photoService;
-    private final PlaceReviewService placeReviewService;
 
-    @Transactional
-    public void createDateSchedule(User user, DateSchedCreateRequest request) {
-        Route route = Route.builder()
-                .name(request.getName())
-                .status(RouteStatus.WRITE)
-                .createdBy(user)
-                .routeType(request.getPlaces().size() == 1 ? RouteType.PLACE : RouteType.COURSE)
-                .build();
-        routeService.saveRoute(route);
+	private final CategoryService categoryService;
+	private final PlaceService placeService;
+	private final RouteService routeService;
+	private final AlbumService albumService;
+	private final DateSchedService dateSchedService;
+	private final PhotoService photoService;
+	private final PlaceReviewService placeReviewService;
+	private final CoupleService coupleService;
 
-        for (DateSchedPlaceDto placeDto : request.getPlaces()) {
-            Place place = Place.builder()
-                    .name(request.getName())
-                    .region1depth(placeDto.getRegion1depth())
-                    .region2depth(placeDto.getRegion2depth())
-                    .region3depth(placeDto.getRegion3depth())
-                    .address(placeDto.getAddress())
-                    .latitude(placeDto.getLatitude())
-                    .longitude(placeDto.getLongitude())
-                    .score(0L)
-                    .user(user)
-                    .status(PlaceStatus.WRITE)
-                    .build();
+	@Transactional
+	public void createDateSchedule(User user, DateSchedCreateRequest request) {
+		Route route = Route.builder()
+			.name(request.getName())
+			.status(RouteStatus.WRITE)
+			.createdBy(user)
+			.routeType(request.getPlaces().size() == 1 ? RouteType.PLACE : RouteType.COURSE)
+			.build();
+		routeService.saveRoute(route);
 
-            RoutePlace routePlace = new RoutePlace(route, placeService.save(place));
-            routeService.saveRoutePlace(routePlace);
-        }
+		for (DateSchedPlaceDto placeDto : request.getPlaces()) {
+			Place place = Place.builder()
+				.name(request.getName())
+				.region1depth(placeDto.getRegion1depth())
+				.region2depth(placeDto.getRegion2depth())
+				.region3depth(placeDto.getRegion3depth())
+				.address(placeDto.getAddress())
+				.latitude(Double.valueOf(placeDto.getLatitude()))
+				.longitude(Double.valueOf(placeDto.getLongitude()))
+				.score(0L)
+				.user(user)
+				.status(PlaceStatus.WRITE)
+				.build();
 
-        DateSchedule dateSchedule = DateSchedule.builder()
-                .name(request.getName())
-                .scheduleAt(LocalDate.parse(request.getScheduleAt()))
-                .route(route)
-                .user(user)
-                .build();
+			RoutePlace routePlace = new RoutePlace(route, placeService.save(place));
+			routeService.saveRoutePlace(routePlace);
+		}
 
-        dateSchedService.save(dateSchedule);
-    }
+		DateSchedule dateSchedule = DateSchedule.builder()
+			.name(request.getName())
+			.scheduleAt(LocalDate.parse(request.getScheduleAt()))
+			.route(route)
+			.user(user)
+			.build();
 
-    public List<DateSchedResponse> getDateSchedule(User user, String format, String date) {
-        List<DateSchedule> dateSchedules = switch (format.toLowerCase()) {
-            case "month" -> dateSchedService.findByScheduleAtYyyyMm(user, date);
-            case "day" -> dateSchedService.findByScheduleAtYyyyMmDd(user, date);
-            default -> throw new BusinessException(DateSchedErrorCode.INVALID_DATE_FORMAT);
-        };
+		dateSchedService.save(dateSchedule);
+	}
 
-        return dateSchedules
-                .stream()
-                .map(DateSchedResponse::from)
-                .toList();
-    }
+	public List<DateSchedResponse> getDateSchedule(User user, String format, String date) {
+		List<DateSchedule> dateSchedules = switch (format.toLowerCase()) {
+			case "month" -> dateSchedService.findByScheduleAtYyyyMm(user, date);
+			case "day" -> dateSchedService.findByScheduleAtYyyyMmDd(user, date);
+			default -> throw new BusinessException(DateSchedErrorCode.INVALID_DATE_FORMAT);
+		};
 
-    @Transactional
-    public void updatePlaceInDateSchedule(User user, Long dateSchedId, DateSchedUpdateRequest request) {
-        DateSchedule dateSchedule = dateSchedService.findByUserAndId(user, dateSchedId);
-        Album album = getOrCreateAlbum(user, dateSchedule);
+		return dateSchedules
+			.stream()
+			.map(DateSchedResponse::from)
+			.toList();
+	}
 
-        for (DateSchedUpdatePlaceDto placeDto : request.getPlaces()) {
-            Place place = placeService.getPlaceById(placeDto.getPlaceId());
-            Category category = categoryService.findById(placeDto.getCategoryId());
-            place.updateScore(place.getScore());
+	@Transactional
+	public void updatePlaceInDateSchedule(User user, Long dateSchedId,
+		DateSchedUpdateRequest request) {
+		DateSchedule dateSchedule = dateSchedService.findByUserAndId(user, dateSchedId);
+		Album album = getOrCreateAlbum(user, dateSchedule);
 
-            Optional<PlaceReview> optionalPlaceReview = placeReviewService.findByPlaceAndUser(place, user);
-            if (optionalPlaceReview.isEmpty()) {
-                place.addReview(category, placeDto.getScore(), placeDto.getReview(), placeDto.getHashTag());
-            } else {
-                PlaceReview placeReview = optionalPlaceReview.get();
-                placeReview.update(category, placeDto.getScore(), placeDto.getReview(), placeDto.getHashTag());
-            }
+		for (DateSchedUpdatePlaceDto placeDto : request.getPlaces()) {
+			Place place = placeService.getPlaceById(placeDto.getPlaceId());
+			Category category = categoryService.findById(placeDto.getCategoryId());
+			place.updateScore(place.getScore());
 
-            place.getPhotos().clear();
-            for (PlacePhotoDto dto : placeDto.getPrivatePhotoUrl()) {
-                savePhotoAndAttachToPlace(dto, place, user, PhotoType.PRIVATE);
-            }
-            for (PlacePhotoDto dto : placeDto.getPublicPhotoUrl()) {
-                savePhotoAndAttachToPlace(dto, place, user, PhotoType.PUBLIC);
-            }
+			Optional<PlaceReview> optionalPlaceReview = placeReviewService.findByPlaceAndUser(place,
+				user);
+			if (optionalPlaceReview.isEmpty()) {
+				place.addReview(category, placeDto.getScore(), placeDto.getReview(),
+					placeDto.getHashTag());
+			} else {
+				PlaceReview placeReview = optionalPlaceReview.get();
+				placeReview.update(category, placeDto.getScore(), placeDto.getReview(),
+					placeDto.getHashTag());
+			}
 
-            for (Photo photo : place.getPhotos()) {
-                album.addPhoto(photo);
-            }
-        }
+			place.getPhotos().clear();
+			for (PlacePhotoDto dto : placeDto.getPrivatePhotoUrl()) {
+				savePhotoAndAttachToPlace(dto, place, user, PhotoType.PRIVATE);
+			}
+			for (PlacePhotoDto dto : placeDto.getPublicPhotoUrl()) {
+				savePhotoAndAttachToPlace(dto, place, user, PhotoType.PUBLIC);
+			}
 
-        int cnt = 0;
-        Route route = dateSchedule.getRoute();
-        for (RoutePlace routePlace : route.getRoutePlaces()) {
-            if (routePlace.getPlace().getStatus() == PlaceStatus.REPORTED) {
-                cnt++;
-            }
-        }
+			for (Photo photo : place.getPhotos()) {
+				album.addPhoto(photo);
+			}
+		}
 
-        if (cnt == route.getRoutePlaces().size()) {
-            route.updateStatus(RouteStatus.REPORTED);
-        }
+		int cnt = 0;
+		Route route = dateSchedule.getRoute();
+		for (RoutePlace routePlace : route.getRoutePlaces()) {
+			if (routePlace.getPlace().getStatus() == PlaceStatus.REPORTED) {
+				cnt++;
+			}
+		}
 
-    }
+		if (cnt == route.getRoutePlaces().size()) {
+			route.updateStatus(RouteStatus.REPORTED);
+		}
 
-    private Album getOrCreateAlbum(User user, DateSchedule dateSchedule) {
-        Album album = dateSchedule.getAlbum();
-        if (album != null) return album;
+	}
 
-        Album toSave = Album.builder()
-                .title(dateSchedule.getName())
-                .scheduleAt(dateSchedule.getScheduleAt())
-                .dateSchedule(dateSchedule)
-                .user(user)
-                .build();
+	private Album getOrCreateAlbum(User user, DateSchedule dateSchedule) {
+		Couple couple = coupleService.getCoupleOrNull(user);
+		Album album = dateSchedule.getAlbum();
+		if (album != null) {
+			return album;
+		}
 
-        Album savedAlbum = albumService.saveAlbumAndReturn(toSave);
-        dateSchedule.updateAlbum(savedAlbum);
-        return savedAlbum;
-    }
+		Album toSave = Album.builder()
+			.title(dateSchedule.getName())
+			.scheduleAt(dateSchedule.getScheduleAt())
+			.dateSchedule(dateSchedule)
+			.couple(couple)
+			.build();
 
-    private void savePhotoAndAttachToPlace(PlacePhotoDto dto, Place place, User user, PhotoType type) {
-        Photo photo = Photo.builder()
-                .imgUrl(dto.getUrl())
-                .place(place)
-                .type(type)
-                .photoOrder(dto.getOrder())
-                .user(user)
-                .build();
-        photoService.save(photo);
+		Album savedAlbum = albumService.saveAlbumAndReturn(toSave);
+		dateSchedule.updateAlbum(savedAlbum);
+		return savedAlbum;
+	}
 
-        place.addPhoto(photo);
-    }
+	private void savePhotoAndAttachToPlace(PlacePhotoDto dto, Place place, User user,
+		PhotoType type) {
+		Photo photo = Photo.builder()
+			.imgUrl(dto.getUrl())
+			.place(place)
+			.type(type)
+			.photoOrder(dto.getOrder())
+			.user(user)
+			.build();
+		photoService.save(photo);
+
+		place.addPhoto(photo);
+	}
 
 }

@@ -2,7 +2,7 @@ package com.server.domain.album.entity;
 
 import com.server.domain.dateSchedule.entity.DateSchedule;
 import com.server.domain.photo.entity.Photo;
-import com.server.domain.user.entity.User;
+import com.server.domain.user.entity.Couple;
 import com.server.global.common.BaseTime;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -54,13 +54,17 @@ public class Album extends BaseTime {
 	private DateSchedule dateSchedule;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "couple_id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
-	private User user;
+	private Couple couple;
 
     @Builder.Default
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AlbumPhoto> albumPhotos = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AlbumComment> albumComments = new ArrayList<>();
 
     public void addPhoto(Photo photo) {
         if (this.albumPhotos == null) {
