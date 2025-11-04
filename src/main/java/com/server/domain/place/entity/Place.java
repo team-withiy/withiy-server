@@ -2,7 +2,6 @@ package com.server.domain.place.entity;
 
 import com.server.domain.category.entity.Category;
 import com.server.domain.photo.entity.Photo;
-import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.place.dto.UpdatePlaceDto;
 import com.server.domain.user.entity.User;
 import com.server.global.common.BaseTime;

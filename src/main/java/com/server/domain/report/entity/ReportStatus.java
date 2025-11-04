@@ -1,4 +1,4 @@
-package com.server.domain.report.dto;
+package com.server.domain.report.entity;
 
 public enum ReportStatus {
 	PENDING,   // 접수됨

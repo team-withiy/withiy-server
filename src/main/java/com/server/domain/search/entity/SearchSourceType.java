@@ -1,4 +1,4 @@
-package com.server.domain.search.dto;
+package com.server.domain.search.entity;
 
 /**
  * 검색이 발생한 소스를 구분하는 타입.

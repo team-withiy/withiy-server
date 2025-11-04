@@ -1,7 +1,6 @@
 package com.server.domain.route.entity;
 
 import com.server.domain.dateSchedule.entity.DateSchedule;
-import com.server.domain.route.dto.RouteStatus;
 import com.server.domain.user.entity.User;
 import com.server.global.common.BaseTime;
 import jakarta.persistence.CascadeType;

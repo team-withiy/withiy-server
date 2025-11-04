@@ -1,6 +1,5 @@
 package com.server.domain.report.entity;
 
-import com.server.domain.report.dto.ReportStatus;
 import com.server.domain.user.entity.User;
 import com.server.global.common.BaseTime;
 import jakarta.persistence.Column;

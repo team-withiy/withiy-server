@@ -1,10 +1,10 @@
 package com.server.domain.report.service;
 
-import com.server.domain.report.dto.ReportReason;
 import com.server.domain.report.dto.ReportReasonDto;
-import com.server.domain.report.dto.ReportStatus;
-import com.server.domain.report.dto.ReportTarget;
 import com.server.domain.report.entity.Report;
+import com.server.domain.report.entity.ReportReason;
+import com.server.domain.report.entity.ReportStatus;
+import com.server.domain.report.entity.ReportTarget;
 import com.server.domain.report.entity.ReportType;
 import com.server.domain.report.repository.ReportRepository;
 import com.server.domain.report.repository.ReportTypeRepository;

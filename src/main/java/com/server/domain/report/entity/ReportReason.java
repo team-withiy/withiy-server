@@ -1,4 +1,4 @@
-package com.server.domain.report.dto;
+package com.server.domain.report.entity;
 
 import lombok.Getter;
 

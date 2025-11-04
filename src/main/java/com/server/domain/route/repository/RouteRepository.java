@@ -1,7 +1,7 @@
 package com.server.domain.route.repository;
 
-import com.server.domain.route.dto.RouteStatus;
 import com.server.domain.route.entity.Route;
+import com.server.domain.route.entity.RouteStatus;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
