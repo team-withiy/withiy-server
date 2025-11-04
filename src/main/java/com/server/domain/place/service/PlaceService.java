@@ -39,7 +39,7 @@ public class PlaceService {
 	}
 
 	public Place getPlaceById(Long placeId) {
-		Place place = placeRepository.findById(placeId)
+		Place place = placeRepository.findByPlaceId(placeId)
 			.orElseThrow(() -> {
 				System.out.println("@@@@");
 				log.warn("Place not found. id={}", placeId);  // ← 여긴 반드시 찍힘
