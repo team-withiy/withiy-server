@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.domain.user.dto.RegisterUserInDto;
 import com.server.domain.user.dto.RestoreAccountDto;
 import com.server.domain.user.dto.UserDto;
+import com.server.domain.user.entity.Role;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.service.UserService;
 import com.server.global.jwt.JwtAuthentication;
@@ -74,7 +75,7 @@ public class UserControllerTest {
 		ReflectionTestUtils.setField(mockUser, "nickname", "testUser");
 		ReflectionTestUtils.setField(mockUser, "thumbnail", "thumbnail.jpg");
 		ReflectionTestUtils.setField(mockUser, "code", "USER123");
-		ReflectionTestUtils.setField(mockUser, "isAdmin", false);
+		ReflectionTestUtils.setField(mockUser, "role", Role.ROLE_USER);
 
 		// Setup mock UserDto
 		mockUserDto = UserDto.builder().nickname("testUser").thumbnail("thumbnail.jpg")

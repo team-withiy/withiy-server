@@ -83,14 +83,14 @@ public class DateSchedResponse {
 		Place place = routePlaces.get(0).getPlace();
 		List<Photo> photos = place.getPhotos();
 
-		boolean hasReportedPlace = routePlaces.stream()
+		boolean isRouteIncomplete = routePlaces.stream()
 			.anyMatch(routePlace -> routePlace.getPlace().getStatus() == PlaceStatus.WRITE);
 
 		return DateSchedResponse.builder()
 			.id(dateSchedule.getId())
 			.name(dateSchedule.getName())
 			.routeType(route.getRouteType())
-			.status(hasReportedPlace ? RouteStatus.WRITE : RouteStatus.ACTIVE)
+			.status(isRouteIncomplete ? RouteStatus.WRITE : RouteStatus.ACTIVE)
 			.places(routePlaces.stream()
 				.map(rp -> PlaceDto.from(rp.getPlace()))
 				.toList())
