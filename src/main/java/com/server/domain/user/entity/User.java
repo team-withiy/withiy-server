@@ -4,6 +4,8 @@ import com.server.global.common.BaseTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -31,9 +33,6 @@ public class User extends BaseTime {
 	@Column(name = "id")
 	private Long id;
 
-	@Column(name = "is_admin", nullable = false)
-	private boolean isAdmin;
-
 	@Column(name = "refresh_token", length = 512)
 	private String refreshToken;
 
@@ -56,12 +55,20 @@ public class User extends BaseTime {
 	@Column(name = "event_notification_enabled", nullable = false)
 	private Boolean eventNotificationEnabled = true;
 
+	@Column(name = "role", nullable = false, length = 20)
+	@Enumerated(EnumType.STRING)
+	private Role role;
+
+	public boolean isAdmin() {
+		return this.role == Role.ROLE_ADMIN;
+	}
+
 
 	@Builder
 	public User(String nickname, String thumbnail, String code) {
 		this.nickname = nickname;
 		this.thumbnail = thumbnail;
-		this.isAdmin = false;
+		this.role = Role.ROLE_USER;
 		this.code = code;
 	}
 
@@ -92,5 +99,4 @@ public class User extends BaseTime {
 	public void updateEventNotificationEnabled(Boolean enabled) {
 		this.eventNotificationEnabled = enabled;
 	}
-
 }

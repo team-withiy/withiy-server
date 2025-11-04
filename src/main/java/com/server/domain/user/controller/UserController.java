@@ -78,9 +78,9 @@ public class UserController {
 	@Operation(summary = "[사용자] 유저 등록", description = "유저 약관 동의 및 닉네임 업데이트")
 	public ApiResponseDto<String> registerUser(@AuthenticationPrincipal User user,
 		@RequestBody RegisterUserInDto body) {
-		String nickname =
-			userService.registerUser(user, body.getTermAgreements(), body.getNickname(),
-				body.getThumbnail());
+		String nickname = userService.registerUser(user, body.getTermAgreements(),
+			body.getNickname(),
+			body.getThumbnail());
 		return ApiResponseDto.success(HttpStatus.OK.value(),
 			String.format("User %s information updated successfully", nickname));
 	}
