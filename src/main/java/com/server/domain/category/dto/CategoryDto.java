@@ -6,10 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -25,13 +23,11 @@ public class CategoryDto {
 	private String description;
 
 	public static CategoryDto from(Category category) {
-		return CategoryDto.builder()
+		return category == null ? null : CategoryDto.builder()
 			.id(category.getId())
 			.name(category.getName())
 			.icon(category.getIcon())
 			.description(category.getDescription())
 			.build();
 	}
-
-
 }
