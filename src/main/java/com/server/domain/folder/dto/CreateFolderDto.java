@@ -1,6 +1,7 @@
 package com.server.domain.folder.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +18,7 @@ import lombok.Setter;
 public class CreateFolderDto {
 
 	@Schema(description = "폴더 이름", example = "맛집")
+	@NotBlank(message = "폴더 이름은 필수 입력값입니다.")
 	private String name;
 	@Schema(description = "폴더 색상", example = "#FF5733")
 	@Pattern(regexp = "^#[0-9A-Fa-f]{6}$", message = "Color must be a valid hex code (e.g., #FF5733)")
