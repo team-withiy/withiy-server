@@ -1,7 +1,6 @@
 spring:
-  web:
-    resources:
-      add-mappings: false
+  mvc:
+    static-path-pattern: /static/**
   application:
     name: withiy-server
   profiles:
