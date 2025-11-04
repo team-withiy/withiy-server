@@ -67,6 +67,6 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
 		@Param("radius") double radiusKm
 	);
 
-	@Query("SELECT p FROM Place p LEFT JOIN FETCH p.category")
-	Optional<Place> findByPlaceId(Long placeId);
+	@Query("SELECT p FROM Place p LEFT JOIN FETCH p.category WHERE p.id = :placeId")
+	Optional<Place> findByPlaceId(@Param("placeId") Long placeId);
 }

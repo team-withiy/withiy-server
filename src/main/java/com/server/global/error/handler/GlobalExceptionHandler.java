@@ -32,6 +32,8 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(NoHandlerFoundException.class)
 	public ResponseEntity<ApiResponseDto<Object>> handleNoHandlerFoundException(
 		NoHandlerFoundException e) {
+		log.warn("[NoHandlerFoundException] Requested URL: {}, Exception: {}", e.getRequestURL(),
+			e.getMessage());
 		HttpStatus status = HttpStatus.NOT_FOUND;
 		return ResponseEntity.status(status)
 			.body(ApiResponseDto.error(status.value(), "요청하신 경로를 찾을 수 없습니다."));
