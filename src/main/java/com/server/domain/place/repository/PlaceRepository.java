@@ -4,6 +4,7 @@ import com.server.domain.category.entity.Category;
 import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.place.entity.Place;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -65,4 +66,7 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
 		@Param("lng") double longitude,
 		@Param("radius") double radiusKm
 	);
+
+	@Query("SELECT p FROM Place p LEFT JOIN FETCH p.category WHERE p.id = :placeId")
+	Optional<Place> findByPlaceId(@Param("placeId") Long placeId);
 }

@@ -13,6 +13,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 @RestControllerAdvice
 @Slf4j
@@ -25,6 +26,17 @@ public class GlobalExceptionHandler {
 			.body(ApiResponseDto.error(
 				HttpStatus.INTERNAL_SERVER_ERROR.value(),
 				"서버 내부 오류가 발생했습니다."));
+	}
+
+
+	@ExceptionHandler(NoHandlerFoundException.class)
+	public ResponseEntity<ApiResponseDto<Object>> handleNoHandlerFoundException(
+		NoHandlerFoundException e) {
+		log.warn("[NoHandlerFoundException] Requested URL: {}, Exception: {}", e.getRequestURL(),
+			e.getMessage());
+		HttpStatus status = HttpStatus.NOT_FOUND;
+		return ResponseEntity.status(status)
+			.body(ApiResponseDto.error(status.value(), "요청하신 경로를 찾을 수 없습니다."));
 	}
 
 	@ExceptionHandler(AuthException.class)
