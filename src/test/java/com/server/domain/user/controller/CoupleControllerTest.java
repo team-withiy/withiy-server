@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.domain.user.dto.CoupleConnectionRequestDto;
 import com.server.domain.user.dto.CoupleDto;
 import com.server.domain.user.dto.FirstMetDateUpdateDto;
+import com.server.domain.user.entity.Role;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.service.CoupleService;
 import com.server.global.jwt.JwtAuthentication;
@@ -72,7 +73,7 @@ public class CoupleControllerTest {
 		ReflectionTestUtils.setField(mockUser, "nickname", "testUser");
 		ReflectionTestUtils.setField(mockUser, "thumbnail", "thumbnail.jpg");
 		ReflectionTestUtils.setField(mockUser, "code", "USER123");
-		ReflectionTestUtils.setField(mockUser, "isAdmin", false);
+		ReflectionTestUtils.setField(mockUser, "role", Role.ROLE_USER);
 
 		// Setup mock CoupleDto
 		mockCoupleDto = CoupleDto.builder().id(1L).partnerNickname("partnerName")

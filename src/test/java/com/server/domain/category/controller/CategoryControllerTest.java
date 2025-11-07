@@ -19,6 +19,7 @@ import com.server.domain.category.service.CategoryService;
 import com.server.domain.user.controller.JwtTestUtil;
 import com.server.domain.user.controller.TestJpaConfig;
 import com.server.domain.user.controller.TestSecurityConfig;
+import com.server.domain.user.entity.Role;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
 import com.server.global.jwt.JwtAuthentication;
@@ -77,7 +78,7 @@ class CategoryControllerTest {
 		ReflectionTestUtils.setField(mockUser, "nickname", "testUser");
 		ReflectionTestUtils.setField(mockUser, "thumbnail", "thumbnail.jpg");
 		ReflectionTestUtils.setField(mockUser, "code", "USER123");
-		ReflectionTestUtils.setField(mockUser, "isAdmin", false);
+		ReflectionTestUtils.setField(mockUser, "role", Role.ROLE_USER);
 
 		// JWT 서비스 설정
 		when(jwtService.createAccessToken(anyLong())).thenReturn("mock-jwt-token");

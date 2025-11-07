@@ -1,8 +1,8 @@
 package com.server.domain.place.repository;
 
 import com.server.domain.category.entity.Category;
-import com.server.domain.place.dto.PlaceStatus;
 import com.server.domain.place.entity.Place;
+import com.server.domain.place.entity.PlaceStatus;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Sort;

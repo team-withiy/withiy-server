@@ -1,7 +1,5 @@
 package com.server.domain.report.entity;
 
-import com.server.domain.report.dto.ReportReason;
-import com.server.domain.report.dto.ReportTarget;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

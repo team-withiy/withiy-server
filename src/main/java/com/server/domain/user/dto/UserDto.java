@@ -39,6 +39,9 @@ public class UserDto {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	@Schema(description = "복구 가능 커플 정보", nullable = true)
 	private RestorableCoupleDto restorableCouple;
+	@Schema(description = "사용자 역할", example = "ROLE_USER")
+	private String role;
+
 
 	public static UserDto from(User user, Boolean isRegistered) {
 		return UserDto.builder()
@@ -52,6 +55,7 @@ public class UserDto {
 			.hasRestorableCouple(false)
 			.couple(null)
 			.restorableCouple(null)
+			.role(user.getRole() != null ? user.getRole().name() : null)
 			.build();
 	}
 
@@ -67,6 +71,7 @@ public class UserDto {
 			.couple(activeCoupleDto)
 			.hasRestorableCouple(false)
 			.restorableCouple(null)
+			.role(user.getRole() != null ? user.getRole().name() : null)
 			.build();
 	}
 
@@ -83,6 +88,7 @@ public class UserDto {
 			.couple(null)
 			.hasRestorableCouple(restorableCoupleDto != null)
 			.restorableCouple(restorableCoupleDto)
+			.role(user.getRole() != null ? user.getRole().name() : null)
 			.build();
 	}
 }

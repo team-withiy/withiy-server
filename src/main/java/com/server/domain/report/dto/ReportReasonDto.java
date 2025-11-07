@@ -1,5 +1,6 @@
 package com.server.domain.report.dto;
 
+import com.server.domain.report.entity.ReportReason;
 import com.server.domain.report.entity.ReportType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

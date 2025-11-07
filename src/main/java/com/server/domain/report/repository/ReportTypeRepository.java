@@ -1,7 +1,7 @@
 package com.server.domain.report.repository;
 
-import com.server.domain.report.dto.ReportReason;
-import com.server.domain.report.dto.ReportTarget;
+import com.server.domain.report.entity.ReportReason;
+import com.server.domain.report.entity.ReportTarget;
 import com.server.domain.report.entity.ReportType;
 import java.util.List;
 import java.util.Optional;

@@ -1,6 +1,6 @@
 package com.server.domain.search.dto.request;
 
-import com.server.domain.search.dto.SearchSourceType;
+import com.server.domain.search.entity.SearchSourceType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

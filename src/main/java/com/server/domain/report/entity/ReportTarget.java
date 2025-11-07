@@ -1,4 +1,4 @@
-package com.server.domain.report.dto;
+package com.server.domain.report.entity;
 
 import com.server.global.error.code.ReportErrorCode;
 import com.server.global.error.exception.BusinessException;
