@@ -23,7 +23,7 @@ public interface DateSchedRepository extends JpaRepository<DateSchedule, Long> {
 
     List<DateSchedule> findByUserAndScheduleAt(User user, LocalDate scheduleAt);
 
-    DateSchedule findByUserAndId(User user, Long dateSchedId);
+    Optional<DateSchedule> findByUserAndId(User user, Long dateSchedId);
 
     Optional<DateSchedule> findByUserAndAlbum_Id(User user, Long albumId);
 
