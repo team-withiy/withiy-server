@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM openjdk:17-jdk-slim AS build
+FROM eclipse-temurin:17-jdk-jammy AS build
 
 ARG POSTGRES_HOST
 ARG POSTGRES_PORT
@@ -29,10 +29,10 @@ COPY gradlew /server/
 COPY build.gradle /server/
 COPY settings.gradle /server/
 
-RUN ./gradlew build -x test  #실행시간 단축 위해 테스트 빼고 진행 -> 테스트 실행하고 싶으면 -x test 지우세요
+RUN ./gradlew build
 
 # Stage 2: Run
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk-jammy
 
 LABEL maintainer="Zerohertz <ohg3417@gmail.com>"
 LABEL description="withiy-server"
