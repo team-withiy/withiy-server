@@ -159,7 +159,6 @@ public class DateSchedFacade {
 		Album toSave = Album.builder()
 			.title(dateSchedule.getName())
 			.scheduleAt(dateSchedule.getScheduleAt())
-			.dateSchedule(dateSchedule)
 			.couple(couple)
 			.build();
 
