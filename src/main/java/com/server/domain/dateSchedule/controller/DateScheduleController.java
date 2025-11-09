@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -70,5 +71,15 @@ public class DateScheduleController {
 		dateSchedFacade.updatePlaceInDateSchedule(user, dateSchedId, request);
 		return ApiResponseDto.success(HttpStatus.OK.value(), null);
 	}
+
+    @DeleteMapping("/{dateSchedId}")
+    @Operation(summary = "[사용자] 일정 삭제 API", description = "사용자가 등록한 일정을 삭제하는 API")
+    public ApiResponseDto<Void> deleteDateSchedule(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long dateSchedId
+    ) {
+        dateSchedFacade.deleteDateSchedule(user, dateSchedId);
+        return ApiResponseDto.success(HttpStatus.OK.value(), null);
+    }
 
 }

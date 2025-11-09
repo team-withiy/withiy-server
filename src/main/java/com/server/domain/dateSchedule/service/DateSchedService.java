@@ -3,6 +3,9 @@ package com.server.domain.dateSchedule.service;
 import com.server.domain.dateSchedule.entity.DateSchedule;
 import com.server.domain.dateSchedule.repository.DateSchedRepository;
 import com.server.domain.user.entity.User;
+import com.server.global.error.code.AlbumErrorCode;
+import com.server.global.error.code.DateSchedErrorCode;
+import com.server.global.error.exception.BusinessException;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +29,17 @@ public class DateSchedService {
     }
 
     public DateSchedule findByUserAndId(User user, Long dateSchedId) {
-        return dateSchedRepository.findByUserAndId(user, dateSchedId);
+        return dateSchedRepository.findByUserAndId(user, dateSchedId)
+                .orElseThrow(() -> new BusinessException(DateSchedErrorCode.NOT_FOUND_SCHEDULE));
+    }
+
+    public DateSchedule findByUserAndAlbum_Id(User user, Long albumId) {
+        return dateSchedRepository.findByUserAndAlbumId(user, albumId)
+                .orElseThrow(() -> new BusinessException(AlbumErrorCode.NOT_FOUND_ALBUM_FOR_SCHEDULE));
+    }
+
+    public void delete(User user, Long dateSchedId) {
+        DateSchedule dateSchedule = findByUserAndId(user, dateSchedId);
+        dateSchedRepository.delete(dateSchedule);
     }
 }

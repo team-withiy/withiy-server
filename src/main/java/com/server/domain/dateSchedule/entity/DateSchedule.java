@@ -53,10 +53,19 @@ public class DateSchedule extends BaseTime {
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private User user;
 
-    @OneToOne(mappedBy = "dateSchedule", fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "album_id",
+            unique = true,      // 앨범 하나는 하나의 일정만 가질 수 있음을 DB 레벨에서 강제
+            nullable = true     // 앨범 없이 일정이 존재하거나, 삭제 후 NULL 처리되도록 허용
+    )
     private Album album;
 
     public void updateAlbum(Album album) {
         this.album = album;
+    }
+
+    public void deleteAlbum() {
+        this.album = null;
     }
 }

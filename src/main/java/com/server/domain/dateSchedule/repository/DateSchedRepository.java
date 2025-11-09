@@ -4,6 +4,7 @@ import com.server.domain.dateSchedule.entity.DateSchedule;
 import com.server.domain.user.entity.User;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,6 +23,8 @@ public interface DateSchedRepository extends JpaRepository<DateSchedule, Long> {
 
     List<DateSchedule> findByUserAndScheduleAt(User user, LocalDate scheduleAt);
 
-    DateSchedule findByUserAndId(User user, Long dateSchedId);
+    Optional<DateSchedule> findByUserAndId(User user, Long dateSchedId);
+
+    Optional<DateSchedule> findByUserAndAlbumId(User user, Long albumId);
 
 }

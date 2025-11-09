@@ -55,6 +55,16 @@ public class AlbumController {
         return ApiResponseDto.success(HttpStatus.OK.value(), response);
     }
 
+    @DeleteMapping("/{albumId}")
+    @Operation(summary = "[사용자] 앨범 삭제 API", description = "사용자의 앨범을 삭제하는 API")
+    public ApiResponseDto<Void> deleteAlbum(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long albumId
+    ) {
+        albumFacade.deleteAlbum(user, albumId);
+        return ApiResponseDto.success(HttpStatus.OK.value(), null);
+    }
+
     @PostMapping("/comment")
     @Operation(summary = "[사용자] 앨범 댓글 작성 API", description = "앨범 댓글을 작성하는 API")
     public ApiResponseDto<Void> writeComment(

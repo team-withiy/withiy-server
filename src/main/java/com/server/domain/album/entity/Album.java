@@ -1,6 +1,5 @@
 package com.server.domain.album.entity;
 
-import com.server.domain.dateSchedule.entity.DateSchedule;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.user.entity.Couple;
 import com.server.global.common.BaseTime;
@@ -15,7 +14,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -25,8 +23,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.Where;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
@@ -36,6 +36,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Table(name = "album")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
+@Where(clause = "deleted = false") // 쿼리 시 deleted=false인 레코드만 조회
 public class Album extends BaseTime {
 
 	@Id
@@ -49,14 +50,14 @@ public class Album extends BaseTime {
     @Column(name = "schedule_at")
     private LocalDate scheduleAt;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "date_schedule_id", nullable = false, unique = true)
-	private DateSchedule dateSchedule;
-
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "couple_id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Couple couple;
+
+    @Column(nullable = false)
+    @ColumnDefault("false")
+    private boolean deleted = false;
 
     @Builder.Default
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -75,8 +76,8 @@ public class Album extends BaseTime {
         photo.getAlbumPhotos().add(albumPhoto);
     }
 
-    public void removePhoto(Photo photo) {
-        albumPhotos.removeIf(ap -> ap.getPhoto().equals(photo));
+    public void delete() {
+        this.deleted = true;
     }
 
 }

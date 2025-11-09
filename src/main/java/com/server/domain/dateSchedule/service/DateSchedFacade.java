@@ -27,6 +27,7 @@ import com.server.domain.route.service.RouteService;
 import com.server.domain.user.entity.Couple;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.service.CoupleService;
+import com.server.global.error.code.AlbumErrorCode;
 import com.server.global.error.code.DateSchedErrorCode;
 import com.server.global.error.exception.BusinessException;
 import java.time.LocalDate;
@@ -35,6 +36,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -60,20 +62,29 @@ public class DateSchedFacade {
 		routeService.saveRoute(route);
 
 		for (DateSchedPlaceDto placeDto : request.getPlaces()) {
-			Place place = Place.builder()
-				.name(request.getName())
-				.region1depth(placeDto.getRegion1depth())
-				.region2depth(placeDto.getRegion2depth())
-				.region3depth(placeDto.getRegion3depth())
-				.address(placeDto.getAddress())
-				.latitude(Double.valueOf(placeDto.getLatitude()))
-				.longitude(Double.valueOf(placeDto.getLongitude()))
-				.score(0L)
-				.user(user)
-				.status(PlaceStatus.WRITE)
-				.build();
+            Long placeId = placeDto.getPlaceId();
+            Place place;
+            if (placeId != null) {
+                 place = placeService.getPlaceById(placeId);
+            } else {
+                validatePlace(placeDto);
 
-			RoutePlace routePlace = new RoutePlace(route, placeService.save(place));
+                Place newPlace = Place.builder()
+                    .name(request.getName())
+                    .region1depth(placeDto.getRegion1depth())
+                    .region2depth(placeDto.getRegion2depth())
+                    .region3depth(placeDto.getRegion3depth())
+                    .address(placeDto.getAddress())
+                    .latitude(Double.valueOf(placeDto.getLatitude()))
+                    .longitude(Double.valueOf(placeDto.getLongitude()))
+                    .score(0L)
+                    .user(user)
+                    .status(PlaceStatus.WRITE)
+                    .build();
+                place = placeService.save(newPlace);
+            }
+
+			RoutePlace routePlace = new RoutePlace(route, place);
 			routeService.saveRoutePlace(routePlace);
 		}
 
@@ -87,7 +98,7 @@ public class DateSchedFacade {
 		dateSchedService.save(dateSchedule);
 	}
 
-	public List<DateSchedResponse> getDateSchedule(User user, String format, String date) {
+    public List<DateSchedResponse> getDateSchedule(User user, String format, String date) {
 		List<DateSchedule> dateSchedules = switch (format.toLowerCase()) {
 			case "month" -> dateSchedService.findByScheduleAtYyyyMm(user, date);
 			case "day" -> dateSchedService.findByScheduleAtYyyyMmDd(user, date);
@@ -113,41 +124,49 @@ public class DateSchedFacade {
 
 			Optional<PlaceReview> optionalPlaceReview = placeReviewService.findByPlaceAndUser(place,
 				user);
-			if (optionalPlaceReview.isEmpty()) {
-				place.addReview(category, placeDto.getScore(), placeDto.getReview(),
-					placeDto.getHashTag());
-			} else {
-				PlaceReview placeReview = optionalPlaceReview.get();
-				placeReview.update(category, placeDto.getScore(), placeDto.getReview(),
-					placeDto.getHashTag());
-			}
+            optionalPlaceReview.ifPresentOrElse(
+                // 이미 리뷰가 있으면 갱신
+                placeReview -> placeReview.update(category, placeDto.getScore(), placeDto.getReview(), placeDto.getHashTag()),
+                // 리뷰가 없으면 새로 생성 후 Place에 추가
+                () -> place.addReview(category, placeDto.getScore(), placeDto.getReview(), placeDto.getHashTag())
+            );
 
-			place.getPhotos().clear();
-			for (PlacePhotoDto dto : placeDto.getPrivatePhotoUrl()) {
-				savePhotoAndAttachToPlace(dto, place, user, PhotoType.PRIVATE);
-			}
-			for (PlacePhotoDto dto : placeDto.getPublicPhotoUrl()) {
-				savePhotoAndAttachToPlace(dto, place, user, PhotoType.PUBLIC);
-			}
-
-			for (Photo photo : place.getPhotos()) {
-				album.addPhoto(photo);
-			}
+            refreshPhotosAndAddToAlbum(user, album, place, placeDto);
 		}
 
-		int cnt = 0;
 		Route route = dateSchedule.getRoute();
-		for (RoutePlace routePlace : route.getRoutePlaces()) {
-			if (routePlace.getPlace().getStatus() == PlaceStatus.REPORTED) {
-				cnt++;
-			}
-		}
+        long reportedCount = route.getRoutePlaces().stream()
+                .filter(routePlace -> routePlace.getPlace().getStatus() == PlaceStatus.REPORTED)
+                .count();
 
-		if (cnt == route.getRoutePlaces().size()) {
-			route.updateStatus(RouteStatus.REPORTED);
-		}
-
+        // 모든 장소가 신고되었는지 확인
+        if (reportedCount > 0 && reportedCount == route.getRoutePlaces().size()) {
+            route.updateStatus(RouteStatus.REPORTED);
+        }
 	}
+
+    @Transactional
+    public void deleteDateSchedule(User user, Long dateSchedId) {
+        dateSchedService.delete(user, dateSchedId);
+    }
+
+    private void refreshPhotosAndAddToAlbum(User user, Album album, Place place,
+            DateSchedUpdatePlaceDto placeDto) {
+
+        // 기존 사진 목록 제거
+        place.getPhotos().clear();
+
+        // 1. Private 사진 저장 및 연결
+        placeDto.getPrivatePhotoUrl().forEach(dto ->
+                savePhotoAndAttachToPlace(dto, place, user, PhotoType.PRIVATE));
+
+        // 2. Public 사진 저장 및 연결
+        placeDto.getPublicPhotoUrl().forEach(dto ->
+                savePhotoAndAttachToPlace(dto, place, user, PhotoType.PUBLIC));
+
+        // 3. Place에 연결된 모든 새 사진을 Album에 연결
+        place.getPhotos().forEach(album::addPhoto);
+    }
 
 	private Album getOrCreateAlbum(User user, DateSchedule dateSchedule) {
 		Couple couple = coupleService.getCoupleOrNull(user);
@@ -159,7 +178,6 @@ public class DateSchedFacade {
 		Album toSave = Album.builder()
 			.title(dateSchedule.getName())
 			.scheduleAt(dateSchedule.getScheduleAt())
-			.dateSchedule(dateSchedule)
 			.couple(couple)
 			.build();
 
@@ -182,4 +200,17 @@ public class DateSchedFacade {
 		place.addPhoto(photo);
 	}
 
+    private void validatePlace(DateSchedPlaceDto dto) {
+        boolean isMissingRequiredData = !StringUtils.hasText(dto.getName()) ||
+                !StringUtils.hasText(dto.getAddress()) ||
+                !StringUtils.hasText(dto.getLatitude()) ||
+                !StringUtils.hasText(dto.getLongitude()) ||
+                !StringUtils.hasText(dto.getRegion1depth()) ||
+                !StringUtils.hasText(dto.getRegion2depth()) ||
+                !StringUtils.hasText(dto.getRegion3depth());
+
+        if (isMissingRequiredData) {
+            throw new BusinessException(AlbumErrorCode.INVALID_PLACE_DATA);
+        }
+    }
 }
