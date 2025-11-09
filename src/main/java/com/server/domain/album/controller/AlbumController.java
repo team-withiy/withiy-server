@@ -57,7 +57,7 @@ public class AlbumController {
 
     @DeleteMapping("/{albumId}")
     @Operation(summary = "[사용자] 앨범 삭제 API", description = "사용자의 앨범을 삭제하는 API")
-    public ApiResponseDto<AlbumDetailResponse> deleteAlbum(
+    public ApiResponseDto<Void> deleteAlbum(
             @AuthenticationPrincipal User user,
             @PathVariable Long albumId
     ) {

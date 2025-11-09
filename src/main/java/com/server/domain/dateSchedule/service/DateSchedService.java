@@ -34,7 +34,7 @@ public class DateSchedService {
     }
 
     public DateSchedule findByUserAndAlbum_Id(User user, Long albumId) {
-        return dateSchedRepository.findByUserAndAlbum_Id(user, albumId)
+        return dateSchedRepository.findByUserAndAlbumId(user, albumId)
                 .orElseThrow(() -> new BusinessException(AlbumErrorCode.NOT_FOUND_ALBUM_FOR_SCHEDULE));
     }
 

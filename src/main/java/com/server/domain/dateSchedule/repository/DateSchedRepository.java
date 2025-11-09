@@ -25,6 +25,6 @@ public interface DateSchedRepository extends JpaRepository<DateSchedule, Long> {
 
     Optional<DateSchedule> findByUserAndId(User user, Long dateSchedId);
 
-    Optional<DateSchedule> findByUserAndAlbum_Id(User user, Long albumId);
+    Optional<DateSchedule> findByUserAndAlbumId(User user, Long albumId);
 
 }
