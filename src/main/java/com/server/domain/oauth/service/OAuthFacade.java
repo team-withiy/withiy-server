@@ -3,15 +3,12 @@ package com.server.domain.oauth.service;
 import com.server.domain.oauth.dto.OAuth2UserInfo;
 import com.server.domain.oauth.entity.OAuth;
 import com.server.domain.oauth.repository.OAuthRepository;
-import com.server.domain.term.entity.Term;
-import com.server.domain.term.entity.TermAgreement;
 import com.server.domain.term.service.TermService;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.service.UserService;
 import com.server.global.service.ImageService;
 import java.security.SecureRandom;
 import java.util.Base64;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -63,15 +60,7 @@ public class OAuthFacade {
 		OAuth oAuth = userInfo.toEntity(user);
 
 		// ✅ 4. 회원 약관 동의 기록 생성
-		List<Term> terms = termService.findAllTerms();
-		termService.saveAllTermAgreements(
-			terms.stream()
-				.map(term -> TermAgreement.builder()
-					.user(user)
-					.term(term)
-					.build())
-				.toList()
-		);
+		termService.createInitialTermAgreements(user);
 
 		// ✅ 5. 프로필 이미지가 있는 경우 S3 등 업로드 처리
 		updateProfileImageIfExists(user, oAuth, userInfo.getPicture());

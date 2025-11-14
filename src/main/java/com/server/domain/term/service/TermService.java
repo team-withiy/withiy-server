@@ -5,6 +5,7 @@ import com.server.domain.term.entity.Term;
 import com.server.domain.term.entity.TermAgreement;
 import com.server.domain.term.repository.TermAgreementRepository;
 import com.server.domain.term.repository.TermRepository;
+import com.server.domain.user.entity.User;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -36,8 +37,15 @@ public class TermService {
 		termAgreementRepository.saveAll(agreements);
 	}
 
-	@Transactional(readOnly = true)
-	public List<Term> findAllTerms() {
-		return termRepository.findAll();
+	@Transactional
+	public void createInitialTermAgreements(User user) {
+		List<Term> terms = termRepository.findAll();
+		List<TermAgreement> agreements = terms.stream()
+			.map(term -> TermAgreement.builder()
+				.user(user)
+				.term(term)
+				.build())
+			.toList();
+		termAgreementRepository.saveAll(agreements);
 	}
 }
