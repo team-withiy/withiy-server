@@ -1,9 +1,11 @@
 package com.server.domain.term.service;
 
 import com.server.domain.term.dto.TermDto;
+import com.server.domain.term.entity.Term;
 import com.server.domain.term.entity.TermAgreement;
 import com.server.domain.term.repository.TermAgreementRepository;
 import com.server.domain.term.repository.TermRepository;
+import com.server.domain.user.entity.User;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,18 @@ public class TermService {
 
 	@Transactional
 	public void saveAllTermAgreements(List<TermAgreement> agreements) {
+		termAgreementRepository.saveAll(agreements);
+	}
+
+	@Transactional
+	public void createInitialTermAgreements(User user) {
+		List<Term> terms = termRepository.findAll();
+		List<TermAgreement> agreements = terms.stream()
+			.map(term -> TermAgreement.builder()
+				.user(user)
+				.term(term)
+				.build())
+			.toList();
 		termAgreementRepository.saveAll(agreements);
 	}
 }

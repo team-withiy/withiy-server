@@ -3,6 +3,7 @@ package com.server.domain.oauth.service;
 import com.server.domain.oauth.dto.OAuth2UserInfo;
 import com.server.domain.oauth.entity.OAuth;
 import com.server.domain.oauth.repository.OAuthRepository;
+import com.server.domain.term.service.TermService;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.service.UserService;
 import com.server.global.service.ImageService;
@@ -22,6 +23,7 @@ public class OAuthFacade {
 	private final OAuthRepository oAuthRepository;
 	private final UserService userService;
 	private final ImageService imageService;
+	private final TermService termService;
 
 	private static final int CODE_LENGTH = 16;
 	private static final SecureRandom RANDOM = new SecureRandom();
@@ -57,10 +59,13 @@ public class OAuthFacade {
 		// ✅ 2. OAuth 엔티티 생성 (User 연관관계 포함)
 		OAuth oAuth = userInfo.toEntity(user);
 
-		// ✅ 3. 프로필 이미지가 있는 경우 S3 등 업로드 처리
+		// ✅ 4. 회원 약관 동의 기록 생성
+		termService.createInitialTermAgreements(user);
+
+		// ✅ 5. 프로필 이미지가 있는 경우 S3 등 업로드 처리
 		updateProfileImageIfExists(user, oAuth, userInfo.getPicture());
 
-		// ✅ 4. OAuth 영속화
+		// ✅ 6. OAuth 영속화
 		return oAuthRepository.save(oAuth);
 	}
 
