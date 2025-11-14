@@ -14,6 +14,7 @@ import com.server.domain.user.dto.UserProfileResponseDto;
 import com.server.domain.user.entity.Couple;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.repository.UserRepository;
+import com.server.global.error.code.TermErrorCode;
 import com.server.global.error.code.UserErrorCode;
 import com.server.global.error.exception.BusinessException;
 import java.time.LocalDateTime;
@@ -86,7 +87,7 @@ public class UserService {
 	private boolean hasAgreedToAllRequiredTerms(Long userId, List<TermAgreement> agreements) {
 		if (agreements.isEmpty()) {
 			log.warn("User {} has no term agreements.", userId);
-			return false;
+			throw new BusinessException(TermErrorCode.TERM_AGREEMENT_NOT_FOUND);
 		}
 
 		// 필수 약관 중 하나라도 미동의가 있다면 false
@@ -184,6 +185,7 @@ public class UserService {
 
 		// Update user's term agreements based on client request
 		List<TermAgreement> existingAgreements = termService.getUserTermAgreements(user.getId());
+
 		existingAgreements.forEach(agreement -> {
 			Long termId = agreement.getTerm().getId();
 			if (termAgreements.containsKey(termId)) {

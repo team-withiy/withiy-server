@@ -1,6 +1,7 @@
 package com.server.domain.term.service;
 
 import com.server.domain.term.dto.TermDto;
+import com.server.domain.term.entity.Term;
 import com.server.domain.term.entity.TermAgreement;
 import com.server.domain.term.repository.TermAgreementRepository;
 import com.server.domain.term.repository.TermRepository;
@@ -33,5 +34,10 @@ public class TermService {
 	@Transactional
 	public void saveAllTermAgreements(List<TermAgreement> agreements) {
 		termAgreementRepository.saveAll(agreements);
+	}
+
+	@Transactional(readOnly = true)
+	public List<Term> findAllTerms() {
+		return termRepository.findAll();
 	}
 }

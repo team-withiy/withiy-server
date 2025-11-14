@@ -79,8 +79,7 @@ public class UserController {
 	public ApiResponseDto<String> registerUser(@AuthenticationPrincipal User user,
 		@RequestBody RegisterUserInDto body) {
 		String nickname = userService.registerUser(user, body.getTermAgreements(),
-			body.getNickname(),
-			body.getThumbnail());
+			body.getNickname(), body.getThumbnail());
 		return ApiResponseDto.success(HttpStatus.OK.value(),
 			String.format("User %s information updated successfully", nickname));
 	}
