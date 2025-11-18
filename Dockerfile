@@ -23,15 +23,17 @@ ENV JWT_SECRET_KEY="CUL0gl15xbD4Y4DFRGCVBkLfXCodzgwOypSL82/HuD4="
 ENV HMAC_SECRET_KEY="e1582d13fec7437be95eb68027ff2145ce553d56c93eb7a6dea29a68e1e337e7"
 
 WORKDIR /server
-COPY src /server/src/
+# 1) Gradle 설정 먼저 복사
+COPY build.gradle settings.gradle gradlew /server/
 COPY gradle /server/gradle/
-COPY gradlew /server/
-COPY build.gradle /server/
-COPY settings.gradle /server/
+# 2) 의존성 먼저 다운로드 (캐시 잘 됨)
+RUN ./gradlew dependencies --no-daemon || true
+# 3) 소스 코드만 복사
+COPY src /server/src/
+# 4) 빌드 실행
+RUN ./gradlew build --no-daemon
 
-RUN ./gradlew build
-
-# Stage 2: Run
+# Stage 2: Runtime
 FROM eclipse-temurin:17-jdk-jammy
 
 LABEL maintainer="Zerohertz <ohg3417@gmail.com>"
