@@ -12,6 +12,9 @@ spring:
       test:
         - test
         - jwt
+      local:
+        - local
+        - jwt
     active: deploy
   servlet:
     multipart:
