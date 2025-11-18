@@ -2,9 +2,8 @@
 
 cd "$(dirname "$0")/.."
 docker compose down -v
-docker rmi withiy-server-server --force
 
-if docker compose build --no-cache; then
+if docker compose build; then
 	echo "Build success!"
 else
 	echo "Build failed..."
