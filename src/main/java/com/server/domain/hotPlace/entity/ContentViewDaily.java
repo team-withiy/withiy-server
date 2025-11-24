@@ -1,5 +1,6 @@
 package com.server.domain.hotPlace.entity;
 
+import com.server.domain.route.entity.RouteType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -33,7 +34,7 @@ public class ContentViewDaily {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
-    private PlaceContentType type;
+    private RouteType type;
 
     private Long contentId;
 
