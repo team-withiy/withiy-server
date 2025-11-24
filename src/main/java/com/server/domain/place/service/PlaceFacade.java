@@ -1,12 +1,12 @@
 package com.server.domain.place.service;
 
 import com.server.domain.category.dto.CategoryDto;
-import com.server.domain.category.service.CategoryService;
 import com.server.domain.dateSchedule.entity.DateSchedule;
 import com.server.domain.dateSchedule.service.DateSchedService;
 import com.server.domain.folder.entity.Folder;
 import com.server.domain.folder.entity.FolderPlace;
 import com.server.domain.folder.service.FolderService;
+import com.server.domain.hotPlace.service.ContentViewLogService;
 import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.entity.PhotoType;
@@ -23,6 +23,7 @@ import com.server.domain.place.entity.Place;
 import com.server.domain.review.dto.ReviewDto;
 import com.server.domain.review.entity.Review;
 import com.server.domain.review.service.ReviewService;
+import com.server.domain.route.entity.RouteType;
 import com.server.domain.user.entity.User;
 import com.server.global.error.code.AlbumErrorCode;
 import com.server.global.error.exception.BusinessException;
@@ -43,11 +44,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class PlaceFacade {
 
 	private final PlaceService placeService;
-	private final CategoryService categoryService;
 	private final PhotoService photoService;
 	private final ReviewService reviewService;
 	private final FolderService folderService;
 	private final DateSchedService dateSchedService;
+    private final ContentViewLogService contentVIewLogService;
 
 	@Transactional(readOnly = true)
 	public GetPlaceDetailResponse getPlaceDetail(Long placeId) {
@@ -81,6 +82,9 @@ public class PlaceFacade {
 			})
 			.toList();
 
+        // 장소 조회시 로그 기록
+        contentVIewLogService.insertContentLog(RouteType.PLACE, placeId);
+
 		return GetPlaceDetailResponse.builder()
 			.placeId(place.getId())
 			.placeName(place.getName())
@@ -92,13 +96,6 @@ public class PlaceFacade {
 			.totalPhotoCount(totalPhotoCount)
 			.reviews(reviewSummaries)
 			.build();
-	}
-
-	public CreatePlaceResponse createPlaceOnSchedule(User user, CreatePlaceByUserDto request) {
-		DateSchedule dateSchedule = dateSchedService.findByUserAndId(user,
-			request.getDateScheduleId());
-
-		return null;
 	}
 
 	@Transactional
