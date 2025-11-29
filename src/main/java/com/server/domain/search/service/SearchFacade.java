@@ -98,4 +98,10 @@ public class SearchFacade {
 			.bookmarkedCourses(null)
 			.build();
 	}
+
+	// 최근 검색어 조회
+	@Transactional(readOnly = true)
+	public List<SearchHistoryDto> getRecentSearches(User user) {
+		return searchService.getRecentSearchHistory(user);
+	}
 }
