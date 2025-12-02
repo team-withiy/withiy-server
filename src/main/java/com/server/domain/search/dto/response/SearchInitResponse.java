@@ -1,7 +1,7 @@
 package com.server.domain.search.dto.response;
 
-import com.server.domain.search.dto.BookmarkedCourseDto;
-import com.server.domain.search.dto.BookmarkedPlaceDto;
+import com.server.domain.bookmark.dto.BookmarkedCourseDto;
+import com.server.domain.bookmark.dto.BookmarkedPlaceDto;
 import com.server.domain.search.dto.SearchHistoryDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
