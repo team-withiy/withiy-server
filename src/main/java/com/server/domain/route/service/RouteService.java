@@ -11,18 +11,17 @@ import com.server.domain.route.entity.RouteStatus;
 import com.server.domain.route.repository.RouteBookmarkRepository;
 import com.server.domain.route.repository.RoutePlaceRepository;
 import com.server.domain.route.repository.RouteRepository;
-import com.server.domain.search.dto.BookmarkedCourseDto;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ImageResponseDto;
 import com.server.global.error.code.CourseErrorCode;
 import com.server.global.error.exception.BusinessException;
 import com.server.global.service.ImageService;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -107,11 +106,10 @@ public class RouteService {
 		return RouteImageDto.builder().imageUrl(routeImage.getImageUrl()).build();
 	}
 
-	@Transactional
-	public List<BookmarkedCourseDto> getBookmarkedCourses(User user) {
+	@Transactional(readOnly = true)
+	public List<Route> getBookmarkedRoutes(User user) {
 		return routeBookmarkRepository.findByUserWithCourse(user).stream()
 			.map(RouteBookmark::getRoute)
-			.map(BookmarkedCourseDto::from)
 			.collect(Collectors.toList());
 	}
 
@@ -121,7 +119,7 @@ public class RouteService {
 	 * @param keyword 검색 키워드
 	 * @return 검색된 코스 목록
 	 */
-	@Transactional
+	@Transactional(readOnly = true)
 	public List<CourseDto> searchCoursesByKeyword(String keyword) {
 		List<Route> courses = routeRepository.findByNameContainingIgnoreCase(keyword);
 		return courses.stream()
@@ -137,11 +135,12 @@ public class RouteService {
 		}
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public long getBookmarkCount(Route route) {
 		return routeBookmarkRepository.countByRouteAndNotDeleted(route);
 	}
 
+	@Transactional(readOnly = true)
 	public List<Place> getPlacesInCourse(Route route) {
 		return routePlaceRepository.findPlacesByCourse(route);
 	}

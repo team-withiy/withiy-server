@@ -51,7 +51,7 @@ public class PhotoService {
 
 	public List<PhotoDto> getPlaceTopPhotos(Place place) {
 		Pageable pageable = PageRequest.of(0, PLACE_DEFAULT_PHOTO_LIMIT);
-		List<Photo> photos = photoRepository.findTopPhotosByPlaceIdAndType(place.getId(),
+		List<Photo> photos = photoRepository.findPhotosByPlaceIdAndType(place.getId(),
 			PhotoType.PUBLIC,
 			pageable);
 
@@ -77,7 +77,7 @@ public class PhotoService {
 
 		if (cursor == null) {
 			// 커서가 없으면 첫 페이지: 최신순 limit+1개 조회
-			fetched = photoRepository.findTopPhotosByPlaceIdAndType(place.getId(),
+			fetched = photoRepository.findPhotosByPlaceIdAndType(place.getId(),
 				PhotoType.PUBLIC, pageable);
 			boolean hasMore = fetched.size() > limit;
 			hasNext = hasMore;
@@ -178,5 +178,69 @@ public class PhotoService {
 		);
 
 		return placeIdToUrls;
+	}
+
+	/**
+	 * 장소 별 대표 사진(최신 공개 사진)을 조회하여 Map으로 반환
+	 *
+	 * @param placeIds 장소 ID 목록
+	 * @return 장소 ID를 키로, PhotoDto 리스트를 값으로 하는 맵
+	 */
+	@Transactional(readOnly = true)
+	public Map<Long, List<PhotoDto>> getRepresentativePhotosMap(List<Long> placeIds) {
+		if (placeIds == null || placeIds.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		List<Photo> photos = photoRepository.findRepresentativePhotosByPlaceIds(placeIds,
+			PhotoType.PUBLIC);
+
+		return photos.stream()
+			.collect(Collectors.groupingBy(
+				photo -> photo.getPlace().getId(),
+				Collectors.mapping(PhotoDto::from, Collectors.toList())
+			));
+	}
+
+	/**
+	 * 코스 별 대표 사진 조회 - 장소가 1~3개인 경우: 첫 번째 장소의 대표 사진 1장 - 장소가 4개 이상인 경우: 처음 4개 장소의 대표 사진 각 1장
+	 *
+	 * @param placeIds 코스에 속한 장소 ID 목록 (순서대로)
+	 * @return 대표 사진 목록
+	 */
+	@Transactional(readOnly = true)
+	public List<PhotoDto> getCourseRepresentativePhotos(List<Long> placeIds) {
+		if (placeIds == null || placeIds.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		// 1~3개 장소: 첫 번째 장소의 대표 사진 1장
+		if (placeIds.size() <= 3) {
+			Long firstPlaceId = placeIds.get(0);
+			List<Photo> photos = photoRepository.findRepresentativePhotosByPlaceIds(
+				List.of(firstPlaceId), PhotoType.PUBLIC);
+			return photos.stream()
+				.map(PhotoDto::from)
+				.collect(Collectors.toList());
+		}
+
+		// 4개 이상 장소: 처음 4개 장소의 대표 사진 각 1장
+		List<Long> firstFourPlaceIds = placeIds.subList(0, Math.min(4, placeIds.size()));
+		List<Photo> photos = photoRepository.findRepresentativePhotosByPlaceIds(
+			firstFourPlaceIds, PhotoType.PUBLIC);
+
+		// 장소 순서대로 정렬
+		Map<Long, Photo> photoMap = photos.stream()
+			.collect(Collectors.toMap(
+				photo -> photo.getPlace().getId(),
+				photo -> photo,
+				(existing, replacement) -> existing
+			));
+
+		return firstFourPlaceIds.stream()
+			.map(photoMap::get)
+			.filter(photo -> photo != null)
+			.map(PhotoDto::from)
+			.collect(Collectors.toList());
 	}
 }

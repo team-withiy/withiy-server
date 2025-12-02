@@ -182,6 +182,7 @@ public class FolderService {
 	 * @param user 현재 사용자
 	 * @return 북마크된 장소 목록
 	 */
+	@Transactional(readOnly = true)
 	public List<Place> getBookmarkedPlaces(User user) {
 		return folderPlaceRepository.findBookmarkedPlacesByUserId(user.getId());
 	}

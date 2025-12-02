@@ -1,7 +1,9 @@
-package com.server.domain.search.dto;
+package com.server.domain.bookmark.dto;
 
+import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.place.entity.Place;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,13 +19,16 @@ public class BookmarkedPlaceDto {
 	private String address;
 	@Schema(description = "장소 온도", example = "75")
 	private Double score;
+	@Schema(description = "장소 사진 목록")
+	private List<PhotoDto> photos;
 
-	public static BookmarkedPlaceDto of(Place place, Double score) {
+	public static BookmarkedPlaceDto of(Place place, Double score, List<PhotoDto> photos) {
 		return BookmarkedPlaceDto.builder()
 			.id(place.getId())
 			.name(place.getName())
 			.address(place.getAddress())
 			.score(score)
+			.photos(photos)
 			.build();
 	}
 }

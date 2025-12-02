@@ -169,6 +169,7 @@ public class ReviewService {
 		);
 	}
 
+	@Transactional(readOnly = true)
 	public Map<Long, Double> getScoreMapForPlaces(List<Long> placeIds) {
 		if (placeIds == null || placeIds.isEmpty()) {
 			return Collections.emptyMap();
