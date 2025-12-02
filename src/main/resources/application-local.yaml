@@ -57,9 +57,10 @@ spring:
             user-name-attribute: id
   data:
     redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
-      password: ${REDIS_PASSWORD}
+      enabled: ${REDIS_ENABLED:false}  # 기본값 false, 환경변수로 true 설정 가능
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
 kakao:
   map:
     api:

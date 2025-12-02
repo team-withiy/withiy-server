@@ -17,6 +17,7 @@
 - [Service layer 개발 방법](docs/service.md)
 - [Controller 개발 방법](docs/controller.md)
 - [Test 코드 개발 방법](docs/test.md)
+- [Redis 설정 가이드](docs/redis-setup.md) ⭐ NEW
 - [Docker Compose 사용 방법](docs/docker-compose.md)
 - [Kubernetes 사용 방법](docs/kubernetes.md)
 - [CI/CD](docs/cicd.md)
