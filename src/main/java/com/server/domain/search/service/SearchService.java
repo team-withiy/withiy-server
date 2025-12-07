@@ -36,4 +36,12 @@ public class SearchService {
 			.map(SearchHistoryDto::from)
 			.collect(Collectors.toList());
 	}
+
+	public void saveSearchHistory(User user, String keyword) {
+		SearchHistory searchHistory = SearchHistory.builder()
+			.user(user)
+			.keyword(keyword)
+			.build();
+		searchRepository.save(searchHistory);
+	}
 }

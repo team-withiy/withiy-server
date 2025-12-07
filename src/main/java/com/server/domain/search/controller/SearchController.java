@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/searches")
+@RequestMapping("/api/search")
 @RequiredArgsConstructor
 @Tag(name = "Search", description = "검색 관련 API")
 public class SearchController {
 
 	private final SearchFacade searchFacade;
 
-	@GetMapping("/results")
+	@GetMapping
 	@ResponseStatus(HttpStatus.OK)
 	@Operation(summary = "[공용] 검색 결과 반환", description = "키워드, 필터, 정렬 기준에 따른 장소 및 코스 검색 결과를 반환합니다.")
 	public ApiResponseDto<SearchResultResponse> getSearchResults(@AuthenticationPrincipal User user,
@@ -37,7 +37,7 @@ public class SearchController {
 		return ApiResponseDto.success(HttpStatus.OK.value(), searchResponseDto);
 	}
 
-	@GetMapping("/recent")
+	@GetMapping("/history")
 	@ResponseStatus(HttpStatus.OK)
 	@Operation(summary = "최근 검색어 조회", description = "사용자의 최근 검색어 목록을 반환합니다.")
 	public ApiResponseDto<List<SearchHistoryDto>> getRecentSearches(
