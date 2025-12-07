@@ -123,7 +123,7 @@ public class RouteService {
 	public List<RouteSearchResponse> searchCoursesByKeyword(String keyword) {
 		List<Route> courses = routeRepository.findByNameContainingIgnoreCase(keyword);
 		return courses.stream()
-			.map(RouteSearchResponse::of)
+			.map(route -> RouteSearchResponse.of(route, List.of(), List.of()))
 			.collect(Collectors.toList());
 	}
 

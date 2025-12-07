@@ -76,4 +76,12 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 			.body(ApiResponseDto.error(HttpStatus.BAD_REQUEST.value(), errorMessage));
 	}
+
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<ApiResponseDto<Object>> handleIllegalArgumentException(
+		IllegalArgumentException e) {
+		log.warn("[IllegalArgumentException] {}", e.getMessage());
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+			.body(ApiResponseDto.error(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
+	}
 }

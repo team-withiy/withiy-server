@@ -8,6 +8,7 @@ import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,9 +29,9 @@ public class SearchController {
 
 	@GetMapping
 	@ResponseStatus(HttpStatus.OK)
-	@Operation(summary = "[공용] 검색 결과 반환", description = "키워드, 필터, 정렬 기준에 따른 장소 및 코스 검색 결과를 반환합니다.")
+	@Operation(summary = "[공용] 장소/코스 검색 결과 반환", description = "키워드, 필터, 정렬 기준에 따른 장소 및 코스 검색 결과를 반환합니다.")
 	public ApiResponseDto<SearchResultResponse> getSearchResults(@AuthenticationPrincipal User user,
-		@ModelAttribute SearchResultRequest request) {
+		@ModelAttribute @Valid SearchResultRequest request) {
 
 		SearchResultResponse searchResponseDto = searchFacade.search(user,
 			request);
