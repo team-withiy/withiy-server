@@ -9,8 +9,10 @@ import com.server.domain.place.entity.Place;
 import com.server.domain.review.service.ReviewService;
 import com.server.domain.route.service.RouteService;
 import com.server.domain.user.entity.User;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,10 @@ public class BookmarkFacade {
 	@Transactional(readOnly = true)
 	public List<BookmarkedPlaceDto> getBookmarkedPlaces(User user) {
 		// 1. 북마크된 장소 조회
+		if (user == null) {
+			return List.of();
+		}
+
 		List<Place> places = folderService.getBookmarkedPlaces(user);
 		List<Long> placeIds = places.stream().map(Place::getId).toList();
 		// 2. 장소 별 평점 조회
@@ -46,10 +52,36 @@ public class BookmarkFacade {
 	// 북마크된 코스 조회
 	@Transactional(readOnly = true)
 	public List<BookmarkedCourseDto> getBookmarkedCourses(User user) {
-		return routeService.getBookmarkedRoutes(user).stream()
+		if (user == null) {
+			return List.of();
+		}
+
+		// 1. 북마크된 코스 목록 조회
+		var routes = routeService.getBookmarkedRoutes(user);
+		if (routes.isEmpty()) {
+			return List.of();
+		}
+
+		// 2. 모든 코스의 장소 정보를 한 번의 쿼리로 조회
+		var routePlaces = routeService.getPlacesInCourses(routes);
+
+		// 3. Route ID를 키로 하는 Map으로 그룹화 (순서 유지)
+		var routePlaceMap = routePlaces.stream()
+			.collect(Collectors.groupingBy(
+				rp -> rp.getRoute().getId(),
+				LinkedHashMap::new,
+				Collectors.mapping(
+					rp -> rp.getPlace(),
+					Collectors.toList()
+				)
+			));
+
+		// 4. 각 코스별 대표 사진 조회 및 DTO 생성
+		return routes.stream()
 			.map(route -> {
-				// 코스에 속한 장소 ID 목록 조회 (순서대로)
-				List<Long> placeIds = routeService.getPlacesInCourse(route).stream()
+				// 코스에 속한 장소 ID 목록 조회 (Map에서 가져오기, 쿼리 발생 없음)
+				List<Long> placeIds = routePlaceMap.getOrDefault(route.getId(), List.of())
+					.stream()
 					.map(Place::getId)
 					.toList();
 				// 코스 대표 사진 조회

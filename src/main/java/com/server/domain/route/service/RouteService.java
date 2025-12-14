@@ -146,6 +146,20 @@ public class RouteService {
 	}
 
 	/**
+	 * 여러 코스에 속한 모든 장소들을 한 번의 쿼리로 조회
+	 *
+	 * @param routes 조회할 코스 목록
+	 * @return RoutePlace 목록 (코스와 장소 정보 포함)
+	 */
+	@Transactional(readOnly = true)
+	public List<RoutePlace> getPlacesInCourses(List<Route> routes) {
+		if (routes == null || routes.isEmpty()) {
+			return List.of();
+		}
+		return routePlaceRepository.findByRouteIn(routes);
+	}
+
+	/**
 	 * 코스 대표 이미지(썸네일) 업데이트
 	 *
 	 * @param courseId 코스 ID
