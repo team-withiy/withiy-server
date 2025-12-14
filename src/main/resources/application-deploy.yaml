@@ -57,6 +57,7 @@ spring:
             user-name-attribute: id
   data:
     redis:
+      enabled: true  # 배포 환경에서는 필수
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
       password: ${REDIS_PASSWORD}

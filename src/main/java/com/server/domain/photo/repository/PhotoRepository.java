@@ -43,7 +43,7 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 		"WHERE p.place.id = :placeId " +
 		"AND p.type = :type " +
 		"ORDER BY p.createdAt DESC")
-	List<Photo> findTopPhotosByPlaceIdAndType(Long placeId, PhotoType type, Pageable pageable);
+	List<Photo> findPhotosByPlaceIdAndType(Long placeId, PhotoType type, Pageable pageable);
 
 
 	@Query("SELECT p FROM Photo p " +
@@ -75,4 +75,15 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 		"AND p.type = :type " +
 		"AND p.id > :cursor")
 	boolean existsPrevPhotoByPlaceIdAndType(Long placeId, PhotoType type, Long cursor);
+
+	@Query("SELECT p FROM Photo p " +
+		"WHERE p.place.id IN :placeIds " +
+		"AND p.type = :type " +
+		"AND p.id IN (" +
+		"  SELECT MAX(p2.id) FROM Photo p2 " +
+		"  WHERE p2.place.id IN :placeIds " +
+		"  AND p2.type = :type " +
+		"  GROUP BY p2.place.id" +
+		")")
+	List<Photo> findRepresentativePhotosByPlaceIds(List<Long> placeIds, PhotoType type);
 }

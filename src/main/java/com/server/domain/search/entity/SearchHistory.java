@@ -1,6 +1,7 @@
 package com.server.domain.search.entity;
 
 import com.server.domain.user.entity.User;
+import com.server.global.common.BaseTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -10,16 +11,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import lombok.Getter;
-import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "search_history")
-public class SearchHistory {
+public class SearchHistory extends BaseTime {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,8 +31,4 @@ public class SearchHistory {
 	@ManyToOne
 	@JoinColumn(name = "user_id")
 	private User user;
-
-	@Column(name = "created_at", nullable = false)
-	@CreationTimestamp
-	private LocalDateTime createdAt;
 }
