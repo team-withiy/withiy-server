@@ -14,7 +14,7 @@ public class SearchResultRequest {
 	@Schema(description = "검색 페이지 타입", example = "main or date_schedule")
 	@NotNull(message = "검색 페이지는 필수입니다.")
 	private SearchPageType pageType; // 검색 소스 (메인, 데이트 일정)
-	@Schema(description = "검색 대상 타입", example = "place or curse")
+	@Schema(description = "검색 대상 타입", example = "place or route")
 	@NotNull(message = "검색 대상은 필수입니다.")
 	private SearchTargetType targetType;
 }

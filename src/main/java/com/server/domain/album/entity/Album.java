@@ -23,7 +23,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Where;
@@ -55,9 +54,9 @@ public class Album extends BaseTime {
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Couple couple;
 
-	@Column(nullable = false)
-	@ColumnDefault("false")
-	private boolean deleted;
+	@Column(name = "deleted")
+	@Builder.Default
+	private boolean deleted = false;
 
 	@Builder.Default
 	@OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)

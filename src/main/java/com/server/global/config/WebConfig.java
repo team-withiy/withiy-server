@@ -17,7 +17,6 @@ public class WebConfig implements WebMvcConfigurer {
 	private final SearchTargetTypeConverter searchTargetTypeConverter;
 
 	@Override
-	@SuppressWarnings("null")
 	public void addFormatters(@NonNull FormatterRegistry registry) {
 		registry.addConverter(searchPageTypeConverter);
 		registry.addConverter(searchTargetTypeConverter);

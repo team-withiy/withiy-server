@@ -36,7 +36,7 @@ public class SearchFacade {
 	 * @param searchRequestDto 검색 요청 정보
 	 * @return 검색 결과 (장소 및 코스 목록)
 	 */
-	@Transactional(readOnly = true)
+	@Transactional
 	public SearchResultResponse search(User user, SearchResultRequest searchRequestDto) {
 
 		String keyword = searchRequestDto.getKeyword();
