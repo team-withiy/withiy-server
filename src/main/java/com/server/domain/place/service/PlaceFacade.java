@@ -80,7 +80,7 @@ public class PlaceFacade {
 			.toList();
 
 		// 장소 조회시 로그 기록
-		contentVIewLogService.insertContentLog(RouteType.PLACE, placeId);
+		contentViewLogService.insertContentLog(RouteType.PLACE, placeId);
 
 		return GetPlaceDetailResponse.builder()
 			.placeId(place.getId())
