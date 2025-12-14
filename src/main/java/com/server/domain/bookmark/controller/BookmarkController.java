@@ -26,7 +26,7 @@ public class BookmarkController {
 
 	@GetMapping("/places")
 	@ResponseStatus(HttpStatus.OK)
-	@Operation(summary = " 북마크된 장소 조회", description = "사용자가 북마크한 장소 목록을 반환합니다.")
+	@Operation(summary = "북마크된 장소 조회", description = "사용자가 북마크한 장소 목록을 반환합니다.")
 	public ApiResponseDto<List<BookmarkedPlaceDto>> getBookmarkedPlaces(
 		@AuthenticationPrincipal User user) {
 		return ApiResponseDto.success(HttpStatus.OK.value(),
@@ -35,7 +35,7 @@ public class BookmarkController {
 
 	@GetMapping("/courses")
 	@ResponseStatus(HttpStatus.OK)
-	@Operation(summary = " 북마크된 코스 조회", description = "사용자가 북마크한 코스 목록을 반환합니다.")
+	@Operation(summary = "북마크된 코스 조회", description = "사용자가 북마크한 코스 목록을 반환합니다.")
 	public ApiResponseDto<List<BookmarkedCourseDto>> getBookmarkedCourses(
 		@AuthenticationPrincipal User user) {
 		return ApiResponseDto.success(HttpStatus.OK.value(),
