@@ -8,7 +8,7 @@ package com.server.domain.search.entity;
  *   <li>{@link #DATE_SCHEDULE} - 일정 페이지에서의 검색</li>
  * </ul>
  */
-public enum SearchSourceType {
+public enum SearchPageType {
 	MAIN,
 	DATE_SCHEDULE
 }

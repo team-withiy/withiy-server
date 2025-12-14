@@ -42,15 +42,22 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 	@Query("SELECT p FROM Photo p " +
 		"WHERE p.place.id = :placeId " +
 		"AND p.type = :type " +
-		"ORDER BY p.createdAt DESC")
+		"ORDER BY p.id DESC")
 	List<Photo> findPhotosByPlaceIdAndType(Long placeId, PhotoType type, Pageable pageable);
 
+	@Query("SELECT p FROM Photo p " +
+		"WHERE p.place.id = :placeId " +
+		"AND p.type = :type " +
+		"AND p.id < :cursor " +
+		"ORDER BY p.id DESC")
+	List<Photo> findNextPhotosByPlaceIdAndType(Long placeId, PhotoType type, Long cursor,
+		Pageable pageable);
 
 	@Query("SELECT p FROM Photo p " +
 		"WHERE p.place.id = :placeId " +
 		"AND p.type = :type " +
 		"AND p.id > :cursor " +
-		"ORDER BY p.createdAt ASC")
+		"ORDER BY p.id ASC")
 	List<Photo> findPrevPhotosByPlaceIdAndType(Long placeId, PhotoType type, Long cursor,
 		Pageable pageable);
 
@@ -60,14 +67,6 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 		"AND p.type = :type " +
 		"AND p.id < :cursor")
 	boolean existsNextPhotoByPlaceIdAndType(Long placeId, PhotoType type, Long cursor);
-
-	@Query("SELECT p FROM Photo p " +
-		"WHERE p.place.id = :placeId " +
-		"AND p.type = :type " +
-		"AND p.id < :cursor " +
-		"ORDER BY p.createdAt DESC")
-	List<Photo> findNextPhotosByPlaceIdAndType(Long placeId, PhotoType type, Long cursor,
-		Pageable pageable);
 
 	@Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END " +
 		"FROM Photo p " +

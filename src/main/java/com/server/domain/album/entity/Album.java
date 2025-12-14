@@ -23,7 +23,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Where;
@@ -47,37 +46,37 @@ public class Album extends BaseTime {
 	@Column(name = "title")
 	private String title;
 
-    @Column(name = "schedule_at")
-    private LocalDate scheduleAt;
+	@Column(name = "schedule_at")
+	private LocalDate scheduleAt;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "couple_id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Couple couple;
 
-    @Column(nullable = false)
-    @ColumnDefault("false")
-    private boolean deleted = false;
+	@Column(name = "deleted")
+	@Builder.Default
+	private boolean deleted = false;
 
-    @Builder.Default
-    @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AlbumPhoto> albumPhotos = new ArrayList<>();
+	@Builder.Default
+	@OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<AlbumPhoto> albumPhotos = new ArrayList<>();
 
-    @Builder.Default
-    @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AlbumComment> albumComments = new ArrayList<>();
+	@Builder.Default
+	@OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<AlbumComment> albumComments = new ArrayList<>();
 
-    public void addPhoto(Photo photo) {
-        if (this.albumPhotos == null) {
-            this.albumPhotos = new ArrayList<>();
-        }
-        AlbumPhoto albumPhoto = new AlbumPhoto(this, photo);
-        this.albumPhotos.add(albumPhoto);
-        photo.getAlbumPhotos().add(albumPhoto);
-    }
+	public void addPhoto(Photo photo) {
+		if (this.albumPhotos == null) {
+			this.albumPhotos = new ArrayList<>();
+		}
+		AlbumPhoto albumPhoto = new AlbumPhoto(this, photo);
+		this.albumPhotos.add(albumPhoto);
+		photo.getAlbumPhotos().add(albumPhoto);
+	}
 
-    public void delete() {
-        this.deleted = true;
-    }
+	public void delete() {
+		this.deleted = true;
+	}
 
 }

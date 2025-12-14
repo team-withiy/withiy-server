@@ -17,8 +17,6 @@ import com.server.global.dto.ApiResponseDto;
 import com.server.global.pagination.dto.ApiCursorPaginationRequest;
 import com.server.global.pagination.dto.ApiCursorPaginationResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -36,7 +34,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -147,17 +144,9 @@ public class PlaceController {
 	@ResponseStatus(HttpStatus.OK)
 	@Operation(summary = "[공용] 특정 장소 리뷰 목록 조회", description = "장소 id를 받아 특정 장소에 등록된 리뷰들을 커서 기반 페이징으로 조회")
 	public ApiCursorPaginationResponse<ReviewDto, Long> getPlaceReviews(@PathVariable Long placeId,
-		@ModelAttribute ApiCursorPaginationRequest pageRequest,
-		@Parameter(
-			description = "리뷰 정렬 기준 (기본값: latest)",
-			schema = @Schema(
-				allowableValues = {"latest", "score"},
-				defaultValue = "latest"
-			)
-		)
-		@RequestParam(required = false) String sortBy) {
+		@ModelAttribute ApiCursorPaginationRequest pageRequest) {
 		return ApiCursorPaginationResponse.success(HttpStatus.OK.value(),
-			placeFacade.getPlaceReviews(placeId, pageRequest, sortBy));
+			placeFacade.getPlaceReviews(placeId, pageRequest));
 	}
 
 	@GetMapping("/focus")

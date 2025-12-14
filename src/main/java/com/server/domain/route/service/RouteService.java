@@ -1,8 +1,8 @@
 package com.server.domain.route.service;
 
 import com.server.domain.place.entity.Place;
-import com.server.domain.route.dto.CourseDto;
 import com.server.domain.route.dto.RouteImageDto;
+import com.server.domain.route.dto.response.RouteSearchResponse;
 import com.server.domain.route.entity.Route;
 import com.server.domain.route.entity.RouteBookmark;
 import com.server.domain.route.entity.RouteImage;
@@ -120,10 +120,10 @@ public class RouteService {
 	 * @return 검색된 코스 목록
 	 */
 	@Transactional(readOnly = true)
-	public List<CourseDto> searchCoursesByKeyword(String keyword) {
-		List<Route> courses = routeRepository.findByNameContainingIgnoreCase(keyword);
-		return courses.stream()
-			.map(CourseDto::from)
+	public List<RouteSearchResponse> searchCoursesByKeyword(String keyword) {
+		List<Route> routes = routeRepository.findByNameContainingIgnoreCase(keyword);
+		return routes.stream()
+			.map(route -> RouteSearchResponse.of(route, List.of(), List.of()))
 			.collect(Collectors.toList());
 	}
 
