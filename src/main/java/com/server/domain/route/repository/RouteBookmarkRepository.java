@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 public interface RouteBookmarkRepository extends JpaRepository<RouteBookmark, Long> {
 
 	@Query("SELECT cb FROM RouteBookmark cb JOIN FETCH cb.route WHERE cb.user = :user")
-	List<RouteBookmark> findByUserWithCourse(User user);
+	List<RouteBookmark> findByUserWithRoute(User user);
 
 	@Query("SELECT COUNT(cb) FROM RouteBookmark cb " +
 		"WHERE cb.route = :route AND cb.deletedAt IS NULL")

@@ -1,6 +1,6 @@
 package com.server.domain.search.dto.response;
 
-import com.server.domain.bookmark.dto.BookmarkedCourseDto;
+import com.server.domain.bookmark.dto.BookmarkedRouteDto;
 import com.server.domain.bookmark.dto.BookmarkedPlaceDto;
 import com.server.domain.search.dto.SearchHistoryDto;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -21,7 +21,7 @@ public class SearchInitResponse {
 	private List<SearchHistoryDto> recentKeywords;
 	@Schema(description = "북마크된 장소 목록")
 	private List<BookmarkedPlaceDto> bookmarkedPlaces;
-	@Schema(description = "북마크된 코스 목록")
-	private List<BookmarkedCourseDto> bookmarkedCourses;
+	@Schema(description = "북마크된 루트 목록")
+	private List<BookmarkedRouteDto> bookmarkedRoutes;
 
 }

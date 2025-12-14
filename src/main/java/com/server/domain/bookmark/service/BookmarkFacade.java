@@ -1,6 +1,6 @@
 package com.server.domain.bookmark.service;
 
-import com.server.domain.bookmark.dto.BookmarkedCourseDto;
+import com.server.domain.bookmark.dto.BookmarkedRouteDto;
 import com.server.domain.bookmark.dto.BookmarkedPlaceDto;
 import com.server.domain.folder.service.FolderService;
 import com.server.domain.photo.dto.PhotoDto;
@@ -49,21 +49,21 @@ public class BookmarkFacade {
 			.toList();
 	}
 
-	// 북마크된 코스 조회
+	// 북마크된 루트 조회
 	@Transactional(readOnly = true)
-	public List<BookmarkedCourseDto> getBookmarkedCourses(User user) {
+	public List<BookmarkedRouteDto> getBookmarkedRoutes(User user) {
 		if (user == null) {
 			return List.of();
 		}
 
-		// 1. 북마크된 코스 목록 조회
+		// 1. 북마크된 루트 목록 조회
 		var routes = routeService.getBookmarkedRoutes(user);
 		if (routes.isEmpty()) {
 			return List.of();
 		}
 
-		// 2. 모든 코스의 장소 정보를 한 번의 쿼리로 조회
-		var routePlaces = routeService.getPlacesInCourses(routes);
+		// 2. 모든 루트의 장소 정보를 한 번의 쿼리로 조회
+		var routePlaces = routeService.getPlacesInRoutes(routes);
 
 		// 3. Route ID를 키로 하는 Map으로 그룹화 (순서 유지)
 		var routePlaceMap = routePlaces.stream()
@@ -76,17 +76,17 @@ public class BookmarkFacade {
 				)
 			));
 
-		// 4. 각 코스별 대표 사진 조회 및 DTO 생성
+		// 4. 각 루트별 대표 사진 조회 및 DTO 생성
 		return routes.stream()
 			.map(route -> {
-				// 코스에 속한 장소 ID 목록 조회 (Map에서 가져오기, 쿼리 발생 없음)
+				// 루트에 속한 장소 ID 목록 조회 (Map에서 가져오기, 쿼리 발생 없음)
 				List<Long> placeIds = routePlaceMap.getOrDefault(route.getId(), List.of())
 					.stream()
 					.map(Place::getId)
 					.toList();
-				// 코스 대표 사진 조회
-				List<PhotoDto> photos = photoService.getCourseRepresentativePhotos(placeIds);
-				return BookmarkedCourseDto.of(route, photos);
+				// 루트 대표 사진 조회
+				List<PhotoDto> photos = photoService.getRouteRepresentativePhotos(placeIds);
+				return BookmarkedRouteDto.of(route, photos);
 			})
 			.toList();
 	}

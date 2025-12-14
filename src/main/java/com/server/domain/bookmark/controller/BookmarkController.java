@@ -1,7 +1,7 @@
 package com.server.domain.bookmark.controller;
 
-import com.server.domain.bookmark.dto.BookmarkedCourseDto;
 import com.server.domain.bookmark.dto.BookmarkedPlaceDto;
+import com.server.domain.bookmark.dto.BookmarkedRouteDto;
 import com.server.domain.bookmark.service.BookmarkFacade;
 import com.server.domain.user.entity.User;
 import com.server.global.dto.ApiResponseDto;
@@ -36,9 +36,9 @@ public class BookmarkController {
 	@GetMapping("/courses")
 	@ResponseStatus(HttpStatus.OK)
 	@Operation(summary = " 북마크된 코스 조회", description = "사용자가 북마크한 코스 목록을 반환합니다.")
-	public ApiResponseDto<List<BookmarkedCourseDto>> getBookmarkedCourses(
+	public ApiResponseDto<List<BookmarkedRouteDto>> getBookmarkedRoutes(
 		@AuthenticationPrincipal User user) {
 		return ApiResponseDto.success(HttpStatus.OK.value(),
-			bookmarkFacade.getBookmarkedCourses(user));
+			bookmarkFacade.getBookmarkedRoutes(user));
 	}
 }

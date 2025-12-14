@@ -32,7 +32,7 @@ public class S3Service {
 	 * 이미지 파일을 S3에 업로드
 	 *
 	 * @param file      업로드할 이미지 파일
-	 * @param directory 업로드할 디렉토리 (예: "profile", "course", 등)
+	 * @param directory 업로드할 디렉토리 (예: "profile", "route", 등)
 	 * @return 업로드된 이미지의 URL (CloudFront URL)
 	 */
 	public String uploadImage(MultipartFile file, String directory) {

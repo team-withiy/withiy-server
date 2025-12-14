@@ -16,5 +16,5 @@ public class SearchResultResponse {
 	@Schema(description = "검색된 장소 목록")
 	private List<PlaceDto> searchPlaces;
 	@Schema(description = "검색된 코스 목록")
-	private List<RouteSearchResponse> searchCourses;
+	private List<RouteSearchResponse> searchRoutes;
 }

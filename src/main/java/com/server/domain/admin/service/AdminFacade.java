@@ -1,7 +1,7 @@
 package com.server.domain.admin.service;
 
 import com.server.domain.admin.dto.ActiveContentsResponse;
-import com.server.domain.admin.dto.ActiveCourseDto;
+import com.server.domain.admin.dto.ActiveRouteDto;
 import com.server.domain.admin.dto.ActivePlaceDto;
 import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
@@ -49,33 +49,33 @@ public class AdminFacade {
 		// ActivePlaceDto 리스트 생성
 		List<ActivePlaceDto> activePlaces = getActivePlaces(places, category);
 
-		// ActiveCourseDto 리스트 생성
-		List<ActiveCourseDto> activeCourses = getActiveCourses(keyword);
+		// ActiveRouteDto 리스트 생성
+		List<ActiveRouteDto> activeRoutes = getActiveRoutes(keyword);
 
 		// ActiveContentsResponse
 		return ActiveContentsResponse.builder()
 			.places(activePlaces)
-			.courses(activeCourses)
+			.routes(activeRoutes)
 			.build();
 	}
 
-	private List<ActiveCourseDto> getActiveCourses(String keyword) {
-		return routeService.getActiveCoursesByKeyword(keyword)
+	private List<ActiveRouteDto> getActiveRoutes(String keyword) {
+		return routeService.getActiveRoutesByKeyword(keyword)
 			.stream()
-			.map(this::convertToActiveCourseDto)
+			.map(this::convertToActiveRouteDto)
 			.toList();
 	}
 
-	private ActiveCourseDto convertToActiveCourseDto(Route route) {
-		List<Place> places = routeService.getPlacesInCourse(route);
+	private ActiveRouteDto convertToActiveRouteDto(Route route) {
+		List<Place> places = routeService.getPlacesInRoute(route);
 		List<String> placeNames = places.stream().map(Place::getName).collect(Collectors.toList());
 		List<Long> placeIds = places.stream().map(Place::getId).collect(Collectors.toList());
 		List<String> photoUrls = photoService.getLimitedPhotoUrlsByPlaceIds(placeIds,
 			PLACE_DEFAULT_PHOTO_LIMIT);
 
-		return ActiveCourseDto.builder()
-			.courseId(route.getId())
-			.courseName(route.getName())
+		return ActiveRouteDto.builder()
+			.routeId(route.getId())
+			.routeName(route.getName())
 			.placeNames(placeNames)
 			.bookmarkCount(routeService.getBookmarkCount(route))
 			.photoUrls(photoUrls)
