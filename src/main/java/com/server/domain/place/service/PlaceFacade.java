@@ -1,7 +1,6 @@
 package com.server.domain.place.service;
 
 import com.server.domain.category.dto.CategoryDto;
-import com.server.domain.dateSchedule.entity.DateSchedule;
 import com.server.domain.dateSchedule.service.DateSchedService;
 import com.server.domain.folder.entity.Folder;
 import com.server.domain.folder.entity.FolderPlace;
@@ -11,8 +10,6 @@ import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.entity.PhotoType;
 import com.server.domain.photo.service.PhotoService;
-import com.server.domain.place.dto.CreatePlaceByUserDto;
-import com.server.domain.place.dto.CreatePlaceResponse;
 import com.server.domain.place.dto.GetPlaceDetailResponse;
 import com.server.domain.place.dto.LocationDto;
 import com.server.domain.place.dto.PlaceDto;
@@ -48,9 +45,9 @@ public class PlaceFacade {
 	private final ReviewService reviewService;
 	private final FolderService folderService;
 	private final DateSchedService dateSchedService;
-    private final ContentViewLogService contentVIewLogService;
+	private final ContentViewLogService contentViewLogService;
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public GetPlaceDetailResponse getPlaceDetail(Long placeId) {
 
 		Place place = placeService.getPlaceById(placeId);
@@ -82,8 +79,8 @@ public class PlaceFacade {
 			})
 			.toList();
 
-        // 장소 조회시 로그 기록
-        contentVIewLogService.insertContentLog(RouteType.PLACE, placeId);
+		// 장소 조회시 로그 기록
+		contentViewLogService.insertContentLog(RouteType.PLACE, placeId);
 
 		return GetPlaceDetailResponse.builder()
 			.placeId(place.getId())
