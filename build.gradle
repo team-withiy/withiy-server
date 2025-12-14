@@ -104,6 +104,9 @@ jacocoTestCoverageVerification {
 }
 
 test {
+    // 테스트 병렬 실행으로 성능 향상
+    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+    
     finalizedBy jacocoTestCoverageVerification
     testLogging {
         events "passed", "failed", "skipped"

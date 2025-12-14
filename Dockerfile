@@ -32,12 +32,17 @@ WORKDIR /server
 # 1) Gradle 설정 먼저 복사
 COPY build.gradle settings.gradle gradlew /server/
 COPY gradle /server/gradle/
-# 2) 의존성 먼저 다운로드 (캐시 잘 됨)
-RUN ./gradlew dependencies --no-daemon || true
+
+# 2) 의존성 먼저 다운로드 (BuildKit 캐시 마운트로 영구 캐싱)
+RUN --mount=type=cache,target=/root/.gradle \
+    ./gradlew dependencies --no-daemon || true
+
 # 3) 소스 코드만 복사
 COPY src /server/src/
-# 4) 빌드 실행
-RUN ./gradlew build --no-daemon
+
+# 4) 빌드 실행 (BuildKit 캐시 마운트로 증분 빌드)
+RUN --mount=type=cache,target=/root/.gradle \
+    ./gradlew build --no-daemon
 
 # Stage 2: Runtime
 FROM eclipse-temurin:17-jdk-jammy
