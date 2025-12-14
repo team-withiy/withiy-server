@@ -67,8 +67,8 @@ public class SearchFacade {
 					.collect(Collectors.toList());
 
 				searchPlaces.addAll(places);
-				searchResultResponse.setSearchPlaces(searchPlaces);
 			}
+			searchResultResponse.setSearchPlaces(searchPlaces);
 		} else if (targetType == SearchTargetType.ROUTE) {
 			List<RouteSearchResponse> searchCourses = new ArrayList<>();
 			// 루트(코스) 검색 - 내부 DB만 조회
