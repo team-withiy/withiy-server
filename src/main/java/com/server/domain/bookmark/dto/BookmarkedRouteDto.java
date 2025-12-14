@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class BookmarkedCourseDto {
+public class BookmarkedRouteDto {
 
 	@Schema(description = "코스 ID", example = "1")
 	private Long id;
@@ -18,8 +18,8 @@ public class BookmarkedCourseDto {
 	@Schema(description = "코스 대표 사진 목록")
 	private List<PhotoDto> photos;
 
-	public static BookmarkedCourseDto of(Route route, List<PhotoDto> photos) {
-		return BookmarkedCourseDto.builder()
+	public static BookmarkedRouteDto of(Route route, List<PhotoDto> photos) {
+		return BookmarkedRouteDto.builder()
 			.id(route.getId())
 			.name(route.getName())
 			.photos(photos)

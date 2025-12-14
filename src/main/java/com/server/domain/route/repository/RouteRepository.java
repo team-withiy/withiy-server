@@ -11,15 +11,15 @@ public interface RouteRepository extends JpaRepository<Route, Long> {
 
 	List<Route> findByNameContainingIgnoreCase(String keyword);
 
-	@Query("SELECT c FROM Route c " +
-		"WHERE c.status = :status " +
-		"AND LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+	@Query("SELECT r FROM Route r " +
+		"WHERE r.status = :status " +
+		"AND LOWER(r.name) LIKE LOWER(CONCAT('%', :keyword, '%')) "
 	)
-	List<Route> findCoursesByStatusAndKeyword(@Param("status") RouteStatus status,
+	List<Route> findRoutesByStatusAndKeyword(@Param("status") RouteStatus status,
 		@Param("keyword") String keyword);
 
-	@Query("SELECT c FROM Route c " +
-		"WHERE c.status = :status"
+	@Query("SELECT r FROM Route r " +
+		"WHERE r.status = :status"
 	)
-	List<Route> findCoursesByStatus(RouteStatus status);
+	List<Route> findRoutesByStatus(RouteStatus status);
 }

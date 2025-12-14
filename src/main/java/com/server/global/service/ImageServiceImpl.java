@@ -27,7 +27,7 @@ public class ImageServiceImpl implements ImageService {
 	 * 이미지 파일을 업로드하고 URL을 반환
 	 *
 	 * @param file       업로드할 이미지 파일
-	 * @param entityType 이미지를 사용하는 엔티티 타입 (예: "user", "place", "course")
+	 * @param entityType 이미지를 사용하는 엔티티 타입 (예: "user", "place", "route")
 	 * @param entityId   엔티티의 ID (null 가능, 새로운 엔티티의 경우)
 	 * @return 업로드된 이미지 정보를 담은 DTO
 	 */

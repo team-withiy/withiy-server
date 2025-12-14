@@ -10,12 +10,12 @@ public class ActiveContentsResponse {
 
 	@Schema(description = "운영 중인 장소 목록")
 	private final List<ActivePlaceDto> places;
-	@Schema(description = "운영 중인 코스 목록")
-	private final List<ActiveCourseDto> courses;
+	@Schema(description = "운영 중인 루트 목록")
+	private final List<ActiveRouteDto> routes;
 
 	@Builder
-	public ActiveContentsResponse(List<ActivePlaceDto> places, List<ActiveCourseDto> courses) {
+	public ActiveContentsResponse(List<ActivePlaceDto> places, List<ActiveRouteDto> routes) {
 		this.places = places;
-		this.courses = courses;
+		this.routes = routes;
 	}
 }

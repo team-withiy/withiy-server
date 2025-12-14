@@ -30,11 +30,11 @@ public class SearchFacade {
 	private final MapService mapService;
 
 	/**
-	 * 키워드, 필터, 정렬 기준에 따른 장소 및 코스 검색
+	 * 키워드, 필터, 정렬 기준에 따른 장소 및 루트 검색
 	 *
 	 * @param user             사용자 정보
 	 * @param searchRequestDto 검색 요청 정보
-	 * @return 검색 결과 (장소 및 코스 목록)
+	 * @return 검색 결과 (장소 및 루트 목록)
 	 */
 	@Transactional
 	public SearchResultResponse search(User user, SearchResultRequest searchRequestDto) {
@@ -70,10 +70,10 @@ public class SearchFacade {
 			}
 			searchResultResponse.setSearchPlaces(searchPlaces);
 		} else if (targetType == SearchTargetType.ROUTE) {
-			List<RouteSearchResponse> searchCourses = new ArrayList<>();
-			// 루트(코스) 검색 - 내부 DB만 조회
-			searchCourses = routeService.searchCoursesByKeyword(keyword);
-			searchResultResponse.setSearchCourses(searchCourses);
+			List<RouteSearchResponse> searchRoutes = new ArrayList<>();
+			// 루트 검색 - 내부 DB만 조회
+			searchRoutes = routeService.searchRoutesByKeyword(keyword);
+			searchResultResponse.setSearchRoutes(searchRoutes);
 		}
 		return searchResultResponse;
 	}
