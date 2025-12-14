@@ -3,6 +3,7 @@ package com.server.domain.photo.service;
 import com.server.domain.photo.dto.PhotoDto;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.entity.PhotoType;
+import com.server.domain.photo.executor.PhotoCursorQueryExecutor;
 import com.server.domain.photo.repository.PhotoRepository;
 import com.server.domain.place.entity.Place;
 import com.server.domain.review.entity.Review;
@@ -11,7 +12,9 @@ import com.server.global.error.code.PhotoErrorCode;
 import com.server.global.error.exception.BusinessException;
 import com.server.global.pagination.dto.ApiCursorPaginationRequest;
 import com.server.global.pagination.dto.CursorPageDto;
-import com.server.global.pagination.utils.CursorPaginationUtils;
+import com.server.global.pagination.executor.CursorQueryExecutor;
+import com.server.global.pagination.service.PaginationService;
+import com.server.global.pagination.strategy.PaginationContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PhotoService {
 
 	private final PhotoRepository photoRepository;
+	private final PaginationService paginationService;
 	private final static int REVIEW_DEFAULT_PHOTO_LIMIT = 4;
 	private final static int PLACE_DEFAULT_PHOTO_LIMIT = 30;
 
@@ -64,67 +68,33 @@ public class PhotoService {
 		return photoRepository.countPhotosByPlaceIdAndType(place.getId(), PhotoType.PUBLIC);
 	}
 
-	public CursorPageDto<Photo, Long> getPhotosByPlaceWithCursor(Place place,
+	/**
+	 * 커서 기반 페이징으로 장소의 사진 조회
+	 * 
+	 * <p>ID 기준으로 정렬하여 최근 생성된 사진부터 조회합니다.
+	 *
+	 * @param place       장소
+	 * @param pageRequest 페이징 요청
+	 * @return 페이징된 사진 목록
+	 */
+	@Transactional(readOnly = true)
+	public CursorPageDto<Photo, Long> getPhotosByPlaceWithCursor(
+		Place place,
 		ApiCursorPaginationRequest pageRequest) {
-		long total;
-		int limit = pageRequest.getLimit();
-		Long cursor = pageRequest.getCursor();
-		boolean hasNext = false;
-		boolean hasPrev = false;
-		Pageable pageable = PageRequest.of(0, limit + 1);
-		List<Photo> fetched;
-		total = photoRepository.countPhotosByPlaceIdAndType(place.getId(), PhotoType.PUBLIC);
 
-		if (cursor == null) {
-			// 커서가 없으면 첫 페이지: 최신순 limit+1개 조회
-			fetched = photoRepository.findPhotosByPlaceIdAndType(place.getId(),
-				PhotoType.PUBLIC, pageable);
-			boolean hasMore = fetched.size() > limit;
-			hasNext = hasMore;
-			hasPrev = false;
+		// 1. Executor 생성
+		CursorQueryExecutor<Photo, Long> executor = 
+			new PhotoCursorQueryExecutor(photoRepository, place.getId(), PhotoType.PUBLIC);
 
-			return CursorPaginationUtils.paginate(
-				total,
-				fetched,
-				limit,
-				false,
-				cursor,
-				hasPrev,
-				hasNext,
-				Photo::getId
-			);
-		}
-		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
+		// 2. Context 구성
+		PaginationContext<Photo, Long> context = PaginationContext.<Photo, Long>builder()
+			.request(pageRequest)
+			.queryExecutor(executor)
+			.idExtractor(Photo::getId)
+			.build();
 
-			fetched = photoRepository.findPrevPhotosByPlaceIdAndType(place.getId(),
-				PhotoType.PUBLIC, cursor,
-				pageable);
-			Collections.reverse(fetched);
-			boolean hasMore = fetched.size() > limit;
-			hasPrev = hasMore;
-			hasNext = photoRepository.existsNextPhotoByPlaceIdAndType(place.getId(),
-				PhotoType.PUBLIC, cursor);
-		} else {
-			fetched = photoRepository.findNextPhotosByPlaceIdAndType(place.getId(),
-				PhotoType.PUBLIC,
-				cursor,
-				pageable);
-			boolean hasMore = fetched.size() > limit;
-			hasNext = hasMore;
-			hasPrev = photoRepository.existsPrevPhotoByPlaceIdAndType(place.getId(),
-				PhotoType.PUBLIC, cursor);
-		}
-
-		return CursorPaginationUtils.paginate(
-			total,
-			fetched,
-			limit,
-			Boolean.TRUE.equals(pageRequest.getPrev()),
-			cursor,
-			hasPrev,
-			hasNext,
-			Photo::getId
-		);
+		// 3. 페이징 실행
+		return paginationService.paginate(context);
 	}
 
 	public Photo getPhotoById(Long photoId) {

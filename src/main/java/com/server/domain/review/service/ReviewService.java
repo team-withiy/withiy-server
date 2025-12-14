@@ -3,12 +3,15 @@ package com.server.domain.review.service;
 import com.server.domain.place.entity.Place;
 import com.server.domain.review.entity.Review;
 import com.server.domain.review.entity.ReviewSortType;
+import com.server.domain.review.executor.ReviewCursorQueryExecutor;
 import com.server.domain.review.repository.ReviewRepository;
 import com.server.domain.review.repository.projection.PlaceScoreProjection;
 import com.server.domain.user.entity.User;
 import com.server.global.pagination.dto.ApiCursorPaginationRequest;
 import com.server.global.pagination.dto.CursorPageDto;
-import com.server.global.pagination.utils.CursorPaginationUtils;
+import com.server.global.pagination.executor.CursorQueryExecutor;
+import com.server.global.pagination.service.PaginationService;
+import com.server.global.pagination.strategy.PaginationContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewService {
 
 	private final ReviewRepository reviewRepository;
+	private final PaginationService paginationService;
 	private final static int PLACE_DEFAULT_REVIEW_LIMIT = 5;
 
 	@Transactional
@@ -41,132 +45,50 @@ public class ReviewService {
 	}
 
 	/**
-	 * 특정 장소에 대한 리뷰를 최신순, 평점순으로 정렬하여 limit 개수만큼 조회
+	 * 특정 장소에 대한 리뷰를 최신순으로 정렬하여 limit 개수만큼 조회
 	 *
-	 * @param place
-	 * @return
+	 * @param place 장소
+	 * @return 리뷰 목록
 	 */
-	@Transactional
+	@Transactional(readOnly = true)
 	public List<Review> getTopReviewsByPlace(Place place) {
 		Pageable pageable = PageRequest.of(0, PLACE_DEFAULT_REVIEW_LIMIT);
-		return reviewRepository.findByPlaceIdOrderByUpdatedAt(place.getId(), pageable);
+		return reviewRepository.findByPlaceIdOrderByLatest(place.getId(), pageable);
 	}
 
-	public CursorPageDto<Review, Long> getReviewsByPlaceWithCursor(Place place,
-		ApiCursorPaginationRequest pageRequest, String sortBy) {
+	/**
+	 * 커서 기반 페이징으로 리뷰 조회
+	 *
+	 * <p>정렬 방식:
+	 * <ul>
+	 *   <li>LATEST: 최근 생성순 (ID DESC)</li>
+	 *   <li>SCORE: 평점순 (score DESC, id DESC)</li>
+	 * </ul>
+	 *
+	 * @param place       장소
+	 * @param pageRequest 페이징 요청
+	 * @return 페이징된 리뷰 목록
+	 */
+	@Transactional(readOnly = true)
+	public CursorPageDto<Review, Long> getReviewsByPlaceWithCursor(
+		Place place, ApiCursorPaginationRequest pageRequest) {
 
-		Long cursor = pageRequest.getCursor();
-		int limit = pageRequest.getLimit();
-		boolean hasNext = false;
-		boolean hasPrev = false;
-		boolean isPrev = Boolean.TRUE.equals(pageRequest.getPrev());
-		long total = reviewRepository.countReviewsByPlaceId(place.getId());
+		String sortBy = pageRequest.getSortBy();
 		ReviewSortType sortType = ReviewSortType.of(sortBy);
-		Pageable pageable = PageRequest.of(0, limit + 1);
-		List<Review> fetched;
-		Review cursorReview = null;
 
-		// 1️⃣ 커서가 null이 아닐 때만 DB 조회 시도
-		if (cursor != null) {
-			cursorReview = reviewRepository.findById(cursor).orElse(null);
-		}
+		// 1. Executor 생성
+		CursorQueryExecutor<Review, Long> executor =
+			new ReviewCursorQueryExecutor(reviewRepository, place.getId(), sortType);
 
-		// 2️⃣ 커서가 없거나, 해당 리뷰가 존재하지 않는 경우 → 첫 페이지 처리
-		if (cursor == null || cursorReview == null) {
-			// 커서가 없으면 첫 페이지: 최신순 limit+1개 조회
-			if (sortType == ReviewSortType.LATEST) {
-				fetched = reviewRepository.findByPlaceIdOrderByUpdatedAt(place.getId(), pageable);
-			} else {
-				fetched = reviewRepository.findByPlaceIdOrderByScore(place.getId(), pageable);
-			}
-			boolean hasMore = fetched.size() > limit;
-			hasNext = hasMore;
-			hasPrev = false;
+		// 2. Context 구성
+		PaginationContext<Review, Long> context = PaginationContext.<Review, Long>builder()
+			.request(pageRequest)
+			.queryExecutor(executor)
+			.idExtractor(Review::getId)
+			.build();
 
-			return CursorPaginationUtils.paginate(
-				total,
-				fetched,
-				limit,
-				false,
-				cursor,
-				hasPrev,
-				hasNext,
-				Review::getId
-			);
-		}
-
-		if (isPrev) {
-			if (sortType == ReviewSortType.SCORE) {
-				fetched = reviewRepository.findPrevReviewsByPlaceIdOrderByScore(
-					place.getId(),
-					cursorReview.getScore(),
-					cursorReview.getUpdatedAt(),
-					pageable
-				);
-			} else {
-				fetched = reviewRepository.findPrevReviewsByPlaceIdOrderByUpdatedAt(
-					place.getId(),
-					cursorReview.getUpdatedAt(),
-					cursorReview.getScore(),
-					pageable
-				);
-			}
-
-			Collections.reverse(fetched);
-		} else {
-			if (sortType == ReviewSortType.SCORE) {
-				fetched = reviewRepository.findNextReviewsByPlaceIdOrderByScore(
-					place.getId(),
-					cursorReview.getScore(),
-					cursorReview.getUpdatedAt(),
-					pageable
-				);
-			} else {
-				fetched = reviewRepository.findNextReviewsByPlaceIdOrderByUpdatedAt(
-					place.getId(),
-					cursorReview.getUpdatedAt(),
-					cursorReview.getScore(),
-					pageable
-				);
-			}
-		}
-
-		boolean hasMore = fetched.size() > limit;
-
-		if (sortType == ReviewSortType.SCORE) {
-			hasNext = reviewRepository.existsNextReviewByPlaceIdOrderByScore(
-				place.getId(),
-				cursorReview.getScore(),
-				cursorReview.getUpdatedAt()
-			);
-			hasPrev = reviewRepository.existsPrevReviewByPlaceIdOrderByScore(
-				place.getId(),
-				cursorReview.getScore(),
-				cursorReview.getUpdatedAt()
-			);
-		} else {
-			hasNext = reviewRepository.existsNextReviewByPlaceIdOrderByUpdatedAt(
-				place.getId(),
-				cursorReview.getUpdatedAt(),
-				cursorReview.getScore()
-			);
-			hasPrev = reviewRepository.existsPrevReviewByPlaceIdOrderByUpdatedAt(
-				place.getId(),
-				cursorReview.getUpdatedAt(),
-				cursorReview.getScore()
-			);
-		}
-
-		return CursorPaginationUtils.paginate(
-			total,
-			fetched,
-			limit,
-			isPrev,
-			cursor,
-			hasPrev,
-			hasNext,
-			Review::getId
-		);
+		// 3. 페이징 실행
+		return paginationService.paginate(context);
 	}
 
 	@Transactional(readOnly = true)

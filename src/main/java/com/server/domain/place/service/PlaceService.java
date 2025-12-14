@@ -8,20 +8,19 @@ import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.dto.UpdatePlaceDto;
 import com.server.domain.place.entity.Place;
 import com.server.domain.place.entity.PlaceStatus;
+import com.server.domain.place.executor.PlaceCursorQueryExecutor;
 import com.server.domain.place.repository.PlaceRepository;
 import com.server.global.error.code.PlaceErrorCode;
 import com.server.global.error.exception.BusinessException;
 import com.server.global.pagination.dto.ApiCursorPaginationRequest;
 import com.server.global.pagination.dto.CursorPageDto;
-import com.server.global.pagination.utils.CursorPaginationUtils;
-import java.util.Collections;
+import com.server.global.pagination.executor.CursorQueryExecutor;
+import com.server.global.pagination.service.PaginationService;
+import com.server.global.pagination.strategy.PaginationContext;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +32,7 @@ public class PlaceService {
 	private final PlaceRepository placeRepository;
 	private final FolderPlaceRepository folderPlaceRepository;
 	private final CategoryService categoryService;
+	private final PaginationService paginationService;
 
 	public Place save(Place place) {
 		return placeRepository.save(place);
@@ -102,89 +102,70 @@ public class PlaceService {
 			keyword);
 	}
 
-	public CursorPageDto<Place, Long> getPlacesByFolder(Long folderId,
+	/**
+	 * 커서 기반 페이징으로 폴더의 장소 조회
+	 * 
+	 * <p>ID 기준으로 정렬하여 조회합니다.
+	 *
+	 * @param folderId    폴더 ID
+	 * @param pageRequest 페이징 요청
+	 * @return 페이징된 장소 목록
+	 */
+	@Transactional(readOnly = true)
+	public CursorPageDto<Place, Long> getPlacesByFolder(
+		Long folderId,
 		ApiCursorPaginationRequest pageRequest) {
-		long total;
-		int limit = pageRequest.getLimit();
-		Long cursor = pageRequest.getCursor();
-		boolean hasNext = false;
-		boolean hasPrev = false;
-		Pageable pageable = PageRequest.of(0, limit + 1);
-		List<Place> fetched;
 
-		total = folderPlaceRepository.countPlacesInFolder(folderId);
+		// 1. Executor 생성 (특정 폴더)
+		CursorQueryExecutor<Place, Long> executor = 
+			new PlaceCursorQueryExecutor(
+				placeRepository, 
+				folderPlaceRepository, 
+				folderId, 
+				null
+			);
 
-		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
-			List<Long> ids = folderPlaceRepository.findPrevPlaceIdsByFolder(folderId,
-				pageRequest.getCursor(), pageable);
-			fetched = ids.isEmpty() ? List.of()
-				: placeRepository.findPlacesByIds(ids, Sort.by(Sort.Direction.ASC, "id"));
-			Collections.reverse(fetched);
-			boolean hasMore = fetched.size() > limit;
-			hasPrev = hasMore;
-			hasNext = folderPlaceRepository.existsNextPlaceByFolder(folderId,
-				cursor);
-		} else {
-			List<Long> ids = folderPlaceRepository.findNextPlaceIdsByFolder(folderId,
-				cursor, pageable);
-			fetched = ids.isEmpty() ? List.of()
-				: placeRepository.findPlacesByIds(ids, Sort.by(Sort.Direction.DESC, "id"));
-			boolean hasMore = fetched.size() > limit;
-			hasNext = hasMore;
-			hasPrev = folderPlaceRepository.existsPrevPlaceByFolder(folderId, cursor);
-		}
+		// 2. Context 구성
+		PaginationContext<Place, Long> context = PaginationContext.<Place, Long>builder()
+			.request(pageRequest)
+			.queryExecutor(executor)
+			.idExtractor(Place::getId)
+			.build();
 
-		return CursorPaginationUtils.paginate(
-			total,
-			fetched,
-			limit,
-			Boolean.TRUE.equals(pageRequest.getPrev()),
-			cursor,
-			hasPrev,
-			hasNext,
-			Place::getId // 커서 기준 값 추출 방법 전달
-		);
+		// 3. 페이징 실행
+		return paginationService.paginate(context);
 	}
 
-	public CursorPageDto<Place, Long> getAllPlacesInFolders(Long userId,
+	/**
+	 * 커서 기반 페이징으로 사용자의 전체 폴더 장소 조회
+	 *
+	 * @param userId      사용자 ID
+	 * @param pageRequest 페이징 요청
+	 * @return 페이징된 장소 목록
+	 */
+	@Transactional(readOnly = true)
+	public CursorPageDto<Place, Long> getAllPlacesInFolders(
+		Long userId,
 		ApiCursorPaginationRequest pageRequest) {
-		long total = folderPlaceRepository.countDistinctPlacesByUser(userId);
-		int limit = pageRequest.getLimit();
-		Long cursor = pageRequest.getCursor();
-		boolean hasNext = false;
-		boolean hasPrev = false;
-		Pageable pageable = PageRequest.of(0, limit + 1);
 
-		List<Place> fetched;
-		if (Boolean.TRUE.equals(pageRequest.getPrev())) {
-			List<Long> ids = folderPlaceRepository.findPrevPlaceIdsByUser(userId,
-				cursor, pageable);
-			fetched = ids.isEmpty() ? List.of()
-				: placeRepository.findPlacesByIds(ids, Sort.by(Sort.Direction.ASC, "id"));
-			Collections.reverse(fetched);
-			boolean hasMore = fetched.size() > limit;
-			hasPrev = hasMore;
-			hasNext = folderPlaceRepository.existsNextPlaceByUser(userId, cursor);
-		} else {
-			List<Long> ids = folderPlaceRepository.findNextPlaceIdsByUser(userId,
-				cursor, pageable);
-			fetched = ids.isEmpty() ? List.of()
-				: placeRepository.findPlacesByIds(ids, Sort.by(Sort.Direction.DESC, "id"));
-			boolean hasMore = fetched.size() > limit;
-			hasNext = hasMore;
-			hasPrev = folderPlaceRepository.existsPrevPlaceByUser(userId, cursor);
-		}
+		// 1. Executor 생성 (전체 폴더)
+		CursorQueryExecutor<Place, Long> executor = 
+			new PlaceCursorQueryExecutor(
+				placeRepository, 
+				folderPlaceRepository, 
+				null, 
+				userId
+			);
 
-		return CursorPaginationUtils.paginate(
-			total,
-			fetched,
-			limit,
-			Boolean.TRUE.equals(pageRequest.getPrev()),
-			cursor,
-			hasPrev,
-			hasNext,
-			Place::getId // 커서 기준 값 추출 방법 전달
-		);
+		// 2. Context 구성
+		PaginationContext<Place, Long> context = PaginationContext.<Place, Long>builder()
+			.request(pageRequest)
+			.queryExecutor(executor)
+			.idExtractor(Place::getId)
+			.build();
+
+		// 3. 페이징 실행
+		return paginationService.paginate(context);
 	}
 
 	public List<Place> getFocusPlaces(double latitude, double longitude, double radius) {

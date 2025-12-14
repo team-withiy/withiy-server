@@ -121,8 +121,8 @@ public class RouteService {
 	 */
 	@Transactional(readOnly = true)
 	public List<RouteSearchResponse> searchCoursesByKeyword(String keyword) {
-		List<Route> courses = routeRepository.findByNameContainingIgnoreCase(keyword);
-		return courses.stream()
+		List<Route> routes = routeRepository.findByNameContainingIgnoreCase(keyword);
+		return routes.stream()
 			.map(route -> RouteSearchResponse.of(route, List.of(), List.of()))
 			.collect(Collectors.toList());
 	}

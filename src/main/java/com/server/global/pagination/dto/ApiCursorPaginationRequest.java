@@ -22,4 +22,8 @@ public class ApiCursorPaginationRequest implements PaginationRequest {
 	@Schema(description = "이전 페이지로 이동 여부, false일 경우 다음 페이지", example = "false", defaultValue = "false")
 	@Builder.Default
 	private Boolean prev = false;
+	@Schema(description = "리뷰 정렬 기준 (기본값: latest)", allowableValues = {"latest",
+		"score"}, defaultValue = "latest")
+	@Builder.Default
+	private String sortBy = "latest";
 }
