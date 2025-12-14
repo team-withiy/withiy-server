@@ -29,6 +29,10 @@ public class BookmarkFacade {
 	@Transactional(readOnly = true)
 	public List<BookmarkedPlaceDto> getBookmarkedPlaces(User user) {
 		// 1. 북마크된 장소 조회
+		if (user == null) {
+			return List.of();
+		}
+
 		List<Place> places = folderService.getBookmarkedPlaces(user);
 		List<Long> placeIds = places.stream().map(Place::getId).toList();
 		// 2. 장소 별 평점 조회
@@ -46,6 +50,10 @@ public class BookmarkFacade {
 	// 북마크된 코스 조회
 	@Transactional(readOnly = true)
 	public List<BookmarkedCourseDto> getBookmarkedCourses(User user) {
+		if (user == null) {
+			return List.of();
+		}
+
 		return routeService.getBookmarkedRoutes(user).stream()
 			.map(route -> {
 				// 코스에 속한 장소 ID 목록 조회 (순서대로)
