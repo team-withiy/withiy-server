@@ -45,7 +45,7 @@ public class PlaceFacade {
 	private final ReviewService reviewService;
 	private final FolderService folderService;
 	private final DateSchedService dateSchedService;
-	private final ContentViewLogService contentVIewLogService;
+	private final ContentViewLogService contentViewLogService;
 
 	@Transactional
 	public GetPlaceDetailResponse getPlaceDetail(Long placeId) {
