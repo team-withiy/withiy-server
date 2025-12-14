@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface RoutePlaceRepository extends JpaRepository<RoutePlace, Long> {
 
-	@Query("SELECT cp.place FROM RoutePlace cp WHERE cp.route = :route")
+	@Query("SELECT rp.place FROM RoutePlace rp WHERE rp.route = :route")
 	List<Place> findPlacesByRoute(Route route);
 
 	@Query("SELECT rp FROM RoutePlace rp JOIN FETCH rp.place WHERE rp.route IN :routes ORDER BY rp.route.id, rp.id")
