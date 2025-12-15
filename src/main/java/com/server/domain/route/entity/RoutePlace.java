@@ -41,7 +41,7 @@ public class RoutePlace {
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Place place;
 
-    public RoutePlace(Route route, Place place) {
+	public RoutePlace(Route route, Place place) {
         this.route = route;
         this.place = place;
     }

@@ -1,12 +1,12 @@
 package com.server.domain.place.service;
 
 import com.server.domain.category.dto.CategoryDto;
-import com.server.domain.dateSchedule.service.DateSchedService;
 import com.server.domain.folder.entity.Folder;
 import com.server.domain.folder.entity.FolderPlace;
 import com.server.domain.folder.service.FolderService;
 import com.server.domain.hotPlace.service.ContentViewLogService;
 import com.server.domain.photo.dto.PhotoDto;
+import com.server.domain.photo.dto.PhotoSummary;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.entity.PhotoType;
 import com.server.domain.photo.service.PhotoService;
@@ -44,7 +44,6 @@ public class PlaceFacade {
 	private final PhotoService photoService;
 	private final ReviewService reviewService;
 	private final FolderService folderService;
-	private final DateSchedService dateSchedService;
 	private final ContentViewLogService contentViewLogService;
 
 	@Transactional
@@ -195,8 +194,8 @@ public class PlaceFacade {
 		// 2. 장소별 북마크 여부 조회
 		Map<Long, Boolean> placeBookmarkMap = folderService.getBookmarkMapForPlaces(
 			placeIds, user.getId());
-		// 3. 장소별 사진 URL 조회
-		Map<Long, List<String>> placePhotoMap = photoService.getPlacePhotoUrlsMap(placeIds);
+		// 3. 장소별 사진 조회
+		Map<Long, List<PhotoSummary>> placePhotoMap = photoService.getPlacePhotoSummariesMap(placeIds);
 		// 4. Place -> PlaceDto 변환
 		List<PlaceDto> placeDtos = places.stream()
 			.map(place -> PlaceDto.from(

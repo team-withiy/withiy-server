@@ -1,8 +1,12 @@
 package com.server.domain.route.service;
 
+import com.server.domain.photo.dto.PhotoSummary;
+import com.server.domain.photo.entity.PhotoType;
+import com.server.domain.photo.repository.PhotoRepository;
 import com.server.domain.place.entity.Place;
+import com.server.domain.route.dto.RouteDto;
 import com.server.domain.route.dto.RouteImageDto;
-import com.server.domain.route.dto.response.RouteSearchResponse;
+import com.server.domain.route.dto.RoutePlaceSummary;
 import com.server.domain.route.entity.Route;
 import com.server.domain.route.entity.RouteBookmark;
 import com.server.domain.route.entity.RouteImage;
@@ -16,7 +20,11 @@ import com.server.global.dto.ImageResponseDto;
 import com.server.global.error.code.RouteErrorCode;
 import com.server.global.error.exception.BusinessException;
 import com.server.global.service.ImageService;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +41,7 @@ public class RouteService {
 	private final RouteRepository routeRepository;
 	private final RouteBookmarkRepository routeBookmarkRepository;
 	private final RoutePlaceRepository routePlaceRepository;
+	private final PhotoRepository photoRepository;
 	private final ImageService imageService;
 
 	public void saveRoute(Route route) {
@@ -79,7 +88,7 @@ public class RouteService {
 	 * 루트 이미지 업로드
 	 *
 	 * @param routeId 루트 ID
-	 * @param file     업로드할 이미지 파일
+	 * @param file    업로드할 이미지 파일
 	 * @return 업로드된 이미지 정보
 	 */
 	@Transactional
@@ -117,13 +126,81 @@ public class RouteService {
 	 * 루트 검색
 	 *
 	 * @param keyword 검색 키워드
+	 * @param user    사용자 정보 (북마크 여부 확인용)
 	 * @return 검색된 루트 목록
 	 */
 	@Transactional(readOnly = true)
-	public List<RouteSearchResponse> searchRoutesByKeyword(String keyword) {
+	public List<RouteDto> searchRoutesByKeyword(String keyword, User user) {
 		List<Route> routes = routeRepository.findByNameContainingIgnoreCase(keyword);
+
+		if (routes.isEmpty()) {
+			return List.of();
+		}
+
+		// 1. 모든 관련 RoutePlace를 한 번의 쿼리로 가져와 Route ID로 그룹화
+		Map<Long, List<RoutePlace>> routePlacesByRouteId =
+			routePlaceRepository.findByRouteIn(routes).stream()
+				.collect(Collectors.groupingBy(rp -> rp.getRoute().getId()));
+
+		// 2. 모든 Route에 포함된 모든 Place의 ID를 수집
+		List<Long> allPlaceIds = routePlacesByRouteId.values().stream()
+			.flatMap(List::stream)
+			.map(rp -> rp.getPlace().getId())
+			.distinct()
+			.collect(Collectors.toList());
+
+		// 3. 모든 Place의 대표 사진을 한 번의 쿼리로 가져옴 (N+1 문제 해결)
+		Map<Long, PhotoSummary> photoSummaryByPlaceId = new HashMap<>();
+		if (!allPlaceIds.isEmpty()) {
+			photoSummaryByPlaceId = photoRepository
+				.findRepresentativePhotosByPlaceIds(allPlaceIds, PhotoType.PUBLIC).stream()
+				.collect(Collectors.toMap(
+					p -> p.getPlace().getId(),
+					PhotoSummary::from,
+					(existing, replacement) -> existing
+				));
+		}
+
+		// 4. 사용자가 북마크한 Route ID를 Set으로 가져와 O(1) 조회 지원
+		final Set<Long> bookmarkedRouteIdSet;
+		if (user != null) {
+			bookmarkedRouteIdSet = routeBookmarkRepository.findByUserWithRoute(user).stream()
+				.map(bookmark -> bookmark.getRoute().getId())
+				.collect(Collectors.toSet());
+		} else {
+			bookmarkedRouteIdSet = new HashSet<>();
+		}
+
+		final Map<Long, PhotoSummary> finalPhotoSummaryMap = photoSummaryByPlaceId;
+
 		return routes.stream()
-			.map(route -> RouteSearchResponse.of(route, List.of(), List.of()))
+			.map(route -> {
+				List<RoutePlace> currentRoutePlaces =
+					routePlacesByRouteId.getOrDefault(route.getId(), List.of());
+
+				// 해당 루트의 장소 목록 추출
+				List<RoutePlaceSummary> places = currentRoutePlaces.stream()
+					.map(RoutePlaceSummary::from)
+					.collect(Collectors.toList());
+
+				// 이미지 목록 생성 (장소별 대표 이미지, 최대 10장) - Map을 사용하여 N+1 문제 해결
+				List<PhotoSummary> images = currentRoutePlaces.stream()
+					.limit(10)
+					.map(rp -> finalPhotoSummaryMap.get(rp.getPlace().getId()))
+					.filter(java.util.Objects::nonNull)
+					.collect(Collectors.toList());
+
+				// 북마크 여부 확인 (Set 사용으로 O(1) 조회)
+				boolean bookmarked = bookmarkedRouteIdSet.contains(route.getId());
+
+				return RouteDto.builder()
+					.id(route.getId())
+					.name(route.getName())
+					.places(places)
+					.photos(images)
+					.bookmarked(bookmarked)
+					.build();
+			})
 			.collect(Collectors.toList());
 	}
 
