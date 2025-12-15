@@ -1,6 +1,7 @@
 package com.server.domain.photo.service;
 
 import com.server.domain.photo.dto.PhotoDto;
+import com.server.domain.photo.dto.PhotoSummary;
 import com.server.domain.photo.entity.Photo;
 import com.server.domain.photo.entity.PhotoType;
 import com.server.domain.photo.executor.PhotoCursorQueryExecutor;
@@ -148,6 +149,25 @@ public class PhotoService {
 		);
 
 		return placeIdToUrls;
+	}
+
+	public Map<Long, List<PhotoSummary>> getPlacePhotoSummariesMap(List<Long> placeIds) {
+		// TODO: 사진 조회 시 DB 레벨에서 limit 적용 필요 (성능 최적화)
+		List<Photo> photos = photoRepository.findByPlaceIdInAndType(placeIds,
+			PhotoType.PUBLIC);
+
+		Map<Long, List<PhotoSummary>> placeIdToPhotos = photos.stream()
+			.collect(Collectors.groupingBy(
+				photo -> photo.getPlace().getId(),
+				Collectors.mapping(PhotoSummary::from, Collectors.toList())
+			));
+
+		// 각 장소별로 최대 PLACE_DEFAULT_PHOTO_LIMIT 개의 사진만 유지
+		placeIdToPhotos.replaceAll((placeId, photoSummaries) ->
+			photoSummaries.stream().limit(PLACE_DEFAULT_PHOTO_LIMIT).toList()
+		);
+
+		return placeIdToPhotos;
 	}
 
 	/**

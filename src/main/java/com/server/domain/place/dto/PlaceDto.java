@@ -1,6 +1,7 @@
 package com.server.domain.place.dto;
 
 import com.server.domain.category.dto.CategoryDto;
+import com.server.domain.photo.dto.PhotoSummary;
 import com.server.domain.place.entity.Place;
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +25,7 @@ public class PlaceDto {
 	private CategoryDto category;
 	private boolean bookmarked;
 	private Double score;
-	private List<String> photoUrls;
+	private List<PhotoSummary> photos;
 
 	public static PlaceDto from(Place place) {
 		return PlaceDto.builder()
@@ -37,7 +38,7 @@ public class PlaceDto {
 	}
 
 	public static PlaceDto from(Place place, boolean bookmarked, Double score,
-		List<String> photoUrls) {
+		List<PhotoSummary> photos) {
 		return PlaceDto.builder()
 			.id(place.getId())
 			.name(place.getName())
@@ -46,7 +47,7 @@ public class PlaceDto {
 			.category(CategoryDto.from(place.getCategory()))
 			.bookmarked(bookmarked)
 			.score(score != null ? score : 0.0)
-			.photoUrls(photoUrls != null ? photoUrls : Collections.emptyList())
+			.photos(photos != null ? photos : Collections.emptyList())
 			.build();
 	}
 }
