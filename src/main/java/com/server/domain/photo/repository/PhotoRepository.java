@@ -85,4 +85,23 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 		"  GROUP BY p2.place.id" +
 		")")
 	List<Photo> findRepresentativePhotosByPlaceIds(List<Long> placeIds, PhotoType type);
+
+	/**
+	 * 여러 장소에 대해 각 장소별로 최대 limit개의 사진을 조회 (PostgreSQL 윈도우 함수 사용)
+	 * ROW_NUMBER()를 사용하여 DB 레벨에서 제한하므로 메모리 효율적
+	 *
+	 * @param placeIds 장소 ID 목록
+	 * @param type 사진 타입 (EnumType.STRING이므로 문자열로 비교)
+	 * @param limit 각 장소별 최대 사진 개수
+	 * @return 장소별로 제한된 사진 목록
+	 */
+	@Query(value = "SELECT p.* FROM ( " +
+		"  SELECT p.*, ROW_NUMBER() OVER(PARTITION BY p.place_id ORDER BY p.created_at DESC) as rn " +
+		"  FROM photo p " +
+		"  WHERE p.place_id IN :placeIds AND p.type = :type " +
+		") p " +
+		"WHERE p.rn <= :limit", nativeQuery = true)
+	List<Photo> findLimitedPhotosPerPlace(@Param("placeIds") List<Long> placeIds,
+		@Param("type") String type,
+		@Param("limit") int limit);
 }

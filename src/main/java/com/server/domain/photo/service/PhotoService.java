@@ -133,41 +133,33 @@ public class PhotoService {
 	}
 
 	public Map<Long, List<String>> getPlacePhotoUrlsMap(List<Long> placeIds) {
-		// TODO: 사진 조회 시 DB 레벨에서 limit 적용 필요 (성능 최적화)
-		List<Photo> photos = photoRepository.findByPlaceIdInAndType(placeIds,
-			PhotoType.PUBLIC);
+		// DB 레벨에서 ROW_NUMBER() 윈도우 함수를 사용하여 각 장소별로 제한된 사진만 조회
+		List<Photo> photos = photoRepository.findLimitedPhotosPerPlace(
+			placeIds,
+			PhotoType.PUBLIC.name(),
+			PLACE_DEFAULT_PHOTO_LIMIT
+		);
 
-		Map<Long, List<String>> placeIdToUrls = photos.stream()
+		return photos.stream()
 			.collect(Collectors.groupingBy(
 				photo -> photo.getPlace().getId(),
 				Collectors.mapping(Photo::getImgUrl, Collectors.toList())
 			));
-
-		// 각 장소별로 최대 PLACE_DEFAULT_PHOTO_LIMIT 개의 사진 URL만 유지
-		placeIdToUrls.replaceAll((placeId, urls) ->
-			urls.stream().limit(PLACE_DEFAULT_PHOTO_LIMIT).toList()
-		);
-
-		return placeIdToUrls;
 	}
 
 	public Map<Long, List<PhotoSummary>> getPlacePhotoSummariesMap(List<Long> placeIds) {
-		// TODO: 사진 조회 시 DB 레벨에서 limit 적용 필요 (성능 최적화)
-		List<Photo> photos = photoRepository.findByPlaceIdInAndType(placeIds,
-			PhotoType.PUBLIC);
+		// DB 레벨에서 ROW_NUMBER() 윈도우 함수를 사용하여 각 장소별로 제한된 사진만 조회
+		List<Photo> photos = photoRepository.findLimitedPhotosPerPlace(
+			placeIds,
+			PhotoType.PUBLIC.name(),
+			PLACE_DEFAULT_PHOTO_LIMIT
+		);
 
-		Map<Long, List<PhotoSummary>> placeIdToPhotos = photos.stream()
+		return photos.stream()
 			.collect(Collectors.groupingBy(
 				photo -> photo.getPlace().getId(),
 				Collectors.mapping(PhotoSummary::from, Collectors.toList())
 			));
-
-		// 각 장소별로 최대 PLACE_DEFAULT_PHOTO_LIMIT 개의 사진만 유지
-		placeIdToPhotos.replaceAll((placeId, photoSummaries) ->
-			photoSummaries.stream().limit(PLACE_DEFAULT_PHOTO_LIMIT).toList()
-		);
-
-		return placeIdToPhotos;
 	}
 
 	/**
