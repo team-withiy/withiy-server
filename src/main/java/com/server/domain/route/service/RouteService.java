@@ -1,8 +1,10 @@
 package com.server.domain.route.service;
 
+import com.server.domain.photo.dto.PhotoSummary;
 import com.server.domain.place.entity.Place;
+import com.server.domain.route.dto.RouteDto;
 import com.server.domain.route.dto.RouteImageDto;
-import com.server.domain.route.dto.response.RouteSearchResponse;
+import com.server.domain.route.dto.RoutePlaceSummary;
 import com.server.domain.route.entity.Route;
 import com.server.domain.route.entity.RouteBookmark;
 import com.server.domain.route.entity.RouteImage;
@@ -79,7 +81,7 @@ public class RouteService {
 	 * 루트 이미지 업로드
 	 *
 	 * @param routeId 루트 ID
-	 * @param file     업로드할 이미지 파일
+	 * @param file    업로드할 이미지 파일
 	 * @return 업로드된 이미지 정보
 	 */
 	@Transactional
@@ -117,13 +119,57 @@ public class RouteService {
 	 * 루트 검색
 	 *
 	 * @param keyword 검색 키워드
+	 * @param user    사용자 정보 (북마크 여부 확인용)
 	 * @return 검색된 루트 목록
 	 */
 	@Transactional(readOnly = true)
-	public List<RouteSearchResponse> searchRoutesByKeyword(String keyword) {
+	public List<RouteDto> searchRoutesByKeyword(String keyword, User user) {
 		List<Route> routes = routeRepository.findByNameContainingIgnoreCase(keyword);
+
+		if (routes.isEmpty()) {
+			return List.of();
+		}
+
+		// 모든 루트의 RoutePlace 조회 (한번의 쿼리로)
+		List<RoutePlace> allRoutePlaces = routePlaceRepository.findByRouteIn(routes);
+
+		// 사용자의 북마크 루트 ID 조회
+		List<Long> bookmarkedRouteIds = List.of();
+		if (user != null) {
+			bookmarkedRouteIds = routeBookmarkRepository.findByUserWithRoute(user).stream()
+				.map(bookmark -> bookmark.getRoute().getId())
+				.collect(Collectors.toList());
+		}
+		final List<Long> finalBookmarkedRouteIds = bookmarkedRouteIds;
+
 		return routes.stream()
-			.map(route -> RouteSearchResponse.of(route, List.of(), List.of()))
+			.map(route -> {
+				// 해당 루트의 장소 목록 추출 (이미 ID 순서대로 정렬되어 있음)
+				List<RoutePlaceSummary> places = allRoutePlaces.stream()
+					.filter(rp -> rp.getRoute().getId().equals(route.getId()))
+					.map(RoutePlaceSummary::from)
+					.collect(Collectors.toList());
+
+				// 이미지 목록 생성 (장소별 대표 이미지, 최대 10장)
+				List<PhotoSummary> images = allRoutePlaces.stream()
+					.filter(rp -> rp.getRoute().getId().equals(route.getId()))
+					.limit(10)
+					.map(rp -> rp.getPlace().getPhotos())
+					.filter(photos -> !photos.isEmpty())
+					.map(photos -> PhotoSummary.from(photos.get(0)))
+					.collect(Collectors.toList());
+
+				// 북마크 여부 확인
+				boolean bookmarked = finalBookmarkedRouteIds.contains(route.getId());
+
+				return RouteDto.builder()
+					.id(route.getId())
+					.name(route.getName())
+					.places(places)
+					.photos(images)
+					.bookmarked(bookmarked)
+					.build();
+			})
 			.collect(Collectors.toList());
 	}
 

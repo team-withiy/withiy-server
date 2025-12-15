@@ -5,7 +5,7 @@ import com.server.domain.map.dto.request.KeywordSearchRequest;
 import com.server.domain.map.service.MapService;
 import com.server.domain.place.dto.PlaceDto;
 import com.server.domain.place.service.PlaceService;
-import com.server.domain.route.dto.response.RouteSearchResponse;
+import com.server.domain.route.dto.RouteDto;
 import com.server.domain.route.service.RouteService;
 import com.server.domain.search.dto.SearchHistoryDto;
 import com.server.domain.search.dto.SearchResultResponse;
@@ -70,9 +70,9 @@ public class SearchFacade {
 			}
 			searchResultResponse.setSearchPlaces(searchPlaces);
 		} else if (targetType == SearchTargetType.ROUTE) {
-			List<RouteSearchResponse> searchRoutes = new ArrayList<>();
+			List<RouteDto> searchRoutes = new ArrayList<>();
 			// 루트 검색 - 내부 DB만 조회
-			searchRoutes = routeService.searchRoutesByKeyword(keyword);
+			searchRoutes = routeService.searchRoutesByKeyword(keyword, user);
 			searchResultResponse.setSearchRoutes(searchRoutes);
 		}
 		return searchResultResponse;

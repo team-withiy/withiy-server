@@ -1,7 +1,6 @@
 package com.server.domain.place.service;
 
 import com.server.domain.category.dto.CategoryDto;
-import com.server.domain.dateSchedule.service.DateSchedService;
 import com.server.domain.folder.entity.Folder;
 import com.server.domain.folder.entity.FolderPlace;
 import com.server.domain.folder.service.FolderService;
@@ -44,7 +43,6 @@ public class PlaceFacade {
 	private final PhotoService photoService;
 	private final ReviewService reviewService;
 	private final FolderService folderService;
-	private final DateSchedService dateSchedService;
 	private final ContentViewLogService contentViewLogService;
 
 	@Transactional
