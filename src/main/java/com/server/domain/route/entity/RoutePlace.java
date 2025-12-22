@@ -14,8 +14,6 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
@@ -32,13 +30,11 @@ public class RoutePlace {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "route_id")
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JoinColumn(name = "route_id", nullable = false)
 	private Route route;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "place_id")
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JoinColumn(name = "place_id", nullable = false)
 	private Place place;
 
 	public RoutePlace(Route route, Place place) {
