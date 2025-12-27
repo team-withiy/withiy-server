@@ -14,6 +14,7 @@ import com.server.domain.route.dto.RouteDetailDto;
 import com.server.domain.route.dto.UploaderDto;
 import com.server.domain.route.entity.Route;
 import com.server.domain.route.entity.RoutePlace;
+import com.server.global.constants.PaginationConstants;
 import com.server.global.error.code.RouteErrorCode;
 import com.server.global.error.exception.BusinessException;
 import java.util.ArrayList;
@@ -34,6 +35,9 @@ public class RouteFacade {
 	private final RouteService routeService;
 	private final PhotoService photoService;
 	private final PlaceReviewService placeReviewService;
+	private final int PLACE_PHOTO_LIMIT = PaginationConstants.PLACE_PHOTO_LIMIT;
+	private final int REVIEW_PHOTO_LIMIT = PaginationConstants.REVIEW_PHOTO_LIMIT;
+	private final int PLACE_REVIEW_LIMIT = PaginationConstants.PLACE_REVIEW_LIMIT;
 
 	/**
 	 * 코스 상세 조회
@@ -72,9 +76,10 @@ public class RouteFacade {
 				.build();
 		}
 
-		// 4. 각 장소별 사진 조회 (장소당 최신 10개)
+		// 4. 각 장소별 사진 조회 (장소당 최신 N개)
 		Map<Long, List<PhotoInRouteDto>> photosByPlaceId = new HashMap<>();
-		List<Photo> allPhotos = photoService.getLimitedPhotosPerPlace(placeIds, 10);
+		List<Photo> allPhotos = photoService.getLimitedPhotosPerPlace(placeIds,
+			PLACE_PHOTO_LIMIT);
 
 		for (Photo photo : allPhotos) {
 			Long placeId = photo.getPlace().getId();
@@ -98,9 +103,9 @@ public class RouteFacade {
 			})
 			.collect(Collectors.toList());
 
-		// 6. 리뷰 조회 (최신 10개)
+		// 6. 리뷰 조회 (최신 N개)
 		List<PlaceReview> placeReviews = placeReviewService.getRecentReviewsByPlaceIds(
-			placeIds, 10);
+			placeIds, PLACE_REVIEW_LIMIT);
 
 		// 7. 리뷰별 사진 조회 - N+1 문제 해결을 위한 배치 조회
 		// 리뷰에서 (placeId, userId) 쌍을 추출
@@ -114,7 +119,8 @@ public class RouteFacade {
 
 		// 한 번의 쿼리로 모든 리뷰의 사진 조회
 		Map<String, List<Photo>> photosByPlaceAndUser =
-			photoService.getPhotosByPlaceAndUserBatch(reviewPlaceIds, reviewUserIds, 10);
+			photoService.getPhotosByPlaceAndUserBatch(reviewPlaceIds, reviewUserIds,
+				REVIEW_PHOTO_LIMIT);
 
 		// 리뷰 DTO 생성
 		List<ReviewInRouteDto> reviews = placeReviews.stream()

@@ -8,6 +8,7 @@ import com.server.domain.photo.service.PhotoService;
 import com.server.domain.place.entity.Place;
 import com.server.domain.place.service.PlaceService;
 import com.server.domain.user.entity.User;
+import com.server.global.constants.PaginationConstants;
 import com.server.global.pagination.dto.ApiCursorPaginationRequest;
 import com.server.global.pagination.dto.CursorPageDto;
 import java.util.ArrayList;
@@ -23,10 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class FolderFacade {
 
 	private static final String ALL_PLACE_FOLDER_NAME = "저장한 모든 장소";
-	private static final int DEFAULT_THUMBNAIL_LIMIT = 4;
 	private final FolderService folderService;
 	private final PlaceService placeService;
 	private final PhotoService photoService;
+	private final int FOLDER_THUMBNAIL_LIMIT = PaginationConstants.FOLDER_THUMBNAIL_LIMIT;
 
 	@Transactional(readOnly = true)
 	public CursorPageDto<PlaceSummaryDto, Long> getFolderPlaces(Long folderId, User user,
@@ -119,8 +120,7 @@ public class FolderFacade {
 	private List<String> extractFirstThumbnails(List<Place> places) {
 		List<Long> placeIds = places.stream().map(Place::getId).toList();
 
-		return photoService.getLimitedPhotoUrlsByPlaceIds(placeIds,
-			DEFAULT_THUMBNAIL_LIMIT);
+		return photoService.getLimitedPhotoUrlsByPlaceIds(placeIds, FOLDER_THUMBNAIL_LIMIT);
 	}
 
 	/**

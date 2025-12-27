@@ -65,7 +65,6 @@ public class PlaceFacade {
 		List<Review> reviews = reviewService.getTopReviewsByPlace(place);
 
 		// 리뷰에 달린 사진들을 한 번의 쿼리로 모두 가져오기
-		// TODO: N+1 문제 해결 및 Review 엔티티에 Date 종속 추가하여 Date 기반으로 사진들을 가져오도록 변경
 		Map<Long, List<String>> reviewToPhotoUrls = photoService.getPhotosGroupedByReview(reviews,
 			place);
 
@@ -195,7 +194,8 @@ public class PlaceFacade {
 		Map<Long, Boolean> placeBookmarkMap = folderService.getBookmarkMapForPlaces(
 			placeIds, user.getId());
 		// 3. 장소별 사진 조회
-		Map<Long, List<PhotoSummary>> placePhotoMap = photoService.getPlacePhotoSummariesMap(placeIds);
+		Map<Long, List<PhotoSummary>> placePhotoMap = photoService.getPlacePhotoSummariesMap(
+			placeIds);
 		// 4. Place -> PlaceDto 변환
 		List<PlaceDto> placeDtos = places.stream()
 			.map(place -> PlaceDto.from(

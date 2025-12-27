@@ -9,6 +9,7 @@ import com.server.domain.photo.repository.PhotoRepository;
 import com.server.domain.place.entity.Place;
 import com.server.domain.review.entity.Review;
 import com.server.domain.user.entity.User;
+import com.server.global.constants.PaginationConstants;
 import com.server.global.error.code.PhotoErrorCode;
 import com.server.global.error.exception.BusinessException;
 import com.server.global.pagination.dto.ApiCursorPaginationRequest;
@@ -32,8 +33,8 @@ public class PhotoService {
 
 	private final PhotoRepository photoRepository;
 	private final PaginationService paginationService;
-	private final static int REVIEW_DEFAULT_PHOTO_LIMIT = 4;
-	private final static int PLACE_DEFAULT_PHOTO_LIMIT = 30;
+	private final int PLACE_PHOTO_LIMIT = PaginationConstants.PLACE_PHOTO_LIMIT;
+	private final int REVIEW_PHOTO_LIMIT = PaginationConstants.REVIEW_PHOTO_LIMIT;
 
 	public void save(Photo photo) {
 		photoRepository.save(photo);
@@ -55,7 +56,7 @@ public class PhotoService {
 	}
 
 	public List<PhotoDto> getPlaceTopPhotos(Place place) {
-		Pageable pageable = PageRequest.of(0, PLACE_DEFAULT_PHOTO_LIMIT);
+		Pageable pageable = PageRequest.of(0, PLACE_PHOTO_LIMIT);
 		List<Photo> photos = photoRepository.findPhotosByPlaceIdAndType(place.getId(),
 			PhotoType.PUBLIC,
 			pageable);
@@ -71,7 +72,7 @@ public class PhotoService {
 
 	/**
 	 * 커서 기반 페이징으로 장소의 사진 조회
-	 * 
+	 *
 	 * <p>ID 기준으로 정렬하여 최근 생성된 사진부터 조회합니다.
 	 *
 	 * @param place       장소
@@ -84,7 +85,7 @@ public class PhotoService {
 		ApiCursorPaginationRequest pageRequest) {
 
 		// 1. Executor 생성
-		CursorQueryExecutor<Photo, Long> executor = 
+		CursorQueryExecutor<Photo, Long> executor =
 			new PhotoCursorQueryExecutor(photoRepository, place.getId(), PhotoType.PUBLIC);
 
 		// 2. Context 구성
@@ -112,7 +113,7 @@ public class PhotoService {
 	 */
 	@Transactional(readOnly = true)
 	public Map<Long, List<String>> getPhotosGroupedByReview(List<Review> reviews, Place place) {
-		Pageable pageable = PageRequest.of(0, REVIEW_DEFAULT_PHOTO_LIMIT);
+		Pageable pageable = PageRequest.of(0, REVIEW_PHOTO_LIMIT);
 
 		return reviews.stream()
 			.collect(Collectors.toMap(
@@ -140,7 +141,7 @@ public class PhotoService {
 		List<Photo> photos = photoRepository.findLimitedPhotosPerPlace(
 			placeIds,
 			PhotoType.PUBLIC.name(),
-			PLACE_DEFAULT_PHOTO_LIMIT
+			PLACE_PHOTO_LIMIT
 		);
 
 		return photos.stream()
@@ -155,7 +156,7 @@ public class PhotoService {
 		List<Photo> photos = photoRepository.findLimitedPhotosPerPlace(
 			placeIds,
 			PhotoType.PUBLIC.name(),
-			PLACE_DEFAULT_PHOTO_LIMIT
+			PLACE_PHOTO_LIMIT
 		);
 
 		return photos.stream()
@@ -260,8 +261,7 @@ public class PhotoService {
 	}
 
 	/**
-	 * 여러 (placeId, userId) 쌍에 대해 한 번에 사진을 조회하여 Map으로 반환
-	 * N+1 문제를 해결하기 위한 배치 조회 메서드
+	 * 여러 (placeId, userId) 쌍에 대해 한 번에 사진을 조회하여 Map으로 반환 N+1 문제를 해결하기 위한 배치 조회 메서드
 	 *
 	 * @param placeIds 장소 ID 목록
 	 * @param userIds  사용자 ID 목록 (placeIds와 동일한 순서로 매핑됨)

@@ -214,43 +214,31 @@ class SearchFacadeTest {
 			.build();
 
 		// 3. RoutePlace 엔티티 생성 (Route와 Place 연결)
-		RoutePlace rp1 = RoutePlace.builder()
-			.id(1L)
-			.route(route1)
-			.place(place1)
-			.placeOrder(1)
-			.build();
+		RoutePlace rp1 = new RoutePlace(route1, place1);
+		rp1.setPlaceOrder(1);
 
-		RoutePlace rp2 = RoutePlace.builder()
-			.id(2L)
-			.route(route1)
-			.place(place2)
-			.placeOrder(2)
-			.build();
+		RoutePlace rp2 = new RoutePlace(route1, place2);
+		rp2.setPlaceOrder(2);
 
-		RoutePlace rp3 = RoutePlace.builder()
-			.id(3L)
-			.route(route2)
-			.place(place3)
-			.placeOrder(1)
-			.build();
+		RoutePlace rp3 = new RoutePlace(route2, place3);
+		rp3.setPlaceOrder(1);
 
 		List<RoutePlace> routePlaces = List.of(rp1, rp2, rp3);
 
 		// 4. PhotoSummary 생성
 		PhotoSummary photo1 = PhotoSummary.builder()
-			.id(1L)
-			.imgUrl("http://example.com/photo1.jpg")
+			.photoId(1L)
+			.imageUrl("http://example.com/photo1.jpg")
 			.build();
 
 		PhotoSummary photo2 = PhotoSummary.builder()
-			.id(2L)
-			.imgUrl("http://example.com/photo2.jpg")
+			.photoId(2L)
+			.imageUrl("http://example.com/photo2.jpg")
 			.build();
 
 		PhotoSummary photo3 = PhotoSummary.builder()
-			.id(3L)
-			.imgUrl("http://example.com/photo3.jpg")
+			.photoId(3L)
+			.imageUrl("http://example.com/photo3.jpg")
 			.build();
 
 		Map<Long, List<PhotoSummary>> photoSummariesMap = Map.of(
@@ -373,16 +361,12 @@ class SearchFacadeTest {
 			.name("카페 A")
 			.build();
 
-		RoutePlace rp1 = RoutePlace.builder()
-			.id(1L)
-			.route(route1)
-			.place(place1)
-			.placeOrder(1)
-			.build();
+		RoutePlace rp1 = new RoutePlace(route1, place1);
+		rp1.setPlaceOrder(1);
 
 		PhotoSummary photo1 = PhotoSummary.builder()
-			.id(1L)
-			.imgUrl("http://example.com/photo1.jpg")
+			.photoId(1L)
+			.imageUrl("http://example.com/photo1.jpg")
 			.build();
 
 		when(routeService.searchByKeyword(keyword)).thenReturn(List.of(route1));
@@ -459,12 +443,8 @@ class SearchFacadeTest {
 			.name("카페 A")
 			.build();
 
-		RoutePlace rp1 = RoutePlace.builder()
-			.id(1L)
-			.route(route1)
-			.place(place1)
-			.placeOrder(1)
-			.build();
+		RoutePlace rp1 = new RoutePlace(route1, place1);
+		rp1.setPlaceOrder(1);
 
 		when(routeService.searchByKeyword(keyword)).thenReturn(List.of(route1));
 		when(routeService.getPlacesInRoutes(List.of(route1))).thenReturn(List.of(rp1));
