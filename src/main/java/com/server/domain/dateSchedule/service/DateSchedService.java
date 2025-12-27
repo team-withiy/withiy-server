@@ -105,12 +105,9 @@ public class DateSchedService {
 		LocalDate scheduleAt,
 		User user
 	) {
-		// 원본 Route 조회
-		Route sourceRoute = routeRepository.findById(sourceRouteId)
+		// 원본 Route와 RoutePlace를 함께 조회 (JOIN FETCH 사용으로 N+1 문제 방지)
+		Route sourceRoute = routeRepository.findByIdWithRoutePlaces(sourceRouteId)
 			.orElseThrow(() -> new BusinessException(RouteErrorCode.NOT_FOUND));
-
-		// RoutePlace 함께 로딩 (복제를 위해)
-		sourceRoute.getRoutePlaces().size(); // 초기화
 
 		// DateSchedule 생성
 		DateSchedule dateSchedule = DateSchedule.createFromExistingRoute(
