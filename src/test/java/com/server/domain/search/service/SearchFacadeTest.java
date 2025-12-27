@@ -171,8 +171,14 @@ class SearchFacadeTest {
 		request.setTargetType(SearchTargetType.ROUTE);
 		request.setPageType(SearchPageType.MAIN);
 
-		List<RouteDto> routes = List.of(routeDto1);
-		when(routeService.searchRoutesByKeyword(keyword, user)).thenReturn(routes);
+		// RouteDto가 아닌 Route 객체로 반환하도록 수정 필요
+		List<com.server.domain.route.entity.Route> routes = List.of(
+			com.server.domain.route.entity.Route.builder()
+				.id(1L)
+				.name("데이트 코스")
+				.build()
+		);
+		when(routeService.searchByKeyword(keyword)).thenReturn(routes);
 
 		// when
 		SearchResultResponse result = searchFacade.search(user, request);
@@ -186,7 +192,7 @@ class SearchFacadeTest {
 		);
 
 		verify(searchService).saveSearchHistory(user, keyword);
-		verify(routeService).searchRoutesByKeyword(keyword, user);
+		verify(routeService).searchByKeyword(keyword);
 		verify(placeService, never()).searchByKeyword(anyString());
 	}
 
@@ -226,7 +232,7 @@ class SearchFacadeTest {
 		request.setTargetType(SearchTargetType.ROUTE);
 		request.setPageType(SearchPageType.MAIN);
 
-		when(routeService.searchRoutesByKeyword(keyword, user)).thenReturn(List.of());
+		when(routeService.searchByKeyword(keyword)).thenReturn(List.of());
 
 		// when
 		SearchResultResponse result = searchFacade.search(user, request);
@@ -239,7 +245,7 @@ class SearchFacadeTest {
 		);
 
 		verify(searchService).saveSearchHistory(user, keyword);
-		verify(routeService).searchRoutesByKeyword(keyword, user);
+		verify(routeService).searchByKeyword(keyword);
 	}
 
 	@Test
@@ -314,7 +320,7 @@ class SearchFacadeTest {
 		request.setTargetType(SearchTargetType.ROUTE);
 		request.setPageType(SearchPageType.MAIN);
 
-		when(routeService.searchRoutesByKeyword(keyword, user)).thenReturn(List.of());
+		when(routeService.searchByKeyword(keyword)).thenReturn(List.of());
 
 		// when
 		searchFacade.search(user, request);

@@ -105,4 +105,23 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 	List<Photo> findLimitedPhotosPerPlace(@Param("placeIds") List<Long> placeIds,
 		@Param("type") String type,
 		@Param("limit") int limit);
+
+	@Query("SELECT p.imgUrl FROM Photo p " +
+		"WHERE p.place.id = :placeId " +
+		"AND p.user.id = :userId " +
+		"AND p.type = :type " +
+		"ORDER BY p.createdAt DESC")
+	List<String> findImageUrlsByPlaceIdAndUserIdAndType(Long placeId, Long userId, PhotoType type,
+		Pageable pageable);
+
+	@Query("SELECT p FROM Photo p " +
+		"JOIN FETCH p.user u " +
+		"WHERE p.place.id = :placeId " +
+		"AND p.user.id = :userId " +
+		"AND p.type = :type " +
+		"ORDER BY p.createdAt DESC")
+	List<Photo> findPhotosByPlaceAndUserAndType(@Param("placeId") Long placeId,
+		@Param("userId") Long userId,
+		@Param("type") PhotoType type,
+		Pageable pageable);
 }

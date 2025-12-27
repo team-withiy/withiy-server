@@ -104,11 +104,11 @@ public class PhotoService {
 	}
 
 	/**
-	 * 리뷰 목록과 장소를 받아, 각 리뷰 작성자가 해당 앨범에 올린 사진 URL을 리뷰 ID 기준으로 매핑하여 반환
+	 * 리뷰 목록과 장소를 받아, 각 리뷰 작성자가 해당 장소에 올린 공개 사진 URL을 리뷰 ID 기준으로 매핑하여 반환
 	 *
 	 * @param reviews 리뷰 목록
 	 * @param place   장소
-	 * @return 리뷰 ID를 키로, 해당 리뷰 작성자가 앨범에 올린 사진 URL 목록을 값으로 하는 맵
+	 * @return 리뷰 ID를 키로, 해당 리뷰 작성자가 해당 장소에 올린 공개 사진 URL 목록을 값으로 하는 맵
 	 */
 	@Transactional(readOnly = true)
 	public Map<Long, List<String>> getPhotosGroupedByReview(List<Review> reviews, Place place) {
@@ -116,9 +116,12 @@ public class PhotoService {
 
 		return reviews.stream()
 			.collect(Collectors.toMap(
-				review -> review.getId(),
-				review -> photoRepository.findImageUrlsByPlaceIdAndType(place.getId(),
-					PhotoType.PUBLIC, pageable)
+				Review::getId,
+				review -> photoRepository.findImageUrlsByPlaceIdAndUserIdAndType(
+					place.getId(),
+					review.getUser().getId(),
+					PhotoType.PUBLIC,
+					pageable)
 			));
 	}
 
@@ -224,5 +227,35 @@ public class PhotoService {
 			.filter(photo -> photo != null)
 			.map(PhotoDto::from)
 			.collect(Collectors.toList());
+	}
+
+	/**
+	 * 여러 장소별 제한된 개수의 사진 조회
+	 *
+	 * @param placeIds 장소 ID 목록
+	 * @param limit    각 장소별 최대 사진 개수
+	 * @return 장소별 사진 목록
+	 */
+	@Transactional(readOnly = true)
+	public List<Photo> getLimitedPhotosPerPlace(List<Long> placeIds, int limit) {
+		if (placeIds == null || placeIds.isEmpty()) {
+			return Collections.emptyList();
+		}
+		return photoRepository.findLimitedPhotosPerPlace(
+			placeIds, PhotoType.PUBLIC.name(), limit);
+	}
+
+	/**
+	 * 특정 사용자가 특정 장소에 업로드한 공개 사진 조회
+	 *
+	 * @param placeId 장소 ID
+	 * @param userId  사용자 ID
+	 * @param limit   최대 사진 개수
+	 * @return 사진 목록
+	 */
+	@Transactional(readOnly = true)
+	public List<Photo> getPhotosByPlaceAndUser(Long placeId, Long userId, int limit) {
+		return photoRepository.findPhotosByPlaceAndUserAndType(
+			placeId, userId, PhotoType.PUBLIC, PageRequest.of(0, limit));
 	}
 }

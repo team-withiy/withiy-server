@@ -14,7 +14,6 @@ import com.server.domain.dateSchedule.service.DateSchedService;
 import com.server.domain.user.entity.Couple;
 import com.server.domain.user.entity.User;
 import com.server.domain.user.service.CoupleService;
-import com.server.global.error.code.AlbumErrorCode;
 import com.server.global.error.exception.BusinessException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +27,8 @@ public class AlbumFacade {
 
 	private final AlbumService albumService;
 	private final AlbumCommentService albumCommentService;
-    private final CoupleService coupleService;
-    private final DateSchedService dateSchedService;
+	private final CoupleService coupleService;
+	private final DateSchedService dateSchedService;
 
 	public AlbumPageResponse getAlbums(User user, int page, int size, String order)
 		throws Exception {
@@ -54,14 +53,14 @@ public class AlbumFacade {
 		return new AlbumDetailResponse(albumResponse, comments);
 	}
 
-    @Transactional
-    public void deleteAlbum(User user, Long albumId) {
-        DateSchedule dateSchedule = dateSchedService.findByUserAndAlbum_Id(user, albumId);
+	@Transactional
+	public void deleteAlbum(User user, Long albumId) {
+		DateSchedule dateSchedule = dateSchedService.findByUserAndAlbumId(user, albumId);
 
-        Album album = dateSchedule.getAlbum();
-        album.delete();
-        dateSchedule.deleteAlbum();
-    }
+		Album album = dateSchedule.getAlbum();
+		album.delete();
+		dateSchedule.deleteAlbum();
+	}
 
 	@Transactional
 	public void writeComment(User user, AlbumCommentRequest request) {

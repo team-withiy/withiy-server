@@ -1,22 +1,23 @@
 package com.server.domain.route.dto;
 
-
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-
 @Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RouteDetailDto {
+public class PlaceDetailInRouteDto {
 
-	private Long routeId;
+	private Long placeId;
 	private String name;
-	private List<PlaceDetailInRouteDto> places;
-	private List<ReviewInRouteDto> reviews;
+	private CategoryInRouteDto category;
+	private String address;
+	private Double latitude;
+	private Double longitude;
+	private List<PhotoInRouteDto> photos;
 
 }
