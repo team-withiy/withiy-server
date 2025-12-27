@@ -140,6 +140,6 @@ public class Route extends BaseTime {
 	 * Place 제거
 	 */
 	public void removePlace(Place place) {
-		this.routePlaces.removeIf(rp -> rp.getPlace().equals(place));
+		this.routePlaces.removeIf(rp -> rp.getPlace().getId().equals(place.getId()));
 	}
 }
