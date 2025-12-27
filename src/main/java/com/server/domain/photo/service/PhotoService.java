@@ -258,4 +258,33 @@ public class PhotoService {
 		return photoRepository.findPhotosByPlaceAndUserAndType(
 			placeId, userId, PhotoType.PUBLIC, PageRequest.of(0, limit));
 	}
+
+	/**
+	 * 여러 (placeId, userId) 쌍에 대해 한 번에 사진을 조회하여 Map으로 반환
+	 * N+1 문제를 해결하기 위한 배치 조회 메서드
+	 *
+	 * @param placeIds 장소 ID 목록
+	 * @param userIds  사용자 ID 목록 (placeIds와 동일한 순서로 매핑됨)
+	 * @param limit    각 (placeId, userId) 쌍별 최대 사진 개수
+	 * @return (placeId, userId) 쌍을 키로, 사진 목록을 값으로 하는 Map
+	 */
+	@Transactional(readOnly = true)
+	public Map<String, List<Photo>> getPhotosByPlaceAndUserBatch(
+		List<Long> placeIds, List<Long> userIds, int limit) {
+		if (placeIds == null || placeIds.isEmpty() ||
+			userIds == null || userIds.isEmpty() ||
+			placeIds.size() != userIds.size()) {
+			return Collections.emptyMap();
+		}
+
+		List<Photo> photos = photoRepository.findLimitedPhotosPerPlaceAndUser(
+			placeIds, userIds, PhotoType.PUBLIC.name(), limit);
+
+		// (placeId, userId) 쌍을 키로 사용하기 위한 Map 생성
+		// 키 형식: "placeId:userId"
+		return photos.stream()
+			.collect(Collectors.groupingBy(
+				photo -> photo.getPlace().getId() + ":" + photo.getUser().getId()
+			));
+	}
 }

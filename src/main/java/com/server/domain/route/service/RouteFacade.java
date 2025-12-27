@@ -102,14 +102,25 @@ public class RouteFacade {
 		List<PlaceReview> placeReviews = placeReviewService.getRecentReviewsByPlaceIds(
 			placeIds, 10);
 
-		// 7. 리뷰별 사진 조회 (리뷰어가 해당 장소에 업로드한 공개 사진 최신 10개)
+		// 7. 리뷰별 사진 조회 - N+1 문제 해결을 위한 배치 조회
+		// 리뷰에서 (placeId, userId) 쌍을 추출
+		List<Long> reviewPlaceIds = placeReviews.stream()
+			.map(review -> review.getPlace().getId())
+			.collect(Collectors.toList());
+
+		List<Long> reviewUserIds = placeReviews.stream()
+			.map(review -> review.getUser().getId())
+			.collect(Collectors.toList());
+
+		// 한 번의 쿼리로 모든 리뷰의 사진 조회
+		Map<String, List<Photo>> photosByPlaceAndUser =
+			photoService.getPhotosByPlaceAndUserBatch(reviewPlaceIds, reviewUserIds, 10);
+
+		// 리뷰 DTO 생성
 		List<ReviewInRouteDto> reviews = placeReviews.stream()
 			.map(review -> {
-				List<Photo> reviewPhotos = photoService.getPhotosByPlaceAndUser(
-					review.getPlace().getId(),
-					review.getUser().getId(),
-					10
-				);
+				String key = review.getPlace().getId() + ":" + review.getUser().getId();
+				List<Photo> reviewPhotos = photosByPlaceAndUser.getOrDefault(key, List.of());
 
 				List<ReviewPhotoDto> photos = reviewPhotos.stream()
 					.map(ReviewPhotoDto::from)
