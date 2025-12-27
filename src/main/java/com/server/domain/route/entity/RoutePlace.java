@@ -37,6 +37,9 @@ public class RoutePlace {
 	@JoinColumn(name = "place_id", nullable = false)
 	private Place place;
 
+	@Column(name = "place_order")
+	private Integer placeOrder;
+
 	public RoutePlace(Route route, Place place) {
         this.route = route;
         this.place = place;
