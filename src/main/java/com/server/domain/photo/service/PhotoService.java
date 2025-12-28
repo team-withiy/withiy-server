@@ -33,8 +33,8 @@ public class PhotoService {
 
 	private final PhotoRepository photoRepository;
 	private final PaginationService paginationService;
-	private final int PLACE_PHOTO_LIMIT = PaginationConstants.PLACE_PHOTO_LIMIT;
-	private final int REVIEW_PHOTO_LIMIT = PaginationConstants.REVIEW_PHOTO_LIMIT;
+	private final static int PLACE_PHOTO_LIMIT = PaginationConstants.PLACE_PHOTO_LIMIT;
+	private final static int REVIEW_PHOTO_LIMIT = PaginationConstants.REVIEW_PHOTO_LIMIT;
 
 	public void save(Photo photo) {
 		photoRepository.save(photo);

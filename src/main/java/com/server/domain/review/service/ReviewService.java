@@ -31,7 +31,7 @@ public class ReviewService {
 
 	private final ReviewRepository reviewRepository;
 	private final PaginationService paginationService;
-	private final int PLACE_REVIEW_LIMIT = PaginationConstants.PLACE_REVIEW_LIMIT;
+	private final static int PLACE_REVIEW_LIMIT = PaginationConstants.PLACE_REVIEW_LIMIT;
 
 	@Transactional
 	public Review save(Place place, User user, String contents, Long score) {

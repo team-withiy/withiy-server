@@ -27,7 +27,7 @@ public class FolderFacade {
 	private final FolderService folderService;
 	private final PlaceService placeService;
 	private final PhotoService photoService;
-	private final int FOLDER_THUMBNAIL_LIMIT = PaginationConstants.FOLDER_THUMBNAIL_LIMIT;
+	private final static int FOLDER_THUMBNAIL_LIMIT = PaginationConstants.FOLDER_THUMBNAIL_LIMIT;
 
 	@Transactional(readOnly = true)
 	public CursorPageDto<PlaceSummaryDto, Long> getFolderPlaces(Long folderId, User user,

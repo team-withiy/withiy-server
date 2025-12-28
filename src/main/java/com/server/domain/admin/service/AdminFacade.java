@@ -36,7 +36,7 @@ public class AdminFacade {
 	private final PhotoService photoService;
 	private final RouteService routeService;
 	private final FolderService folderService;
-	private final int PLACE_PHOTO_LIMIT = PaginationConstants.PLACE_PHOTO_LIMIT;
+	private final static int PLACE_PHOTO_LIMIT = PaginationConstants.PLACE_PHOTO_LIMIT;
 
 	@Transactional(readOnly = true)
 	public ActiveContentsResponse getActiveContents(String categoryName, String keyword) {

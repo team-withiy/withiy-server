@@ -35,9 +35,9 @@ public class RouteFacade {
 	private final RouteService routeService;
 	private final PhotoService photoService;
 	private final PlaceReviewService placeReviewService;
-	private final int PLACE_PHOTO_LIMIT = PaginationConstants.PLACE_PHOTO_LIMIT;
-	private final int REVIEW_PHOTO_LIMIT = PaginationConstants.REVIEW_PHOTO_LIMIT;
-	private final int PLACE_REVIEW_LIMIT = PaginationConstants.PLACE_REVIEW_LIMIT;
+	private final static int PLACE_PHOTO_LIMIT = PaginationConstants.PLACE_PHOTO_LIMIT;
+	private final static int REVIEW_PHOTO_LIMIT = PaginationConstants.REVIEW_PHOTO_LIMIT;
+	private final static int PLACE_REVIEW_LIMIT = PaginationConstants.PLACE_REVIEW_LIMIT;
 
 	/**
 	 * 코스 상세 조회
