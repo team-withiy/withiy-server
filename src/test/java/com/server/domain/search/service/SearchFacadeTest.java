@@ -13,9 +13,14 @@ import static org.mockito.Mockito.when;
 import com.server.domain.map.dto.MapPlaceDto;
 import com.server.domain.map.dto.request.KeywordSearchRequest;
 import com.server.domain.map.service.MapService;
+import com.server.domain.photo.dto.PhotoSummary;
+import com.server.domain.photo.service.PhotoService;
 import com.server.domain.place.dto.PlaceDto;
+import com.server.domain.place.entity.Place;
 import com.server.domain.place.service.PlaceService;
 import com.server.domain.route.dto.RouteDto;
+import com.server.domain.route.entity.Route;
+import com.server.domain.route.entity.RoutePlace;
 import com.server.domain.route.service.RouteService;
 import com.server.domain.search.dto.SearchHistoryDto;
 import com.server.domain.search.dto.SearchResultResponse;
@@ -24,7 +29,9 @@ import com.server.domain.search.entity.SearchPageType;
 import com.server.domain.search.entity.SearchTargetType;
 import com.server.domain.user.entity.User;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,6 +55,9 @@ class SearchFacadeTest {
 
 	@Mock
 	private MapService mapService;
+
+	@Mock
+	private PhotoService photoService;
 
 	@InjectMocks
 	private SearchFacade searchFacade;
@@ -162,8 +172,8 @@ class SearchFacadeTest {
 	}
 
 	@Test
-	@DisplayName("루트 검색")
-	void search_RouteTarget() {
+	@DisplayName("루트 검색 - 전체 로직 검증 (모든 의존성 mock)")
+	void search_RouteTarget_FullLogic() {
 		// given
 		String keyword = "데이트";
 		SearchResultRequest request = new SearchResultRequest();
@@ -171,14 +181,78 @@ class SearchFacadeTest {
 		request.setTargetType(SearchTargetType.ROUTE);
 		request.setPageType(SearchPageType.MAIN);
 
-		// RouteDto가 아닌 Route 객체로 반환하도록 수정 필요
-		List<com.server.domain.route.entity.Route> routes = List.of(
-			com.server.domain.route.entity.Route.builder()
-				.id(1L)
-				.name("데이트 코스")
-				.build()
+		// 1. Route 엔티티 생성
+		Route route1 = Route.builder()
+			.id(1L)
+			.name("데이트 코스")
+			.build();
+
+		Route route2 = Route.builder()
+			.id(2L)
+			.name("강남 데이트")
+			.build();
+
+		List<Route> routes = List.of(route1, route2);
+
+		// 2. Place 엔티티 생성
+		Place place1 = Place.builder()
+			.id(10L)
+			.name("카페 A")
+			.address("서울시 강남구")
+			.build();
+
+		Place place2 = Place.builder()
+			.id(20L)
+			.name("레스토랑 B")
+			.address("서울시 서초구")
+			.build();
+
+		Place place3 = Place.builder()
+			.id(30L)
+			.name("영화관 C")
+			.address("서울시 강남구")
+			.build();
+
+		// 3. RoutePlace 엔티티 생성 (Route와 Place 연결)
+		RoutePlace rp1 = new RoutePlace(route1, place1);
+		rp1.setPlaceOrder(1);
+
+		RoutePlace rp2 = new RoutePlace(route1, place2);
+		rp2.setPlaceOrder(2);
+
+		RoutePlace rp3 = new RoutePlace(route2, place3);
+		rp3.setPlaceOrder(1);
+
+		List<RoutePlace> routePlaces = List.of(rp1, rp2, rp3);
+
+		// 4. PhotoSummary 생성
+		PhotoSummary photo1 = PhotoSummary.builder()
+			.photoId(1L)
+			.imageUrl("http://example.com/photo1.jpg")
+			.build();
+
+		PhotoSummary photo2 = PhotoSummary.builder()
+			.photoId(2L)
+			.imageUrl("http://example.com/photo2.jpg")
+			.build();
+
+		PhotoSummary photo3 = PhotoSummary.builder()
+			.photoId(3L)
+			.imageUrl("http://example.com/photo3.jpg")
+			.build();
+
+		Map<Long, List<PhotoSummary>> photoSummariesMap = Map.of(
+			10L, List.of(photo1),
+			20L, List.of(photo2),
+			30L, List.of(photo3)
 		);
+
+		// 5. Mock 설정
 		when(routeService.searchByKeyword(keyword)).thenReturn(routes);
+		when(routeService.getPlacesInRoutes(routes)).thenReturn(routePlaces);
+		when(photoService.getPlacePhotoSummariesMap(List.of(10L, 20L, 30L)))
+			.thenReturn(photoSummariesMap);
+		when(routeService.getBookmarkedRoutes(user)).thenReturn(List.of(route1)); // route1만 북마크
 
 		// when
 		SearchResultResponse result = searchFacade.search(user, request);
@@ -187,12 +261,27 @@ class SearchFacadeTest {
 		assertAll(
 			() -> assertNotNull(result),
 			() -> assertNotNull(result.getSearchRoutes()),
-			() -> assertEquals(1, result.getSearchRoutes().size()),
-			() -> assertEquals("데이트 코스", result.getSearchRoutes().get(0).getName())
+			() -> assertEquals(2, result.getSearchRoutes().size()),
+
+			// 첫 번째 루트 검증
+			() -> assertEquals("데이트 코스", result.getSearchRoutes().get(0).getName()),
+			() -> assertEquals(2, result.getSearchRoutes().get(0).getPlaces().size()),
+			() -> assertEquals(2, result.getSearchRoutes().get(0).getPhotos().size()),
+			() -> assertTrue(result.getSearchRoutes().get(0).isBookmarked(), "route1은 북마크되어야 함"),
+
+			// 두 번째 루트 검증
+			() -> assertEquals("강남 데이트", result.getSearchRoutes().get(1).getName()),
+			() -> assertEquals(1, result.getSearchRoutes().get(1).getPlaces().size()),
+			() -> assertEquals(1, result.getSearchRoutes().get(1).getPhotos().size()),
+			() -> assertTrue(!result.getSearchRoutes().get(1).isBookmarked(), "route2는 북마크되지 않아야 함")
 		);
 
+		// verify 전체 의존성 호출 확인
 		verify(searchService).saveSearchHistory(user, keyword);
 		verify(routeService).searchByKeyword(keyword);
+		verify(routeService).getPlacesInRoutes(routes);
+		verify(photoService).getPlacePhotoSummariesMap(List.of(10L, 20L, 30L));
+		verify(routeService).getBookmarkedRoutes(user);
 		verify(placeService, never()).searchByKeyword(anyString());
 	}
 
@@ -246,6 +335,134 @@ class SearchFacadeTest {
 
 		verify(searchService).saveSearchHistory(user, keyword);
 		verify(routeService).searchByKeyword(keyword);
+		// 결과가 없으면 다른 서비스 호출 안됨
+		verify(routeService, never()).getPlacesInRoutes(any());
+		verify(photoService, never()).getPlacePhotoSummariesMap(any());
+		verify(routeService, never()).getBookmarkedRoutes(any());
+	}
+
+	@Test
+	@DisplayName("루트 검색 - 사용자가 null인 경우 (비로그인)")
+	void search_RouteTarget_NullUser() {
+		// given
+		String keyword = "데이트";
+		SearchResultRequest request = new SearchResultRequest();
+		request.setKeyword(keyword);
+		request.setTargetType(SearchTargetType.ROUTE);
+		request.setPageType(SearchPageType.MAIN);
+
+		Route route1 = Route.builder()
+			.id(1L)
+			.name("데이트 코스")
+			.build();
+
+		Place place1 = Place.builder()
+			.id(10L)
+			.name("카페 A")
+			.build();
+
+		RoutePlace rp1 = new RoutePlace(route1, place1);
+		rp1.setPlaceOrder(1);
+
+		PhotoSummary photo1 = PhotoSummary.builder()
+			.photoId(1L)
+			.imageUrl("http://example.com/photo1.jpg")
+			.build();
+
+		when(routeService.searchByKeyword(keyword)).thenReturn(List.of(route1));
+		when(routeService.getPlacesInRoutes(List.of(route1))).thenReturn(List.of(rp1));
+		when(photoService.getPlacePhotoSummariesMap(List.of(10L)))
+			.thenReturn(Map.of(10L, List.of(photo1)));
+
+		// when - user가 null
+		SearchResultResponse result = searchFacade.search(null, request);
+
+		// then
+		assertAll(
+			() -> assertNotNull(result),
+			() -> assertEquals(1, result.getSearchRoutes().size()),
+			() -> assertTrue(!result.getSearchRoutes().get(0).isBookmarked(),
+				"비로그인 사용자는 북마크가 없어야 함")
+		);
+
+		verify(routeService, never()).getBookmarkedRoutes(any());
+	}
+
+	@Test
+	@DisplayName("루트 검색 - 장소가 없는 루트")
+	void search_RouteTarget_NoPlaces() {
+		// given
+		String keyword = "빈코스";
+		SearchResultRequest request = new SearchResultRequest();
+		request.setKeyword(keyword);
+		request.setTargetType(SearchTargetType.ROUTE);
+		request.setPageType(SearchPageType.MAIN);
+
+		Route emptyRoute = Route.builder()
+			.id(1L)
+			.name("빈 코스")
+			.build();
+
+		when(routeService.searchByKeyword(keyword)).thenReturn(List.of(emptyRoute));
+		when(routeService.getPlacesInRoutes(List.of(emptyRoute))).thenReturn(List.of()); // 빈 리스트
+		when(routeService.getBookmarkedRoutes(user)).thenReturn(List.of());
+
+		// when
+		SearchResultResponse result = searchFacade.search(user, request);
+
+		// then
+		assertAll(
+			() -> assertNotNull(result),
+			() -> assertEquals(1, result.getSearchRoutes().size()),
+			() -> assertEquals("빈 코스", result.getSearchRoutes().get(0).getName()),
+			() -> assertTrue(result.getSearchRoutes().get(0).getPlaces().isEmpty()),
+			() -> assertTrue(result.getSearchRoutes().get(0).getPhotos().isEmpty())
+		);
+
+		// 장소가 없으면 사진 조회도 안됨
+		verify(photoService, never()).getPlacePhotoSummariesMap(any());
+	}
+
+	@Test
+	@DisplayName("루트 검색 - 사진이 없는 장소")
+	void search_RouteTarget_NoPhotos() {
+		// given
+		String keyword = "데이트";
+		SearchResultRequest request = new SearchResultRequest();
+		request.setKeyword(keyword);
+		request.setTargetType(SearchTargetType.ROUTE);
+		request.setPageType(SearchPageType.MAIN);
+
+		Route route1 = Route.builder()
+			.id(1L)
+			.name("데이트 코스")
+			.build();
+
+		Place place1 = Place.builder()
+			.id(10L)
+			.name("카페 A")
+			.build();
+
+		RoutePlace rp1 = new RoutePlace(route1, place1);
+		rp1.setPlaceOrder(1);
+
+		when(routeService.searchByKeyword(keyword)).thenReturn(List.of(route1));
+		when(routeService.getPlacesInRoutes(List.of(route1))).thenReturn(List.of(rp1));
+		when(photoService.getPlacePhotoSummariesMap(List.of(10L)))
+			.thenReturn(Map.of()); // 사진 없음
+		when(routeService.getBookmarkedRoutes(user)).thenReturn(List.of());
+
+		// when
+		SearchResultResponse result = searchFacade.search(user, request);
+
+		// then
+		assertAll(
+			() -> assertNotNull(result),
+			() -> assertEquals(1, result.getSearchRoutes().size()),
+			() -> assertEquals(1, result.getSearchRoutes().get(0).getPlaces().size()),
+			() -> assertTrue(result.getSearchRoutes().get(0).getPhotos().isEmpty(),
+				"사진이 없는 장소는 빈 리스트를 반환해야 함")
+		);
 	}
 
 	@Test

@@ -1,8 +1,8 @@
 package com.server.domain.admin.service;
 
 import com.server.domain.admin.dto.ActiveContentsResponse;
-import com.server.domain.admin.dto.ActiveRouteDto;
 import com.server.domain.admin.dto.ActivePlaceDto;
+import com.server.domain.admin.dto.ActiveRouteDto;
 import com.server.domain.category.dto.CategoryDto;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.service.CategoryService;
@@ -17,6 +17,7 @@ import com.server.domain.place.service.PlaceService;
 import com.server.domain.route.entity.Route;
 import com.server.domain.route.service.RouteService;
 import com.server.domain.user.entity.User;
+import com.server.global.constants.PaginationConstants;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,7 +36,7 @@ public class AdminFacade {
 	private final PhotoService photoService;
 	private final RouteService routeService;
 	private final FolderService folderService;
-	private final static int PLACE_DEFAULT_PHOTO_LIMIT = 30;
+	private final static int PLACE_PHOTO_LIMIT = PaginationConstants.PLACE_PHOTO_LIMIT;
 
 	@Transactional(readOnly = true)
 	public ActiveContentsResponse getActiveContents(String categoryName, String keyword) {
@@ -71,7 +72,7 @@ public class AdminFacade {
 		List<String> placeNames = places.stream().map(Place::getName).collect(Collectors.toList());
 		List<Long> placeIds = places.stream().map(Place::getId).collect(Collectors.toList());
 		List<String> photoUrls = photoService.getLimitedPhotoUrlsByPlaceIds(placeIds,
-			PLACE_DEFAULT_PHOTO_LIMIT);
+			PLACE_PHOTO_LIMIT);
 
 		return ActiveRouteDto.builder()
 			.routeId(route.getId())
@@ -90,7 +91,7 @@ public class AdminFacade {
 
 			// 사진 URL 목록 조회
 			List<String> photoUrls = photoService.getLimitedPhotoUrlsByPlaceId(place.getId(),
-				PLACE_DEFAULT_PHOTO_LIMIT);
+				PLACE_PHOTO_LIMIT);
 
 			long bookmarkCount = folderService.countBookmarkedByPlaceId(place.getId());
 

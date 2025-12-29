@@ -7,6 +7,7 @@ import com.server.domain.review.executor.ReviewCursorQueryExecutor;
 import com.server.domain.review.repository.ReviewRepository;
 import com.server.domain.review.repository.projection.PlaceScoreProjection;
 import com.server.domain.user.entity.User;
+import com.server.global.constants.PaginationConstants;
 import com.server.global.pagination.dto.ApiCursorPaginationRequest;
 import com.server.global.pagination.dto.CursorPageDto;
 import com.server.global.pagination.executor.CursorQueryExecutor;
@@ -30,7 +31,7 @@ public class ReviewService {
 
 	private final ReviewRepository reviewRepository;
 	private final PaginationService paginationService;
-	private final static int PLACE_DEFAULT_REVIEW_LIMIT = 5;
+	private final static int PLACE_REVIEW_LIMIT = PaginationConstants.PLACE_REVIEW_LIMIT;
 
 	@Transactional
 	public Review save(Place place, User user, String contents, Long score) {
@@ -52,7 +53,7 @@ public class ReviewService {
 	 */
 	@Transactional(readOnly = true)
 	public List<Review> getTopReviewsByPlace(Place place) {
-		Pageable pageable = PageRequest.of(0, PLACE_DEFAULT_REVIEW_LIMIT);
+		Pageable pageable = PageRequest.of(0, PLACE_REVIEW_LIMIT);
 		return reviewRepository.findByPlaceIdOrderByLatest(place.getId(), pageable);
 	}
 
