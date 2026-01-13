@@ -14,6 +14,7 @@ import com.server.domain.route.dto.RouteDetailDto;
 import com.server.domain.route.dto.UploaderDto;
 import com.server.domain.route.entity.Route;
 import com.server.domain.route.entity.RoutePlace;
+import com.server.domain.user.entity.User;
 import com.server.global.constants.PaginationConstants;
 import com.server.global.error.code.RouteErrorCode;
 import com.server.global.error.exception.BusinessException;
@@ -151,6 +152,32 @@ public class RouteFacade {
 			.places(places)
 			.reviews(reviews)
 			.build();
+	}
+
+	/**
+	 * 코스 북마크 추가/삭제 토글
+	 *
+	 * @param courseId 코스 ID
+	 * @param user     사용자 정보
+	 * @return 처리 결과 메시지
+	 */
+	@Transactional
+	public String toggleBookmark(Long courseId, User user) {
+		Route route = routeService.getRouteById(courseId);
+		return routeService.toggleBookmark(route, user);
+	}
+
+	/**
+	 * 코스 북마크 여부 조회
+	 *
+	 * @param courseId 코스 ID
+	 * @param user     사용자 정보
+	 * @return 북마크 여부
+	 */
+	@Transactional(readOnly = true)
+	public boolean isBookmarked(Long courseId, User user) {
+		Route route = routeService.getRouteById(courseId);
+		return routeService.isBookmarked(route, user);
 	}
 
 }
