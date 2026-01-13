@@ -53,49 +53,56 @@ public class DateSchedFacade {
 
 	@Transactional
 	public void createDateSchedule(User user, DateSchedCreateRequest request) {
+		// 1. Place 목록 준비 (조회 또는 생성)
+		List<Place> places = request.getPlaces().stream()
+			.map(placeDto -> getOrCreatePlace(user, placeDto))
+			.toList();
+
+		// 2. DateSchedule 생성
+		DateSchedule dateSchedule = DateSchedule.builder()
+			.name(request.getName())
+			.scheduleAt(LocalDate.parse(request.getScheduleAt()))
+			.user(user)
+			.build();
+		dateSchedService.save(dateSchedule);
+
+		// 3. Route 생성 (DateSchedule 참조)
 		Route route = Route.builder()
 			.name(request.getName())
 			.status(RouteStatus.WRITE)
 			.createdBy(user)
-			.routeType(request.getPlaces().size() == 1 ? RouteType.PLACE : RouteType.COURSE)
+			.routeType(places.size() == 1 ? RouteType.PLACE : RouteType.COURSE)
+			.dateSchedule(dateSchedule)
 			.build();
 		routeService.saveRoute(route);
 
-		for (DateSchedPlaceDto placeDto : request.getPlaces()) {
-            Long placeId = placeDto.getPlaceId();
-            Place place;
-            if (placeId != null) {
-                 place = placeService.getPlaceById(placeId);
-            } else {
-                validatePlace(placeDto);
-
-                Place newPlace = Place.builder()
-                    .name(request.getName())
-                    .region1depth(placeDto.getRegion1depth())
-                    .region2depth(placeDto.getRegion2depth())
-                    .region3depth(placeDto.getRegion3depth())
-                    .address(placeDto.getAddress())
-                    .latitude(Double.valueOf(placeDto.getLatitude()))
-                    .longitude(Double.valueOf(placeDto.getLongitude()))
-                    .score(0L)
-                    .user(user)
-                    .status(PlaceStatus.WRITE)
-                    .build();
-                place = placeService.save(newPlace);
-            }
-
+		// 4. RoutePlace 생성
+		for (Place place : places) {
 			RoutePlace routePlace = new RoutePlace(route, place);
 			routeService.saveRoutePlace(routePlace);
 		}
+	}
 
-		DateSchedule dateSchedule = DateSchedule.builder()
-			.name(request.getName())
-			.scheduleAt(LocalDate.parse(request.getScheduleAt()))
-			.route(route)
+	private Place getOrCreatePlace(User user, DateSchedPlaceDto placeDto) {
+		if (placeDto.getPlaceId() != null) {
+			return placeService.getPlaceById(placeDto.getPlaceId());
+		}
+
+		validatePlace(placeDto);
+
+		Place newPlace = Place.builder()
+			.name(placeDto.getName())
+			.region1depth(placeDto.getRegion1depth())
+			.region2depth(placeDto.getRegion2depth())
+			.region3depth(placeDto.getRegion3depth())
+			.address(placeDto.getAddress())
+			.latitude(Double.valueOf(placeDto.getLatitude()))
+			.longitude(Double.valueOf(placeDto.getLongitude()))
+			.score(0L)
 			.user(user)
+			.status(PlaceStatus.WRITE)
 			.build();
-
-		dateSchedService.save(dateSchedule);
+		return placeService.save(newPlace);
 	}
 
     public List<DateSchedResponse> getDateSchedule(User user, String format, String date) {

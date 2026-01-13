@@ -76,6 +76,10 @@ public class Route extends BaseTime {
 		this.status = routeStatus;
 	}
 
+	public void updateDateSchedule(DateSchedule dateSchedule) {
+		this.dateSchedule = dateSchedule;
+	}
+
 	/**
 	 * 새로운 Route 생성
 	 */
