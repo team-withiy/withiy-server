@@ -47,4 +47,23 @@ public class RouteBookmark extends BaseTime {
 	@Column(name = "deleted_at", nullable = true)
 	private LocalDateTime deletedAt;
 
+	public static RouteBookmark of(Route route, User user) {
+		RouteBookmark bookmark = new RouteBookmark();
+		bookmark.route = route;
+		bookmark.user = user;
+		return bookmark;
+	}
+
+	public void restore() {
+		this.deletedAt = null;
+	}
+
+	public void softDelete() {
+		this.deletedAt = LocalDateTime.now();
+	}
+
+	public boolean isDeleted() {
+		return this.deletedAt != null;
+	}
+
 }

@@ -9,6 +9,8 @@ import com.server.domain.route.repository.RouteBookmarkRepository;
 import com.server.domain.route.repository.RoutePlaceRepository;
 import com.server.domain.route.repository.RouteRepository;
 import com.server.domain.user.entity.User;
+import com.server.global.error.code.RouteErrorCode;
+import com.server.global.error.exception.BusinessException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,6 +47,37 @@ public class RouteService {
 		return routeBookmarkRepository.findByUserWithRoute(user).stream()
 			.map(RouteBookmark::getRoute)
 			.collect(Collectors.toList());
+	}
+
+	@Transactional
+	public String toggleBookmark(Route route, User user) {
+		Optional<RouteBookmark> existingBookmark = routeBookmarkRepository.findByRouteAndUser(route,
+			user);
+
+		if (existingBookmark.isPresent()) {
+			RouteBookmark bookmark = existingBookmark.get();
+			if (bookmark.isDeleted()) {
+				bookmark.restore();
+				return "코스가 북마크에 추가되었습니다.";
+			} else {
+				bookmark.softDelete();
+				return "코스가 북마크에서 삭제되었습니다.";
+			}
+		} else {
+			RouteBookmark newBookmark = RouteBookmark.of(route, user);
+			routeBookmarkRepository.save(newBookmark);
+			return "코스가 북마크에 추가되었습니다.";
+		}
+	}
+
+	@Transactional(readOnly = true)
+	public boolean isBookmarked(Route route, User user) {
+		return routeBookmarkRepository.existsByRouteAndUserAndDeletedAtIsNull(route, user);
+	}
+
+	public Route getRouteById(Long routeId) {
+		return routeRepository.findById(routeId)
+			.orElseThrow(() -> new BusinessException(RouteErrorCode.NOT_FOUND));
 	}
 
 	@Transactional(readOnly = true)
